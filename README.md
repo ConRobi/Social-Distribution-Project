@@ -3,6 +3,7 @@
 - Auroni Bashar
 - Helena Leung
 - Gyurim Do
+- Stuart Shelley
 
 # Distributed Social Networking Project
 
