@@ -4,6 +4,7 @@
 - Helena Leung
 - Gyurim Do
 - Stuart Shelley
+- Shrishty Gnanasekaran
 
 # Distributed Social Networking Project
 
