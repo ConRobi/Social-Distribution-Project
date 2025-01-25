@@ -5,6 +5,7 @@
 - Gyurim Do
 - Stuart Shelley
 - Shrishty Gnanasekaran
+- Connor Robinson
 
 # Distributed Social Networking Project
 
