@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile</title>
+</head>
+<body>
+    <h2>Create Profile</h2>
+    <form method="POST" enctype="multipart/form-data", action="{% url 'SocialDistribution:add_profile'%}">
+        {% csrf_token %}
+        <label for="display_name">Display Name:</label>
+        <input type="text" name="display_name" required><br><br>
+
+        <label for="github">GitHub URL:</label>
+        <input type="url" name="github" required><br><br>
+
+        <label for="profile_image">Upload Profile Image:</label>
+        <input type="file" name="profile_image" accept="image/*"><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
