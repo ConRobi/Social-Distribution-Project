@@ -8,5 +8,7 @@ urlpatterns = [
     # Create profile interface page
     path("create-profile", views.create_profile, name="create-profile"),
     # API endpoint for adding profile
-    path("add-profile", views.add_profile, name = "add-profile")
+    path("add-profile", views.add_profile, name = "add-profile"),
+    # View profile page
+    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile")
 ]
