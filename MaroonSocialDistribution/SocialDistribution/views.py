@@ -11,15 +11,20 @@ def index(request):
     return render(request, "index.html")
 
 def create_profile(request):
+    '''
+    Renders create profile page
+    '''
+
     return render(request, "create_profile.html")
 
 @api_view(['POST'])
 def add_profile(request):
     '''
-    Add profile called when create-profile form is submitted.
+    Add profile POST request called when create-profile form is submitted.
+    Adds a new author profile to database.
     '''
     
-    # Get form fields
+    # Get submitted form fields
     display_name = request.POST.get("display_name")
     github = request.POST.get("github")
     profile_image = request.POST.get("profile_image")  
@@ -45,5 +50,4 @@ def view_profile(request, uuid):
     ''' View profile page with uuid as url path'''
 
     author = get_object_or_404(Author, uuid=uuid)
-    print(uuid)
     return render(request, "view_profile.html", {"author": author})

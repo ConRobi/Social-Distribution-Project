@@ -3,6 +3,8 @@ import uuid
 
 # Create your models here.
 class Author(models.Model):
+    # Model based on object:
+    # https://uofa-cmput404.github.io/general/project.html#single-author-api:~:text=API%20Objects-,Example%20Author%20Objects,-%7B%0A%20%20%20%20//%20Author%20object
     
     type = models.CharField(max_length=10, default='author')
     id = models.URLField()
