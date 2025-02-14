@@ -271,3 +271,6 @@ dist
 # min -js stuff
 *.min.js
 *.min.js.map
+
+# Ignore migations - creates merge conflicts
+MaroonSocialDistribution/SocialDistribution/migrations/
