@@ -7,7 +7,7 @@
 </head>
 <body>
     <h2>Create Profile</h2>
-    <form method="POST" enctype="multipart/form-data", action="{% url 'SocialDistribution:add_profile'%}">
+    <form method="POST" enctype="multipart/form-data", action="{% url 'SocialDistribution:add-profile'%}">
         {% csrf_token %}
         <label for="display_name">Display Name:</label>
         <input type="text" name="display_name" required><br><br>
