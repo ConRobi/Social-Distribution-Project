@@ -10,5 +10,8 @@
     <p>Display name: {{ author.display_name }}</p>
     <p>Github Account: {{ author.github }}</p>
     <p>Profile Image: {{ author.profile_image }}</p>
+    <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
+        <button>Edit Profile</button>
+    </a>
 </body>
 </html>
