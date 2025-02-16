@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .models import Author
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -60,7 +60,6 @@ def view_profile(request, uuid):
     author = get_object_or_404(Author, uuid=uuid)
     return render(request, "view_profile.html", {"author": author})
 
-
 @api_view(['GET'])
 def authors_list(request):
     authors = Author.objects.all()
@@ -78,4 +77,35 @@ def authors_list(request):
 
     # Return paginated response
     return paginator.get_paginated_response(serializer.data)
+
+def edit_profile(request, uuid):
+    '''
+    Renders edit profile page
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    return render(request, "edit_profile.html", {"author": author})
+
+@api_view(['POST'])
+def update_profile(request, uuid):
+    '''
+    Edit profile POST request called when edit-profile form is submitted.
+    Updates author fields if new input is provided to them.
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    profile_image_url = request.POST.get("profile_image")
+    # if a new image url is provided, set it to corresponding field
+    # TODO need to handle saving profile image uploaded as url??
+    if profile_image_url:
+        author.profile_image = profile_image_url
+
+    # update display_name if new display name is provided
+    author.display_name = request.POST.get("display_name")
+
+    # update github if new github url is provided
+    author.github = request.POST.get("github")
+
+    author.save()
+
+    # redirect back to view profile page
+    return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
 
