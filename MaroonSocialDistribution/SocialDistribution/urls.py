@@ -10,5 +10,8 @@ urlpatterns = [
     # API endpoint for adding profile
     path("add-profile", views.add_profile, name = "add-profile"),
     # View profile page
-    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile")
+    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"),
+    # API endpoint for "Authors API"
+    path("api/authors", views.authors_list, name="authors-list"),
+    #TODO API endpoint for "Single Author API"
 ]

@@ -5,6 +5,9 @@ from .models import Author
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+
+from .serializers import AuthorSerializer
 
 
 def index(request):
@@ -51,3 +54,23 @@ def view_profile(request, uuid):
 
     author = get_object_or_404(Author, uuid=uuid)
     return render(request, "view_profile.html", {"author": author})
+
+
+@api_view(['GET'])
+def authors_list(request):
+    authors = Author.objects.all()
+    
+    # Pagination
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size=
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+
+    paginated_authors = paginator.paginate_queryset(authors, request)
+
+    # Serialize paginated data
+    serializer = AuthorSerializer(paginated_authors, many=True)
+
+    # Return paginated response
+    return paginator.get_paginated_response(serializer.data)
+
