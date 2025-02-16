@@ -26,8 +26,9 @@ def add_profile(request):
     Add profile POST request called when create-profile form is submitted.
     Adds a new author profile to database.
     '''
-    
+
     # Get submitted form fields
+    
     display_name = request.POST.get("display_name")
     github = request.POST.get("github")
     profile_image = request.POST.get("profile_image")  
@@ -41,9 +42,13 @@ def add_profile(request):
     # Write new author to db
     new_author = Author.objects.create(display_name=display_name, profile_image=profile_image, github=github)
     
-    # Create db field "page" URL based on UUID
-    # TODO need to prefix /SocialDistribution with node eg. node1/SocialDistribution
-    new_author.page = f"/SocialDistribution/authors/{new_author.uuid}"
+    # Create URL based fields based on UUID
+    node_url = "http://maroonnode.com"  # TODO need to prefix /SocialDistribution with node eg. node1/SocialDistribution
+    new_author.id = f"{node_url}/api/authors/{new_author.uuid}" 
+    new_author.host = f"{node_url}/api" 
+    new_author.page = f"{node_url}/authors/{new_author.uuid}"
+
+    new_author.save()
 
     # Redirect to view profile
     url = f"authors/{new_author.uuid}"
