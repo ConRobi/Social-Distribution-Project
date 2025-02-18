@@ -58,8 +58,9 @@ def view_profile(request, uuid):
     ''' View profile page with uuid as url path'''
 
     author = get_object_or_404(Author, uuid=uuid)
-    posts = Post.objects.filter(author=author)
-    return render(request, "view_profile.html", {"author": author, "posts": posts})
+    # Get public posts made by the author (most recent posts first)
+    public_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
+    return render(request, "view_profile.html", {"author": author, "posts": public_posts})
 
 @api_view(['GET'])
 def authors_list(request):
@@ -153,4 +154,4 @@ def add_post(request, uuid):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    return HttpResponseRedirect(reverse("SocialDistribution:author-posts", args=(author.uuid,)))
+    return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))

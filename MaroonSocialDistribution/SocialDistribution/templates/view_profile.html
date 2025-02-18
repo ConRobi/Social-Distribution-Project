@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
 </head>
 <body>
     <h2>My Profile</h2>
@@ -13,7 +15,7 @@
     <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
         <button>Edit Profile</button>
     </a>
-    <a href="{% url 'SocialDistribution:create-post' author.uuid %}">Create New Post</a>
+    <a href="{% url 'SocialDistribution:create-post' author.uuid %}"><button>New Post</button></a>
     {% if posts %}
         <ul>
             {% for post in posts %}
@@ -22,6 +24,7 @@
                     <p>{{ post.description }}</p>
                     <p>{{ post.content }}</p>
                     <p>Visibility: {{ post.visibility }}</p>
+                    <p>Published: {{ post.published }}</p>
                 </li>
             {% endfor %}
         </ul>
