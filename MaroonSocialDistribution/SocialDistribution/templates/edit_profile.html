@@ -9,20 +9,22 @@
 
 </head>
 <body>
-    <h2>Edit Profile</h2>
-    <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
-    <form method="POST" enctype="multipart/form-data", action="{% url 'SocialDistribution:update-profile' author.uuid %}">
-        {% csrf_token %}
-        <label for="display_name">Display Name:</label>
-        <input type="text" name="display_name" value="{{ author.display_name }}" required><br><br>
+    <div class="edit_profile_body">
+        <h2>Edit Profile</h2>
+        <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'SocialDistribution:update-profile' author.uuid %}">
+            {% csrf_token %}
+            <label for="display_name">Display Name:</label>
+            <input type="text" name="display_name" value="{{ author.display_name }}" required><br><br>
 
-        <label for="github">GitHub URL:</label>
-        <input type="url" name="github" value="{{ author.github }}" required><br><br>
+            <label for="github">GitHub URL:</label>
+            <input type="url" name="github" value="{{ author.github }}" required><br><br>
 
-        <label for="profile_image">Upload Profile Image:</label>
-        <input type="file" name="profile_image" accept="image/*"><br><br>
+            <label for="profile_image">Upload Profile Image:</label>
+            <input type="file" name="profile_image" accept="image/*"><br><br>
 
-        <button type="submit">Save</button>
-    </form>
+            <button type="submit">Save</button>
+        </form>
+    </div>
 </body>
 </html>

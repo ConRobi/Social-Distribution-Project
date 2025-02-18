@@ -4,14 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
 </head>
 <body>
-    <h2>My Profile</h2>
-    <p>Display name: {{ author.display_name }}</p>
-    <p>Github Account: {{ author.github }}</p>
-    <p>Profile Image: {{ author.profile_image }}</p>
-    <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
-        <button>Edit Profile</button>
-    </a>
+    <a href="{% url 'SocialDistribution:create-post' author.uuid %}"><button class="new_post_button">+</button></a>
+    <div class="profile_body">
+        <section id ="profile_details">
+            <h2>My Profile</h2>
+            <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
+            <p>Display name: {{ author.display_name }}</p>
+            <p>Github Account: {{ author.github }}</p>
+            <p>Profile Image: {{ author.profile_image }}</p>
+            <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
+            <button>Edit Profile</button>
+            </a>
+        </section>
+        <section id="profile_posts">
+            {% if posts %}
+                <ul>
+                    {% for post in posts %}
+                        <li>
+                            <h2>{{ post.title }}</h2>
+                            <p>{{ post.description }}</p>
+                            <p>{{ post.content }}</p>
+                            <p>Visibility: {{ post.visibility }}</p>
+                            <p>Published: {{ post.published }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No posts available.</p>
+            {% endif %}
+        </section>
+    </div>
 </body>
 </html>
