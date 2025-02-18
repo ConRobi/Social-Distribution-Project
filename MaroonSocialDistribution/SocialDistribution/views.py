@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Author
+from .models import Author, Post
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
-from .serializers import AuthorSerializer
+from .serializers import AuthorSerializer, PostSerializer
 
 
 def index(request):
@@ -109,3 +109,47 @@ def update_profile(request, uuid):
     # redirect back to view profile page
     return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
 
+""" POSTING """
+
+def author_posts(request, uuid):
+    '''
+    Renders author posts page
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    posts = Post.objects.filter(author=author)
+    return render(request, "author_posts.html", {"author": author, "posts": posts})
+
+def create_post(request, uuid):
+    '''
+    Renders create post page
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    return render(request, "create_post.html", {"author": author})
+
+@api_view(['POST'])
+def add_post(request, uuid):
+    '''
+    Add post POST request called when create-post form is submitted.
+    Adds a new post to database.
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+
+    title = request.POST.get("title")
+    description = request.POST.get("description")
+    content = request.POST.get("content")
+    visibility = request.POST.get("visibility")
+
+    new_post = Post.objects.create(
+        title=title,
+        description=description,
+        content=content,
+        visibility=visibility,
+        author=author  # Associate the post with the author
+    )
+
+    serializer = PostSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return HttpResponseRedirect(reverse("SocialDistribution:author-posts", args=(author.uuid,)))

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ author.display_name }}'s Posts</title>
+</head>
+<body>
+    <h1>{{ author.display_name }}'s posts</h1>
+    <a href="{% url 'SocialDistribution:create-post' author.uuid %}">Create New Post</a>
+    
+    {% if posts %}
+        <ul>
+            {% for post in posts %}
+                <li>
+                    <h2>{{ post.title }}</h2>
+                    <p>{{ post.description }}</p>
+                    <p>{{ post.content }}</p>
+                    <p>Visibility: {{ post.visibility }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts available.</p>
+    {% endif %}
+</body>
+</html>
