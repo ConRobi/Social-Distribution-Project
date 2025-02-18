@@ -46,4 +46,4 @@ class Post(models.Model):
         ('PUBLIC', 'Public'),
         ('FRIENDS', 'Friends Only'),
         ('DELETED', 'Deleted'),
-    ])
+    ], default='PUBLIC')

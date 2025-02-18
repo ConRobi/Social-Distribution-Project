@@ -15,6 +15,12 @@ urlpatterns = [
     path("api/authors", views.authors_list, name="authors-list"),
     #TODO API endpoint for "Single Author API"
     path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"),
-    path("<uuid:uuid>/update-profile", views.update_profile, name = "update-profile")
-
+    path("<uuid:uuid>/update-profile", views.update_profile, name = "update-profile"),
+    
+    # Viewing all of an author's posts
+    path("authors/<uuid:uuid>/posts", views.author_posts, name = "author-posts"),
+    # Create post interface page
+    path("<uuid:uuid>/create-post", views.create_post, name = "create-post"),
+    # API endpoint for adding post
+    path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
 ]
