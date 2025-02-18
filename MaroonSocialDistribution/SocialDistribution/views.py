@@ -58,7 +58,8 @@ def view_profile(request, uuid):
     ''' View profile page with uuid as url path'''
 
     author = get_object_or_404(Author, uuid=uuid)
-    return render(request, "view_profile.html", {"author": author})
+    posts = Post.objects.filter(author=author)
+    return render(request, "view_profile.html", {"author": author, "posts": posts})
 
 @api_view(['GET'])
 def authors_list(request):

@@ -13,5 +13,20 @@
     <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
         <button>Edit Profile</button>
     </a>
+    <a href="{% url 'SocialDistribution:create-post' author.uuid %}">Create New Post</a>
+    {% if posts %}
+        <ul>
+            {% for post in posts %}
+                <li>
+                    <h2>{{ post.title }}</h2>
+                    <p>{{ post.description }}</p>
+                    <p>{{ post.content }}</p>
+                    <p>Visibility: {{ post.visibility }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts available.</p>
+    {% endif %}
 </body>
 </html>
