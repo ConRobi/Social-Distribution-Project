@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
-from .serializers import AuthorSerializer
+from .serializers import AuthorSerializer, PostSerializer
 
 
 def index(request):
@@ -132,12 +132,24 @@ def add_post(request, uuid):
     Add post POST request called when create-post form is submitted.
     Adds a new post to database.
     '''
-    # TODO: Add post to database
     author = get_object_or_404(Author, uuid=uuid)
 
     title = request.POST.get("title")
     description = request.POST.get("description")
     content = request.POST.get("content")
     visibility = request.POST.get("visibility")
+
+    new_post = Post.objects.create(
+        title=title,
+        description=description,
+        content=content,
+        visibility=visibility,
+        author=author  # Associate the post with the author
+    )
+
+    serializer = PostSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return HttpResponseRedirect(reverse("SocialDistribution:author-posts", args=(author.uuid,)))

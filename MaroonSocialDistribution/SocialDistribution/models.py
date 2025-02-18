@@ -20,10 +20,10 @@ type, title, id, page, description, content_type, content, author: {have author 
 likes: {like object}, published, visibility
 """
 class Post(models.Model):
-    type = models.CharField(max_length=10, default='post')
+    # type = models.CharField(max_length=10, default='post')
     title = models.CharField(max_length=255)
-    id = models.URLField(primary_key=True)
-    page = models.URLField(blank=True, null=True)
+    # id = models.URLField(primary_key=True)
+    # page = models.URLField(blank=True, null=True)
     description = models.TextField()
     """
     assume either
@@ -34,7 +34,7 @@ class Post(models.Model):
     image/jpeg;base64 # this is an jpeg
     for HTML you will want to strip tags before displaying
     """
-    content_type = models.CharField(max_length=20)
+    # content_type = models.CharField(max_length=20)
     content = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     # Need a comment object first?
@@ -46,4 +46,5 @@ class Post(models.Model):
         ('PUBLIC', 'Public'),
         ('FRIENDS', 'Friends Only'),
         ('DELETED', 'Deleted'),
-    ], default='PUBLIC')
+    ],
+    default='PUBLIC')
