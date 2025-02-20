@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from django.utils.timezone import now
 
 # Create your models here.
 class Author(models.Model):
@@ -14,6 +15,7 @@ class Author(models.Model):
     github = models.URLField(blank=True, null=True)
     profile_image = models.URLField(blank=True, null=True)
     page = models.URLField(blank=True, null=True)
+    last_checked = models.DateTimeField(default=now)
 
 """
 type, title, id, page, description, content_type, content, author: {have author object in here}, comments: {comment object},
