@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Author, Post
+from django.contrib.auth import password_validation
+from django.core.exceptions import ValidationError
 
 class AuthorSerializer(serializers.ModelSerializer):
     type = serializers.CharField(default="author")
@@ -19,6 +21,27 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_page(self, obj):
         return obj.page
+
+class RegisterAuthorSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Author
+        fields = ['username', 'email', 'display_name', 'github', 'profile_image', 'password']
+
+    def validate_password(self, value):
+        try:
+            password_validation.validate_password(value)
+        except ValidationError as e:
+            raise serializers.ValidationError(str(e))
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')  # Extract the password
+        user = Author.objects.create(**validated_data)
+        user.set_password(password)  # Hash the password
+        user.save()
+        return user
     
 class PostSerializer(serializers.ModelSerializer):
     class Meta:

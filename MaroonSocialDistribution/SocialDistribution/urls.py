@@ -16,6 +16,7 @@ urlpatterns = [
     #TODO API endpoint for "Single Author API"
     path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"),
     path("<uuid:uuid>/update-profile", views.update_profile, name = "update-profile"),
+    path("login", views.author_login, name = "author-login"),
     
     # Viewing all of an author's posts
     path("authors/<uuid:uuid>/posts", views.author_posts, name = "author-posts"),
