@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Author, Post
+from django.contrib.auth import password_validation
+from django.core.exceptions import ValidationError
 
 class AuthorSerializer(serializers.ModelSerializer):
     type = serializers.CharField(default="author")
@@ -19,6 +21,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_page(self, obj):
         return obj.page
+
     
 class PostSerializer(serializers.ModelSerializer):
     class Meta:

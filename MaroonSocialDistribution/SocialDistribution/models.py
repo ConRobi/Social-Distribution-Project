@@ -1,9 +1,10 @@
 from django.db import models
 import uuid
 from django.utils.timezone import now
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
-class Author(models.Model):
+class Author(AbstractUser):
     # Model based on object:
     # https://uofa-cmput404.github.io/general/project.html#single-author-api:~:text=API%20Objects-,Example%20Author%20Objects,-%7B%0A%20%20%20%20//%20Author%20object
     
