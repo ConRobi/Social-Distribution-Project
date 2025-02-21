@@ -10,17 +10,75 @@
 <body>
     <a href="{% url 'SocialDistribution:create-post' author.uuid %}"><button class="new_post_button">+</button></a>
     <div class="profile_body">
-        <section id ="profile_details">
+        <!-- Profile Section -->
+        <section id="profile_details">
             <h2>My Profile</h2>
             <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
-            <p>Username: {{author.username }}</p>
+            <p>Username: {{ author.username }}</p>
             <p>Display name: {{ author.display_name }}</p>
-            <p>Github Account: {{ author.github }}</p>
-            <p>Profile Image: {{ author.profile_image }}</p>
+            <p>Github Account: <a href="{{ author.github }}" target="_blank">{{ author.github }}</a></p>
+            <p>Profile Image: <img src="{{ author.profile_image }}" alt="Profile Image" class="profile-image-small"/></p>
+            
             <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
-            <button>Edit Profile</button>
+                <button>Edit Profile</button>
             </a>
+
+            <!-- Followers, Following, and Friends Section -->
+            <div class="social-section">
+                <h3>Followers: {{ followers|length }}</h3>
+                <ul>
+                    {% for follower in followers %}
+                        <li>{{ follower.display_name }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Following: {{ following|length }}</h3>
+                <ul>
+                    {% for person in following %}
+                        <li>{{ person.display_name }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Friends: {{ friends|length }}</h3>
+                <ul>
+                    {% for friend in friends %}
+                        <li>{{ friend.display_name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Author Search Section -->
+            <div class="search-section">
+                <h3>Search Authors</h3>
+                <form method="GET" action="{% url 'SocialDistribution:search-authors' %}">
+                    <input type="text" name="query" placeholder="Search authors..." required>
+                    <button type="submit">Search</button>
+                </form>
+
+                {% if search_results %}
+                    <ul>
+                        {% for result in search_results %}
+                            <li>
+                                {{ result.display_name }}
+                                <form method="POST" action="{% url 'SocialDistribution:send-follow-request' result.uuid %}">
+                                    {% csrf_token %}
+                                    <button type="submit">Follow</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Link to Follow Requests Page -->
+            <div class="requests-section">
+                <h3>Follow Requests</h3>
+                <a href="{% url 'SocialDistribution:follow-requests' %}">View Follow Requests</a>
+            </div>
+
         </section>
+
+        <!-- Posts Section -->
         <section id="profile_posts">
             {% if posts %}
                 <ul>
