@@ -351,3 +351,55 @@ def follow_requests(request):
     follow_requests = FollowRequest.objects.filter(receiver=user, status='PENDING')
 
     return render(request, "follow_requests.html", {"follow_requests": follow_requests})
+
+
+def view_followers(request):
+    """
+    Display the list of followers on a separate page.
+    """
+    user = request.user
+    followers = user.get_followers()
+    return render(request, "followers.html", {"followers": followers})
+
+def view_following(request):
+    """
+    Display the list of users the current user is following.
+    """
+    user = request.user
+    following = user.get_following()
+    return render(request, "following.html", {"following": following})
+
+def view_friends(request):
+    """
+    Display the list of mutual followers (friends).
+    """
+    user = request.user
+    friends = user.get_friends()
+    return render(request, "friends.html", {"friends": friends})
+
+def unfollow_user(request, uuid):
+    """
+    Unfollow a user.
+    """
+    if request.method == "POST":
+        user = request.user
+        to_unfollow = get_object_or_404(Author, uuid=uuid)
+
+        # Delete follow request where the current user is the sender and the target user is the receiver
+        FollowRequest.objects.filter(sender=user, receiver=to_unfollow, status="ACCEPTED").delete()
+
+    return redirect("SocialDistribution:view-following")
+
+
+def remove_follower(request, uuid):
+    """
+    Remove a follower 
+    """
+    if request.method == "POST":
+        user = request.user
+        to_remove = get_object_or_404(Author, uuid=uuid)
+
+        # Delete follow request where current user is the receiver and the target user is the sender
+        FollowRequest.objects.filter(sender=to_remove, receiver=user, status="ACCEPTED").delete()
+
+    return redirect("SocialDistribution:view-followers")
