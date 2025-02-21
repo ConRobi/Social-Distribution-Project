@@ -88,12 +88,15 @@ def authors_list(request):
     return paginator.get_paginated_response(serializer.data)
 
 def author_login(request):
+    '''
+    Log in existing users using Django's built-in login authentication
+    '''
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            # Get the username and password from the form and authenticate the user
+            # Get the username and password from the form and authenticate the author
             author = form.get_user()
-            login(request, author)  # Log the user in
+            login(request, author)  # Log the author in
 
             # Redirect to view profile page
             url = f"authors/{author.uuid}"
