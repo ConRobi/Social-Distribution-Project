@@ -1,5 +1,9 @@
 from django.urls import path
 from . import views
+from .views import (
+    search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
+    view_followers, view_following, view_friends, unfollow_user, remove_follower
+)
 
 app_name = 'SocialDistribution'
 
@@ -24,4 +28,15 @@ urlpatterns = [
     path("<uuid:uuid>/create-post", views.create_post, name = "create-post"),
     # API endpoint for adding post
     path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
+
+    path("authors/search/", views.search_authors, name="search-authors"),
+    path("authors/<uuid:uuid>/follow/", send_follow_request, name="send-follow-request"),
+    path("authors/<uuid:sender_uuid>/accept-follow/", accept_follow_request, name="accept-follow-request"),
+    path("authors/<uuid:sender_uuid>/reject-follow/", reject_follow_request, name="reject-follow-request"),
+    path("authors/follow-requests/", follow_requests, name="follow-requests"),
+    path("authors/followers/", view_followers, name="view-followers"),  
+    path("authors/following/", view_following, name="view-following"), 
+    path("authors/friends/", view_friends, name="view-friends"),
+    path("authors/<uuid:uuid>/unfollow/", unfollow_user, name="unfollow-user"),
+    path("authors/<uuid:uuid>/remove-follower/", remove_follower, name="remove-follower"),
 ]

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+</head>
+<body>
+    <h2>Search Results</h2>
+    
+    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to Profile</a>
+
+    {% if search_results %}
+        <ul>
+            {% for author in search_results %}
+                <li>
+                    {{ author.display_name }}
+                    <form method="POST" action="{% url 'SocialDistribution:send-follow-request' author.uuid %}">
+                        {% csrf_token %}
+                        <button type="submit">Follow</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No authors found.</p>
+    {% endif %}
+</body>
+</html>

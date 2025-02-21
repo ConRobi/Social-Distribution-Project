@@ -18,6 +18,24 @@ class Author(AbstractUser):
     page = models.URLField(blank=True, null=True)
     last_checked = models.DateTimeField(default=now)
 
+
+    def get_followers(self):
+        """Returns a list of authors who follow this author"""
+        return Author.objects.filter(
+            uuid__in=FollowRequest.objects.filter(receiver=self, status='ACCEPTED').values_list('sender__uuid', flat=True)
+        )
+
+    def get_following(self):
+        """Returns a list of authors this author follows"""
+        return Author.objects.filter(
+            uuid__in=FollowRequest.objects.filter(sender=self, status='ACCEPTED').values_list('receiver__uuid', flat=True)
+        )
+
+    def get_friends(self):
+        """Returns a list of mutual followers (friends)"""
+        followers = self.get_followers().values_list("uuid", flat=True)
+        return self.get_following().filter(uuid__in=followers)
+
 """
 type, title, id, page, description, content_type, content, author: {have author object in here}, comments: {comment object},
 likes: {like object}, published, visibility
@@ -51,3 +69,24 @@ class Post(models.Model):
         ('DELETED', 'Deleted'),
     ],
     default='PUBLIC')
+
+class FollowRequest(models.Model):
+    """
+    Model for handling follow requests between authors.
+    """
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('ACCEPTED', 'Accepted'),
+        ('REJECTED', 'Rejected'),
+    ]
+
+    sender = models.ForeignKey(Author, related_name="follow_requests_sent", on_delete=models.CASCADE)
+    receiver = models.ForeignKey(Author, related_name="follow_requests_received", on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('sender', 'receiver')
+
+    def __str__(self):
+        return f"{self.sender.display_name} -> {self.receiver.display_name} ({self.status})"

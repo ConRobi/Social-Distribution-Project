@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Following</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+</head>
+<body>
+    <h2>Following</h2>
+    
+    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}" style="text-decoration: none; color: black;">Back to Profile</a>
+
+    {% if following %}
+        <ul>
+            {% for person in following %}
+                <li>
+                    {{ person.display_name }} 
+                    <form method="POST" action="{% url 'SocialDistribution:unfollow-user' person.uuid %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; color: black; border: none; cursor: pointer; text-decoration: underline; font-weight: bold;">
+                            Unfollow
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You are not following anyone.</p>
+    {% endif %}
+</body>
+</html>

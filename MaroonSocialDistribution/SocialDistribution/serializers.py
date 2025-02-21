@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Author, Post
+from .models import Author, Post, FollowRequest
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 
@@ -52,3 +52,12 @@ class PostSerializer(serializers.ModelSerializer):
 
 #     def get_page(self, obj):
 #         return obj.page
+
+class FollowRequestSerializer(serializers.ModelSerializer):
+    sender = AuthorSerializer(read_only=True)
+    receiver = AuthorSerializer(read_only=True)
+    accepted = serializers.BooleanField(default=False)
+
+    class Meta:
+        model = FollowRequest
+        fields = ["id", "sender", "receiver", "accepted"]
