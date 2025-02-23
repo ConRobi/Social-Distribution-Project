@@ -70,7 +70,12 @@ def view_profile(request, uuid):
     author = get_object_or_404(Author, uuid=uuid)
     # Get recent github public activity and display as post
     # TODO add this to stream page instead (fetch when stream is reloaded)
-    fetch_github_activity(author)
+    # TODO add error handling if github link is not valid? or handle that in profile creation/editing?
+    try:
+        fetch_github_activity(author)
+    except Exception as e:
+        pass
+
     # Get public posts made by the author (most recent posts first)
     public_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
     # Retrieve followers, following, and friends
