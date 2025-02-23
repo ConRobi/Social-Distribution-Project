@@ -24,9 +24,14 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     
 class PostSerializer(serializers.ModelSerializer):
+
+    image = serializers.ImageField(required=False)  # Ensure image is optional
+
+
     class Meta:
         model = Post
-        fields = ["title", "description", "content", "visibility", "author"]
+        #fields = ["title", "description", "content", "visibility", "author", "image"]
+        fields = '__all__'
     
     def create(self, validated_data):
         return super().create(validated_data)

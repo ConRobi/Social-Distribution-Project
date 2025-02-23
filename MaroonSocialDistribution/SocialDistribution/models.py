@@ -69,6 +69,7 @@ class Post(models.Model):
         ('DELETED', 'Deleted'),
     ],
     default='PUBLIC')
+    image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Ensure correct field
 
 class FollowRequest(models.Model):
     """
