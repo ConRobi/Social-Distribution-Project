@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+</head>
+<body>
+    <h2>Friends</h2>
+    
+    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to Profile</a>
+
+    {% if friends %}
+        <ul>
+            {% for friend in friends %}
+                <li>{{ friend.display_name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No friends yet.</p>
+    {% endif %}
+</body>
+</html>

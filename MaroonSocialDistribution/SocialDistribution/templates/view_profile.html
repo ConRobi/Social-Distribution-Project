@@ -8,19 +8,54 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
 </head>
 <body>
-    <a href="{% url 'SocialDistribution:create-post' author.uuid %}"><button class="new_post_button">+</button></a>
+    <a href="{% url 'SocialDistribution:create-post' author.uuid %}">
+        <button class="new_post_button">+</button>
+    </a>
+
     <div class="profile_body">
-        <section id ="profile_details">
+        <!-- Profile Section -->
+        <section id="profile_details">
             <h2>My Profile</h2>
-            <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
-            <p>Username: {{author.username }}</p>
+            <img src="{{ author.profile_image | default:'/static/images/default.jpg' }}" onerror="this.onerror=null; this.src='/static/images/default.jpg';" class="profile-picture">
+            <p>Username: {{ author.username }}</p>
             <p>Display name: {{ author.display_name }}</p>
-            <p>Github Account: {{ author.github }}</p>
-            <p>Profile Image: {{ author.profile_image }}</p>
+            <p>Github Account: <a href="{{ author.github }}" target="_blank">{{ author.github }}</a></p>
+            
             <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
-            <button>Edit Profile</button>
+                <button>Edit Profile</button>
             </a>
+
+            <!-- Clickable Links with Count (No Brackets & Black Text) -->
+            <div class="social-section">
+                <h3><a href="{% url 'SocialDistribution:view-followers' %}" style="color: black; text-decoration: none;">Followers {{ followers|length }}</a></h3>
+                <h3><a href="{% url 'SocialDistribution:view-following' %}" style="color: black; text-decoration: none;">Following {{ following|length }}</a></h3>
+                <h3><a href="{% url 'SocialDistribution:view-friends' %}" style="color: black; text-decoration: none;">Friends {{ friends|length }}</a></h3>
+            </div>
+
+            <!-- Follow Requests Link - Moved Under Friends -->
+            <div class="requests-section" style="margin-top: 15px;">
+                <h3><a href="{% url 'SocialDistribution:follow-requests' %}" style="color: black; text-decoration: none;">
+                    View Follow Requests {{ follow_requests|length }}
+                </a></h3>
+            </div>
+
+            <!-- Author Search Section - Centered & Lowered -->
+            <div class="search-section" style="text-align: center; margin-top: 40px;">
+                <h3>Search Authors</h3>
+                <form method="GET" action="{% url 'SocialDistribution:search-authors' %}" 
+                      style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
+                    <input type="text" name="query" placeholder="Search authors..." required 
+                        style="width: 250px; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                    <button type="submit" 
+                        style="width: 150px; padding: 8px; border-radius: 5px; border: none; background: black; color: white; font-weight: bold; margin-top: 15px;">
+                        Search
+                    </button>
+                </form>
+            </div>
+
         </section>
+
+        <!-- Posts Section -->
         <section id="profile_posts">
             {% if posts %}
                 <ul>
