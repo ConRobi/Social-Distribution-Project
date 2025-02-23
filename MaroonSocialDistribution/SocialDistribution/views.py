@@ -11,6 +11,7 @@ from .forms import AuthorRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
+from .services.github_service import fetch_github_activity
 
 
 
@@ -67,6 +68,14 @@ def view_profile(request, uuid):
     ''' View profile page with uuid as url path'''
 
     author = get_object_or_404(Author, uuid=uuid)
+    # Get recent github public activity and display as post
+    # TODO add this to stream page instead (fetch when stream is reloaded)
+    # TODO add error handling if github link is not valid? or handle that in profile creation/editing?
+    try:
+        fetch_github_activity(author)
+    except Exception as e:
+        pass # Ignore error for now
+
     # Get public posts made by the author (most recent posts first)
     public_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
     # Retrieve followers, following, and friends
@@ -146,17 +155,15 @@ def update_profile(request, uuid):
     Updates author fields if new input is provided to them.
     '''
     author = get_object_or_404(Author, uuid=uuid)
-    profile_image_url = request.POST.get("profile_image")
-    # if a new image url is provided, set it to corresponding field
-    # TODO need to handle saving profile image uploaded as url??
-    if profile_image_url:
-        author.profile_image = profile_image_url
 
-    # update display_name if new display name is provided
+    # Update display_name if new display name is provided
     author.display_name = request.POST.get("display_name")
 
-    # update github if new github url is provided
+    # Update github if new github url is provided
     author.github = request.POST.get("github")
+
+    # Update profile picture if new profile photo given
+    author.profile_image = request.POST.get("profile_image")
 
     author.save()
 

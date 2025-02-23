@@ -16,11 +16,10 @@
         <!-- Profile Section -->
         <section id="profile_details">
             <h2>My Profile</h2>
-            <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
+            <img src="{{ author.profile_image | default:'/static/images/default.jpg' }}" onerror="this.onerror=null; this.src='/static/images/default.jpg';" class="profile-picture">
             <p>Username: {{ author.username }}</p>
             <p>Display name: {{ author.display_name }}</p>
             <p>Github Account: <a href="{{ author.github }}" target="_blank">{{ author.github }}</a></p>
-            <p>Profile Image: <img src="{{ author.profile_image }}" alt="Profile Image" class="profile-image-small"/></p>
             
             <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
                 <button>Edit Profile</button>
