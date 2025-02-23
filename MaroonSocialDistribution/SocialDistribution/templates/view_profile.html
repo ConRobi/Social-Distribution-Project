@@ -25,6 +25,12 @@
                 <button>Edit Profile</button>
             </a>
 
+            <!-- Stream Button -->
+            <a href="{% url 'SocialDistribution:stream' %}">
+                <button>Go to My Stream</button>
+            </a>
+
+
             <!-- Clickable Links with Count (No Brackets & Black Text) -->
             <div class="social-section">
                 <h3><a href="{% url 'SocialDistribution:view-followers' %}" style="color: black; text-decoration: none;">Followers {{ followers|length }}</a></h3>

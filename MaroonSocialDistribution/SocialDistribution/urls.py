@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.contrib.auth.views import LogoutView
+from .views_stream import stream_view  # import stream_view (reading)
 from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
     view_followers, view_following, view_friends, unfollow_user, remove_follower
@@ -39,4 +41,14 @@ urlpatterns = [
     path("authors/friends/", view_friends, name="view-friends"),
     path("authors/<uuid:uuid>/unfollow/", unfollow_user, name="unfollow-user"),
     path("authors/<uuid:uuid>/remove-follower/", remove_follower, name="remove-follower"),
+
+
+    # reading starts here 
+    ##################################################
+    path('stream/', stream_view, name='stream'),
+    
+    # logout
+    path('logout/', LogoutView.as_view(), name='logout'),
+    #################################################
+
 ]
