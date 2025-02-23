@@ -74,7 +74,7 @@ def view_profile(request, uuid):
     try:
         fetch_github_activity(author)
     except Exception as e:
-        pass
+        pass # Ignore error for now
 
     # Get public posts made by the author (most recent posts first)
     public_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
