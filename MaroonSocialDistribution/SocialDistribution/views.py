@@ -195,25 +195,25 @@ def add_post(request, uuid):
     '''
     author = get_object_or_404(Author, uuid=uuid)
 
-    title = request.POST.get("title")
-    description = request.POST.get("description")
-    content = request.POST.get("content")
-    visibility = request.POST.get("visibility")
+    # Copy request data and add the author UUID
+    data = request.data.copy()
+    data["author"] = str(author.uuid)  # Pass the correct UUID string
 
-    new_post = Post.objects.create(
-        title=title,
-        description=description,
-        content=content,
-        visibility=visibility,
-        author=author  # Associate the post with the author
-    )
+    image = request.FILES.get('image')  # Extract image from request
 
-    serializer = PostSerializer(data=request.data)
+    # Create serializer with BOTH request data and request.FILES
+    serializer = PostSerializer(data=data, context={'request': request})
+
     if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        post = serializer.save()  # Save post first without image
 
-    return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+        # Adding image if there is one
+        image = request.FILES.get('image')
+        if image:
+            post.image = image
+            post.save()
+        return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def followers_list(request, uuid):
