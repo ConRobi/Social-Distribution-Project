@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser
+import commonmark
 
 # Create your models here.
 class Author(AbstractUser):
@@ -41,21 +42,18 @@ type, title, id, page, description, content_type, content, author: {have author 
 likes: {like object}, published, visibility
 """
 class Post(models.Model):
-    # type = models.CharField(max_length=10, default='post')
+    type = models.CharField(max_length=10, default='post')
     title = models.CharField(max_length=255)
     # id = models.URLField(primary_key=True)
     # page = models.URLField(blank=True, null=True)
     description = models.TextField()
-    """
-    assume either
-    text/markdown -- common mark
-    text/plain -- UTF-8
-    application/base64 # this an image that is neither a jpeg or png
-    image/png;base64 # this is an png -- images are POSTS. So you might have a user make 2 posts if a post includes an image!
-    image/jpeg;base64 # this is an jpeg
-    for HTML you will want to strip tags before displaying
-    """
-    # content_type = models.CharField(max_length=20)
+    contentType = models.CharField(max_length=20, choices=[
+        ('text/markdown', 'CommonMark'),
+        ('text/plain', 'plaintext'),
+        ('image/png;base64', 'pngImage'),
+        ('image/jpeg;base64', 'jpegImage'),
+        ('application/base64', 'otherImage')
+    ])
     content = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     # Need a comment object first?
@@ -70,6 +68,18 @@ class Post(models.Model):
     ],
     default='PUBLIC')
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Ensure correct field
+
+    """
+    If CommonMark is selected then format it, else leave the content as it is
+    """
+    def render_content(self):
+        if self.contentType == 'text/markdown':
+            return commonmark.commonmark(self.content)
+        elif self.contentType == 'text/plain':
+            return f"<pre>{self.content}</pre>"
+        # If the contentType is for an image
+        else:
+            return self.content
 
 class FollowRequest(models.Model):
     """

@@ -188,44 +188,24 @@ def add_post(request, uuid):
     '''
     author = get_object_or_404(Author, uuid=uuid)
 
-    # Debugging: Check if the correct author is found
-    print("Author found:", author.uuid)
-
+    # Copy request data and add the author UUID
     data = request.data.copy()
     data["author"] = str(author.uuid)  # Pass the correct UUID string
 
-    title = request.POST.get("title")
-    description = request.POST.get("description")
-    content = request.POST.get("content")
-    visibility = request.POST.get("visibility")
-    # Extract image from request
-    image = request.FILES.get('image')
-
-
-    new_post = Post.objects.create(
-        title=title,
-        description=description,
-        content=content,
-        visibility=visibility,
-        author=author,  # Associate the post with the author
-    )
+    image = request.FILES.get('image')  # Extract image from request
 
     # Create serializer with BOTH request data and request.FILES
     serializer = PostSerializer(data=data, context={'request': request})
-    # Create serializer with request.data (Django automatically includes FILES)
-    #serializer = PostSerializer(data=data)
-
 
     if serializer.is_valid():
         post = serializer.save()  # Save post first without image
 
+        # Adding image if there is one
+        image = request.FILES.get('image')
         if image:
-            print("Saving image:", image.name)
-            post.image = image  # Manually attach image
-            post.save()  # Save again to store the image
-            print("Saved image path:", post.image.url)  # Debug output
+            post.image = image
+            post.save()
         return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
-
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
