@@ -56,13 +56,15 @@ def fetch_github_activity(author):
                         continue
                     post_content = f"Github Activity: {activity['type']} in {activity['repo']['name']}"
                     if isinstance(activity['payload'], list):
-                        # Handle list case where payload is list
+                        # Handle case where payload is list
                         commits = activity['payload'][0].get('commits', [{}])
                         commit_message = commits[0].get('message', 'No description')
-                    else:
+                    elif isinstance(activity['payload'], dict):
                         # Handle case where payload is a dictionary
                         commits = activity['payload'].get('commits', [{}])
                         commit_message = commits[0].get('message', 'No description')
+                    else:
+                        commit_message = 'No description'
 
                     # TODO make published date the github activity posting date?
                     Post.objects.create(
