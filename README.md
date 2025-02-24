@@ -22,4 +22,11 @@ Welcome to the **Distributed Social Networking** project! This repository is ded
 - Privacy-focused data handling
 - Real-time notifications
 
+## Run Instructions
+From within the directory: `w25-project-maroon/MaroonSocialDistribution/`
+
+1. `python manage.py makemigrations`
+2. `python manage.py migrate`
+3. `python manage.py runserver`
+
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/18vkNgfz)
