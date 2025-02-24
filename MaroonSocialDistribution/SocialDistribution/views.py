@@ -179,6 +179,8 @@ def author_posts(request, uuid):
     '''
     author = get_object_or_404(Author, uuid=uuid)
     posts = Post.objects.filter(author=author)
+    for post in posts:
+        post.rendered_content=post.render_content()
     return render(request, "author_posts.html", {"author": author, "posts": posts})
 
 def create_post(request, uuid):
