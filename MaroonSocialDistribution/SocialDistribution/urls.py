@@ -4,7 +4,7 @@ from django.contrib.auth.views import LogoutView
 from .views_stream import stream_view  # import stream_view (reading)
 from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
-    view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post
+    view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list
 )
 
 app_name = 'SocialDistribution'
@@ -47,6 +47,11 @@ urlpatterns = [
     path("authors/friends/", view_friends, name="view-friends"),
     path("authors/<uuid:uuid>/unfollow/", unfollow_user, name="unfollow-user"),
     path("authors/<uuid:uuid>/remove-follower/", remove_follower, name="remove-follower"),
+    path("authors/<uuid:uuid>/follow-status/<uuid:foreign_author_uuid>/", check_follow_status, name="check-follow-status"),
+
+    path("authors/<uuid:uuid>/followers/", followers_list, name="followers-list"),
+    path("authors/<uuid:uuid>/following/", following_list, name="following-list"),
+    path("authors/<uuid:uuid>/friends/", friends_list, name="friends-list"),
 
 
     # reading starts here 
