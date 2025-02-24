@@ -77,6 +77,10 @@
                             {% else %}
                                 <p>No image uploaded</p>
                             {% endif %}
+                            {% if post.author == request.user %}
+                                <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
+                                <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>

@@ -4,7 +4,7 @@ from django.contrib.auth.views import LogoutView
 from .views_stream import stream_view  # import stream_view (reading)
 from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
-    view_followers, view_following, view_friends, unfollow_user, remove_follower
+    view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post
 )
 
 app_name = 'SocialDistribution'
@@ -30,6 +30,12 @@ urlpatterns = [
     path("<uuid:uuid>/create-post", views.create_post, name = "create-post"),
     # API endpoint for adding post
     path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
+
+    # Delete post
+    path("authors/<uuid:author_uuid>/posts/<int:post_id>/delete/", delete_post, name="delete_post"),
+
+    path("authors/<uuid:author_uuid>/posts/<int:post_id>/edit/", edit_post, name="edit_post"),
+
 
     path("authors/search/", views.search_authors, name="search-authors"),
     path("authors/<uuid:uuid>/follow/", send_follow_request, name="send-follow-request"),
