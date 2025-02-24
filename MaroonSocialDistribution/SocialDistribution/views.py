@@ -334,7 +334,7 @@ def check_follow_status(request, uuid, foreign_author_uuid):
     author = get_object_or_404(Author, uuid=uuid)
     foreign_author = get_object_or_404(Author, uuid=foreign_author_uuid)
     
-    is_follower = FollowRequest.objects.filter(sender=foreign_author, receiver=author, accepted=True).exists()
+    is_follower = FollowRequest.objects.filter(sender=foreign_author, receiver=author, status="ACCEPTED").exists()
     
     if is_follower:
         return Response({"follower": True}, status=status.HTTP_200_OK)
