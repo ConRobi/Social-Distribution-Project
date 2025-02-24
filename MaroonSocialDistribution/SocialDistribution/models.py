@@ -3,6 +3,8 @@ import uuid
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser
 import commonmark
+from django.contrib.auth.models import User  # Import User model if necessary
+from django.conf import settings  # Import settings to get the custom user model
 
 # Create your models here.
 class Author(AbstractUser):
@@ -101,3 +103,10 @@ class FollowRequest(models.Model):
 
     def __str__(self):
         return f"{self.sender.display_name} -> {self.receiver.display_name} ({self.status})"
+
+
+
+class InboxPost(models.Model):
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    received_at = models.DateTimeField(auto_now_add=True)

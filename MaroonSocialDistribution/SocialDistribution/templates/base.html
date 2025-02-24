@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Social Distribution{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/default.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Social Distribution</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'SocialDistribution:stream' %}">Stream</a></li>
+                <li><a href="{% url 'SocialDistribution:view-profile' user.uuid %}">My Profile</a></li>
+                <a href="{% url 'admin:logout' %}">Logout</a> <!-- Remove "SocialDistribution:" -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Social Distribution</p>
+    </footer>
+</body>
+</html>
