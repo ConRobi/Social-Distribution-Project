@@ -1,0 +1,107 @@
+html, body {
+    margin: 0;
+    border: 0;
+    font-size: 100%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif; 
+    background-color: #eaeaea;
+    color: #000000;
+    
+}
+
+/* Body CSS for edit_profile.html */
+
+.edit_profile_body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Body CSS for view_profile.html */
+
+.profile_body {
+    display:flex;
+    width: 80%;
+    gap: 20px;
+
+}
+
+#profile_details {
+    position: sticky;
+    top: 0;
+    flex: 1;
+    background-color: rgb(255, 255, 255);
+    height: 100vh;
+    padding-left: 10px;
+    box-shadow: 2px 10px 5px rgb(0, 0, 0, 0.3);
+}
+
+#profile_posts {
+    flex: 2;
+}
+
+#profile_posts li {
+    list-style-type: none;
+    background-color: rgb(255, 255, 255);
+    padding-left: 10px;
+    border: 0.5px solid #292929;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* General profile picture styling */
+
+.profile-picture {
+
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    box-shadow: 0px 0px 15px rgb(0, 0, 0, 0.3);
+
+}
+
+/* General button styling */ 
+
+button {
+    background-color: #000000;
+    color: #ffffff;
+    cursor: pointer;
+    /* transition: background-color 0.2s ease-in-out; */
+}
+
+button:hover {
+    background-color: #292929;
+}
+
+/* General form styling */
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 20px;
+    border-radius: 5%;
+    margin-bottom: 10px;
+}
+
+form button {
+    border-radius: 5px;
+    width: 200px;
+    height: 50px;
+    align-self: center;
+}
+
+/* Styling for button to create new post */
+
+.new_post_button {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    font-size: 3em;
+}

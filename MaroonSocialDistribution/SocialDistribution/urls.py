@@ -6,20 +6,33 @@ from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
     view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list
 )
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
 
 app_name = 'SocialDistribution'
 
 urlpatterns = [
+    
     path("", views.index, name="index"),
+
+    # API Endpoint documentation
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-docs"),
+
+    #API Endpoints
+    ################
+    # API endpoint for "Authors API"
+    path("api/authors", views.authors_list, name="authors-list"),
+    #TODO API endpoint for "Single Author API"
+
+
+    # PROFILE
     # Create profile interface page
     path("create-profile", views.create_profile, name="create-profile"),
     # API endpoint for adding profile
     path("add-profile", views.add_profile, name = "add-profile"),
     # View profile page
     path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"),
-    # API endpoint for "Authors API"
-    path("api/authors", views.authors_list, name="authors-list"),
-    #TODO API endpoint for "Single Author API"
     path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"),
     path("<uuid:uuid>/update-profile", views.update_profile, name = "update-profile"),
     path("login", views.author_login, name = "author-login"),
