@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from .forms import AuthorRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -141,6 +141,17 @@ def author_login(request):
         form = AuthenticationForm()
 
     return render(request, 'login.html', {'form': form})
+
+def author_logout(request):
+    '''
+    Allows a user to be logged out (unauthenticated). Redirects the user to the login page in either case 
+    of being logged in or not. Error message is displayed if user is not logged in to begin with.
+    '''
+    if request.user.is_authenticated:
+        logout(request)  
+    else:
+        messages.warning(request, "You are not logged in.")
+    return redirect("SocialDistribution:author-login")
 
 def edit_profile(request, uuid):
     '''
