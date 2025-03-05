@@ -77,8 +77,6 @@ def view_profile(request, uuid):
     except Exception as e:
         pass # Ignore error for now
 
-    # Get public posts made by the author (most recent posts first)
-    public_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
     # Retrieve followers, following, and friends
     followers = author.get_followers()
     following = author.get_following()
@@ -86,6 +84,20 @@ def view_profile(request, uuid):
 
     # Retrieve pending follow requests
     follow_requests = FollowRequest.objects.filter(receiver=author, status='PENDING')
+
+    # Fetch posts based on author and visibility (most recent first)
+    # Check if the logged in user is the author
+    if request.user == author:  
+        # If the logged in user is the author, show all posts (excluding posts labelled as 'deleted')
+        author_posts = Post.objects.filter(author=author).exclude(visibility__iexact='deleted').order_by('-published')
+    # Check if the logged in user is a follower of the author and is being followed by the author (they're friends)
+    elif (request.user in followers) and (request.user in following):
+        # Show friends only posts and public posts 
+        author_posts = Post.objects.filter(author=author).filter(Q(visibility__iexact='friends') | Q(visibility__iexact='friends only') | Q(visibility__iexact='public')).order_by('-published')
+    else:
+        # Show only public posts
+        author_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
+
 
     # Handle author search functionality
     search_results = None
@@ -95,7 +107,7 @@ def view_profile(request, uuid):
 
     return render(request, "view_profile.html", {
         "author": author,
-        "posts": public_posts,
+        "posts": author_posts,
         "followers": followers,
         "following": following,
         "friends": friends,
