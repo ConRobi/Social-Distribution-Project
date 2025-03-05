@@ -8,10 +8,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
 </head>
 <body>
-    <a href="{% url 'SocialDistribution:create-post' author.uuid %}">
-        <button class="new_post_button">+</button>
-    </a>
-
+    {% if author == request.user %}
+        <a href="{% url 'SocialDistribution:create-post' author.uuid %}">
+            <button class="new_post_button">+</button>
+        </a>
+    {% endif %}
     <div class="profile_body">
         <!-- Profile Section -->
         <section id="profile_details">
@@ -20,10 +21,11 @@
             <p>Username: {{ author.username }}</p>
             <p>Display name: {{ author.display_name }}</p>
             <p>Github Account: <a href="{{ author.github }}" target="_blank">{{ author.github }}</a></p>
-            
-            <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
-                <button>Edit Profile</button>
-            </a>
+            {% if author == request.user %}
+                <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
+                    <button>Edit Profile</button>
+                </a>
+            {% endif %}
 
             <!-- Stream Button -->
             <a href="{% url 'SocialDistribution:stream' %}">
@@ -39,11 +41,13 @@
             </div>
 
             <!-- Follow Requests Link - Moved Under Friends -->
+            {% if author == request.user %}
             <div class="requests-section" style="margin-top: 15px;">
                 <h3><a href="{% url 'SocialDistribution:follow-requests' %}" style="color: black; text-decoration: none;">
                     View Follow Requests {{ follow_requests|length }}
                 </a></h3>
             </div>
+            {% endif %}
 
             <!-- Author Search Section - Centered & Lowered -->
             <div class="search-section" style="text-align: center; margin-top: 40px;">
