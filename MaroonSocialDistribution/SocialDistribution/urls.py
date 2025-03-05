@@ -72,7 +72,7 @@ urlpatterns = [
     path('stream/', stream_view, name='stream'),
     
     # logout
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('logout/', views.author_logout, name='author-logout'),
     #################################################
 
 ]
