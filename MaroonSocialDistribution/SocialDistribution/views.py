@@ -86,17 +86,26 @@ def view_profile(request, uuid):
     follow_requests = FollowRequest.objects.filter(receiver=author, status='PENDING')
 
     # Fetch posts based on author and visibility (most recent first)
-    # Check if the logged in user is the author
+   # Fetch posts based on author and visibility (most recent first)
     if request.user == author:  
-        # If the logged in user is the author, show all posts (excluding posts labelled as 'deleted')
+        # Show all posts including unlisted (excluding deleted)
         author_posts = Post.objects.filter(author=author).exclude(visibility__iexact='deleted').order_by('-published')
-    # Check if the logged in user is a follower of the author and is being followed by the author (they're friends)
     elif (request.user in followers) and (request.user in following):
-        # Show friends only posts and public posts 
-        author_posts = Post.objects.filter(author=author).filter(Q(visibility__iexact='friends') | Q(visibility__iexact='friends only') | Q(visibility__iexact='public')).order_by('-published')
+        # Show friends-only, public, and unlisted posts
+        author_posts = Post.objects.filter(author=author).filter(
+            Q(visibility__iexact='friends') | 
+            Q(visibility__iexact='friends only') | 
+            Q(visibility__iexact='public') | 
+            Q(unlisted=True)  # Include unlisted posts
+        ).order_by('-published')
     else:
-        # Show only public posts
-        author_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
+        # Show public and unlisted posts
+        # Show only public and unlisted posts
+        author_posts = Post.objects.filter(
+            Q(author=author, visibility__iexact='public') | 
+            Q(author=author, visibility__iexact='unlisted')
+        ).order_by('-published')
+
 
 
     # Handle author search functionality
@@ -224,7 +233,7 @@ def add_post(request, uuid):
     # Copy request data and add the author UUID
     data = request.data.copy()
     data["author"] = str(author.uuid)  # Pass the correct UUID string
-
+    
     image = request.FILES.get('image')  # Extract image from request
 
     # Create serializer with BOTH request data and request.FILES
@@ -493,3 +502,17 @@ def remove_follower(request, uuid):
         FollowRequest.objects.filter(sender=to_remove, receiver=user, status="ACCEPTED").delete()
 
     return redirect("SocialDistribution:view-followers")
+
+
+##################################### unlilsted ################################
+@api_view(['GET'])
+def view_unlisted_post(request, post_id):
+    """
+    Allow anyone with the link to view an unlisted post.
+    """
+    post = get_object_or_404(Post, id=post_id, visibility="UNLISTED")
+
+    serializer = PostSerializer(post)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+##################################### unlilsted ends ################################
