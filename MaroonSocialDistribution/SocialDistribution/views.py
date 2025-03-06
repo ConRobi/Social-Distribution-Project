@@ -252,7 +252,8 @@ def delete_post(request, author_uuid, post_id):
     if request.user != author:
         return HttpResponseForbidden("You are not allowed to delete this post.")
     
-    post.delete()
+    post.visibility = "DELETED"
+    post.save()
     return redirect("SocialDistribution:view-profile", uuid=author_uuid) # Redirect to author's profile
 
 @api_view(['POST','GET'])
