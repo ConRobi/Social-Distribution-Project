@@ -32,7 +32,7 @@
         <select name="visibility">
             <option value="PUBLIC" {% if post.visibility == "PUBLIC" %}selected{% endif %}>Public</option>
             <option value="FRIENDS" {% if post.visibility == "FRIENDS" %}selected{% endif %}>Friends</option>
-            <option value="PRIVATE" {% if post.visibility == "PRIVATE" %}selected{% endif %}>Private</option>
+            <option value="UNLISTED" {% if post.visibility == "UNLISTED" %}selected{% endif %}>Unlisted</option>
         </select><br><br>
 
         <label for="image">Upload New Image (Optional):</label>
