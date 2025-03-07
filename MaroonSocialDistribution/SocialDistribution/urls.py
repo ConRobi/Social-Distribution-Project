@@ -79,6 +79,7 @@ urlpatterns = [
 
     # unlisted
     path("posts/<int:post_id>/unlisted", view_unlisted_post, name="view-unlisted-post"),
+    path("posts/<int:post_id>/", views.view_single_post, name="view-single-post"),
 
     path("admin/", admin.site.urls),    # Django's built in admin panel
 

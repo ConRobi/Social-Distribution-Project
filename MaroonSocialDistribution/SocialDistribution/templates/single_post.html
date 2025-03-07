@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+</head>
+<body>
+
+    <div class="profile_body">
+        <!-- Post Details Section -->
+        <section id="single_post">
+            <h2>{{ post.title }}</h2>
+
+            <!-- ✅ Show Author's Name & Link to Profile -->
+            <p>By: <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" style="color: black; text-decoration: none;">
+                {{ post.author.display_name }}</a>
+            </p>
+
+            <p>{{ post.description }}</p>
+            <p>{{ post.render_content | safe }}</p>
+            <p>Visibility: {{ post.visibility }}</p>
+            <p>Published: {{ post.published }}</p>
+
+            <!-- ✅ Show Image if Available -->
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100%; height: auto;">
+            {% else %}
+                <p>No image uploaded</p>
+            {% endif %}
+
+            <!-- ✅ Edit & Delete Buttons (Only if Author) -->
+            {% if post.author == request.user %}
+                <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
+            {% endif %}
+
+            <br><br>
+            <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" class="btn btn-primary">Back to Profile</a>
+        </section>
+    </div>
+
+</body>
+</html>

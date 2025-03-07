@@ -515,4 +515,11 @@ def view_unlisted_post(request, post_id):
     serializer = PostSerializer(post)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+def view_single_post(request, post_id):
+    """
+    Display a single post.
+    """
+    post = get_object_or_404(Post, id=post_id)
+    return render(request, "single_post.html", {"post": post})
+
 ##################################### unlilsted ends ################################
