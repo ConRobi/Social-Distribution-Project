@@ -3,8 +3,19 @@ import uuid
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser
 import commonmark
-from django.contrib.auth.models import User  # Import User model if necessary
+from django.contrib import admin  # Import User model if necessary
 from django.conf import settings  # Import settings to get the custom user model
+
+class AdminApproval(models.Model):
+    # Model for approval, and ability to toggle on/off this functionality 
+    require_approval = models.BooleanField(default=True)
+
+    def __str__(self):
+        return "Admin Approval Settings"
+
+    class Meta:
+        verbose_name = "Admin Approval Setting"
+        verbose_name_plural = "Admin Approval Setting"  # Changes the admin panel display name
 
 # Create your models here.
 class Author(AbstractUser):
@@ -20,6 +31,7 @@ class Author(AbstractUser):
     profile_image = models.URLField(blank=True, null=True)
     page = models.URLField(blank=True, null=True)
     last_checked = models.DateTimeField(default=now)
+    is_approved = models.BooleanField(default=False)
 
 
     def get_followers(self):
