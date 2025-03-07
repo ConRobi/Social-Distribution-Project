@@ -79,9 +79,12 @@ class Post(models.Model):
         ('PUBLIC', 'Public'),
         ('FRIENDS', 'Friends Only'),
         ('DELETED', 'Deleted'),
+        ('UNLISTED', 'Unlisted') # New option
     ],
     default='PUBLIC')
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Ensure correct field
+
+   
 
     """
     If CommonMark is selected then format it, else leave the content as it is

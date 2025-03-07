@@ -5,8 +5,9 @@ from django.contrib.auth.views import LogoutView
 from .views_stream import stream_view  # import stream_view (reading)
 from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
-    view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list
+    view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list, view_unlisted_post
 )
+
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
@@ -68,14 +69,17 @@ urlpatterns = [
     path("authors/<uuid:uuid>/friends/", friends_list, name="friends-list"),
 
 
-    # reading starts here 
-    ##################################################
+    
+    ######################## reading starts here ###########################
     path('stream/', stream_view, name='stream'),
     
     # logout
     path('logout/', views.author_logout, name='author-logout'),
-    #################################################
+    ##################### reading ends ############################
 
+    # unlisted
+    path("posts/<int:post_id>/unlisted", view_unlisted_post, name="view-unlisted-post"),
+    path("posts/<int:post_id>/", views.view_single_post, name="view-single-post"),
 
     path("admin/", admin.site.urls),    # Django's built in admin panel
 
