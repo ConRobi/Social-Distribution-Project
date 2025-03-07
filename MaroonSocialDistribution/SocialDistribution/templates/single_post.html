@@ -38,7 +38,8 @@
             {% endif %}
 
             <br><br>
-            <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" class="btn btn-primary">Back to Profile</a>
+            <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to My Profile</a>
+
         </section>
     </div>
 
