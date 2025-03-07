@@ -8,7 +8,7 @@ from django.conf import settings  # Import settings to get the custom user model
 
 class AdminApproval(models.Model):
     # Model for approval, and ability to toggle on/off this functionality 
-    require_approval = models.BooleanField(default=True)
+    require_approval = models.BooleanField(default=False)
 
     def __str__(self):
         return "Admin Approval Settings"
