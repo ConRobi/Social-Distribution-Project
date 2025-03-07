@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AdminApproval, Author
+from .models import AdminApproval, Author, Post
 
 # Register your models here.
 @admin.register(AdminApproval)
@@ -31,3 +31,8 @@ class AuthorAdmin(admin.ModelAdmin):
         verbose_name_plural = "Approve Users"  # Change name in admin panel
 
     approve_authors.short_description = "Approve selected authors"
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'visibility', 'published')
+    list_filter = ('visibility',)

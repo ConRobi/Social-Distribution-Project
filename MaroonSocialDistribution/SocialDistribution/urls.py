@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib import admin
 from . import views
 from django.contrib.auth.views import LogoutView
 from .views_stream import stream_view  # import stream_view (reading)
@@ -72,7 +73,10 @@ urlpatterns = [
     path('stream/', stream_view, name='stream'),
     
     # logout
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('logout/', views.author_logout, name='author-logout'),
     #################################################
+
+
+    path("admin/", admin.site.urls),    # Django's built in admin panel
 
 ]
