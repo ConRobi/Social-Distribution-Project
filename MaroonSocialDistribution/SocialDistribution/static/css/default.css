@@ -105,3 +105,34 @@ form button {
     border-radius: 50%;
     font-size: 3em;
 }
+
+/* Styling like details display */
+#like-post-details {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Styling for like post button */
+
+.like-post-button {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2em;
+    color: rgb(255, 255, 255);
+    border-radius: 100px;
+    cursor: pointer;
+}
+
+.like-post-button:hover {
+    color:red;
+}
+
+/* Styling for single post */
+
+#single_post {
+    border: 0.5px solid #292929;
+    background-color: #ffffff;
+}
