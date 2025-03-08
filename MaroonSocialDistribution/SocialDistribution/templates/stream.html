@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>My Stream</title>
+    {% load static %}
+    <script src="{% static 'js/likes.js' %}"></script>
+</head>
 <body>
 
     <!-- ✅ "Go Back to My Profile" Button -->
@@ -32,6 +42,19 @@
                         <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
                         <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
                     {% endif %}
+                    <!-- Liking a post -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <section id="like-post-details">
+                            <button class="like-post-button" data-post-id="{{ post.id }}">
+                                ❤
+                            </button>
+                    
+                            <span id="post-likes-count-{{ post.id }}">
+                                {{ post.likes.count }}
+                            </span>
+                        </section>
+                    </form>
                 </li>
             {% endfor %}
         </ul>
@@ -39,3 +62,4 @@
         <p>No posts available.</p>
     {% endif %}
 </body>
+</html>

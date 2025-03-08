@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from .models import Author, Post, FollowRequest
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from .models import Author, Post, FollowRequest, Like
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -523,3 +524,24 @@ def view_single_post(request, post_id):
     return render(request, "single_post.html", {"post": post})
 
 ##################################### unlilsted ends ################################
+
+@login_required
+def like_post(request, post_id):
+    '''
+    Like a post
+    Returns a Json Response with the post's like count
+    '''
+    # TODO Maybe change id to uuid if post object is updated with new primary key?
+    post = get_object_or_404(Post, id=post_id)
+    
+    like = Like.objects.filter(author=request.user, post=post)
+    # Check if the user already liked this post
+    if not like.exists():
+        # Create new like object associated with the post
+        Like.objects.create(author=request.user, post=post)
+    else:
+        # Remove like if already liked
+        like.delete()
+    
+    # Return the new like count as a JSON response for use in Javascript
+    return JsonResponse({'likes_count': post.likes.count()})

@@ -125,3 +125,25 @@ class InboxPost(models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
     received_at = models.DateTimeField(auto_now_add=True)
+
+class Like(models.Model):
+    """
+    Model for handling liking posts and comments
+    """
+    type = models.CharField(max_length=10, default='like')
+    id = models.URLField()
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
+    # TODO uncomment when comment model is made
+    # comment = models.ForeignKey(Comment, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
+    object = models.URLField(null=True, blank=True)
+    published = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        """
+        Ensure that an author can only like a comment or post once
+        """
+        unique_together = ('author', 'post')
+        # TODO use this instead when comment object is made:
+        # unique_together = ('author', 'post', 'comment')
