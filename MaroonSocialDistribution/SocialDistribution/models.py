@@ -119,13 +119,6 @@ class FollowRequest(models.Model):
     def __str__(self):
         return f"{self.sender.display_name} -> {self.receiver.display_name} ({self.status})"
 
-
-
-class InboxPost(models.Model):
-    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    post = models.ForeignKey('Post', on_delete=models.CASCADE)
-    received_at = models.DateTimeField(auto_now_add=True)
-
 class Like(models.Model):
     """
     Model for handling liking posts and comments
@@ -148,7 +141,6 @@ class Like(models.Model):
         # TODO use this instead when comment object is made:
         # unique_together = ('author', 'post', 'comment')
 
-
 class Comment(models.Model):
     """
     Model for handling comments on posts
@@ -166,8 +158,13 @@ class Comment(models.Model):
         ('text/plain', 'plaintext'),
     ])
 
-# TODO: Need to make a Likes and Comments model
+    def render_comment(self):
+        if self.contentType == 'text/markdown':
+            return commonmark.commonmark(self.comment)
+        elif self.contentType == 'text/plain':
+            return f"<pre>{self.comment}</pre>"
 
+# TODO: Need to make a Likes and Comments model
 
 class InboxPost(models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -176,5 +173,3 @@ class InboxPost(models.Model):
 
     def __str__(self):
         return f"Post '{self.post.title}' sent to {self.receiver.display_name}"
-
-
