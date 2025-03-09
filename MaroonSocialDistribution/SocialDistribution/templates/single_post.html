@@ -11,101 +11,101 @@
 </head>
 <body>
 
-    <div class="profile_body">
-        <!-- Post Details Section -->
-        <section id="single_post">
-            <h2>{{ post.title }}</h2>
+    <div class="top-container">
+        <div class="profile_body">
+            <!-- Post Details Section -->
+            <section id="single_post">
+                <h2>{{ post.title }}</h2>
 
-            <!-- ✅ Show Author's Name & Link to Profile -->
-            <p>By: <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" style="color: black; text-decoration: none;">
-                {{ post.author.display_name }}</a>
-            </p>
+                <!-- ✅ Show Author's Name & Link to Profile -->
+                <p>By: <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" style="color: black; text-decoration: none;">
+                    {{ post.author.display_name }}</a>
+                </p>
 
-            <p>{{ post.description }}</p>
-            <p>{{ post.render_content | safe }}</p>
-            <p>Visibility: {{ post.visibility }}</p>
-            <p>Published: {{ post.published }}</p>
+                <p>{{ post.description }}</p>
+                <p>{{ post.render_content | safe }}</p>
+                <p>Visibility: {{ post.visibility }}</p>
+                <p>Published: {{ post.published }}</p>
 
-            <!-- ✅ Show Image if Available -->
-            {% if post.image %}
-                <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100%; height: auto;">
-            {% else %}
-                <p>No image uploaded</p>
-            {% endif %}
+                <!-- ✅ Show Image if Available -->
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100%; height: auto;">
+                {% else %}
+                    <p>No image uploaded</p>
+                {% endif %}
 
-            <!-- ✅ Edit & Delete Buttons (Only if Author) -->
-            {% if post.author == request.user %}
-                <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
-                <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
-            {% endif %}
+                <!-- ✅ Edit & Delete Buttons (Only if Author) -->
+                {% if post.author == request.user %}
+                    <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
+                {% endif %}
 
-            <!-- ✅ Share Button (Only for Other Authors & Public/Unlisted Posts) -->
-            {% if post.author != request.user and post.visibility in "PUBLIC UNLISTED" %}
-                <form action="{% url 'SocialDistribution:send-to-followers' post.id %}" method="post" style="margin-top: 10px;">
+                <!-- ✅ Share Button (Only for Other Authors & Public/Unlisted Posts) -->
+                {% if post.author != request.user and post.visibility in "PUBLIC UNLISTED" %}
+                    <form action="{% url 'SocialDistribution:send-to-followers' post.id %}" method="post" style="margin-top: 10px;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-info">Share</button>
+                    </form>
+                {% endif %}
+
+                <!-- ✅ Copy Link (For All Posts) -->
+                <p>
+                    <a href="#" onclick="copyPostLink()" style="text-decoration: underline; color: blue; cursor: pointer;">
+                        Copy Link
+                    </a>
+                </p>
+
+                <!-- ✅ JavaScript to Copy Link -->
+                <script>
+                function copyPostLink() {
+                    const postUrl = window.location.href; // Get current URL
+                    navigator.clipboard.writeText(postUrl).then(() => {
+                        alert("Post link copied to clipboard!"); // Show notification
+                    }).catch(err => {
+                        console.error("Failed to copy: ", err);
+                    });
+                }
+                </script>
+
+                <!-- Liking a post -->
+                <form method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-info">Share</button>
+                    <section id="like-post-details">
+                        <button class="like-post-button" data-post-id="{{ post.id }}">
+                            ❤
+                        </button>
+                        <span id="post-likes-count-{{ post.id }}">
+                            {{ post.likes.count }}
+                        </span>
+                    </section>
                 </form>
-            {% endif %}
 
-            <!-- ✅ Copy Link (For All Posts) -->
-            <p>
-                <a href="#" onclick="copyPostLink()" style="text-decoration: underline; color: blue; cursor: pointer;">
-                    Copy Link
-                </a>
-            </p>
+                <br><br>
+                
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to My Profile</a>
+                {% else %}
+                    <a href="{% url 'SocialDistribution:index' %}">Back to Home</a>
+                {% endif %}
 
-            <!-- ✅ JavaScript to Copy Link -->
-            <script>
-            function copyPostLink() {
-                const postUrl = window.location.href; // Get current URL
-                navigator.clipboard.writeText(postUrl).then(() => {
-                    alert("Post link copied to clipboard!"); // Show notification
-                }).catch(err => {
-                    console.error("Failed to copy: ", err);
-                });
-            }
-            </script>
+            </section>
+        </div>
 
-            <!-- Liking a post -->
-            <form method="post">
+        <br><br>
+
+        <div class="add-comment-body">
+            <form method="post" class="add-comment-form" action="{% url 'SocialDistribution:add-comment' post.id %}">
                 {% csrf_token %}
-                <section id="like-post-details">
-                    <button class="like-post-button" data-post-id="{{ post.id }}">
-                        ❤
-                    </button>
-                    <span id="post-likes-count-{{ post.id }}">
-                        {{ post.likes.count }}
-                    </span>
-                </section>
+                <h2>Add a Comment</h2>
+                <label for="contentType">Content Type:</label>
+                <select name="contentType">
+                    <option value="text/plain">plaintext</option>
+                    <option value="text/markdown">CommonMark</option>
+                </select>
+                <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
+                <button type="submit">Submit</button>
             </form>
-
-            <br><br>
-            
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to My Profile</a>
-            {% else %}
-                <a href="{% url 'SocialDistribution:index' %}">Back to Home</a>
-            {% endif %}
-
-        </section>
-    </div>
-
-    <br><br>
-
-    <div class="add-comment-body">
-        <form method="post" class="add-comment-form" action="{% url 'SocialDistribution:add-comment' post.id %}">
-            {% csrf_token %}
-            <h2>Add a Comment</h2>
-            <!-- Markdown or plaintext -->
-            <label for="contentType">Content Type:</label>
-            <select name="contentType">
-                <option value="text/plain">plaintext</option>
-                <option value="text/markdown">CommonMark</option>
-            </select><br>
-            
-            <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
-            <button type="submit">Submit</button>
-        </form>
+        </div>
     </div>
 
     <div class="comment-section">
@@ -114,15 +114,11 @@
                 {% if comments %}
 
                 {% for comment in comments %}
-                    <li>
                         <div class="comment-item">
-                            <p>{{ comment.comment }}</p>
-                            <p>By: <a href="{% url 'SocialDistribution:view-profile' comment.author.uuid %}" style="color: black; text-decoration: none;">
-                                {{ comment.author.display_name }}</a>
-                            </p>
+                            <a href="{% url 'SocialDistribution:view-profile' comment.author.uuid %}"> {{comment.author.display_name}} </a>
+                            <p> {{ comment.render_comment | safe }} </p>
                             <p>Published: {{ comment.published }}</p>
                         </div>
-                    </li>
                 {% endfor %}
 
                 {% else %}

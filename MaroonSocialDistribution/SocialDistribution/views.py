@@ -595,7 +595,8 @@ def add_comment(request, post_id):
     '''
     post = get_object_or_404(Post, id=post_id)
     comment_text = request.POST.get('comment')
-    Comment.objects.create(author=request.user, post=post, comment=comment_text)
+    content_type = request.POST.get('contentType')
+    Comment.objects.create(author=request.user, post=post, comment=comment_text, contentType=content_type)
     return redirect("SocialDistribution:view-single-post", post_id=post_id)
 
 @login_required
