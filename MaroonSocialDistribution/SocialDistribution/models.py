@@ -71,7 +71,7 @@ class Post(models.Model):
     content = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     # Need a comment object first?
-    # comments = models.ManyToManyField('Comment', blank=True)
+    comments = models.ManyToManyField('Comment', blank=True, related_name='post_comments')
     # Need a like object first?
     # likes = models.ManyToManyField('Like', blank=True)
     published = models.DateTimeField(auto_now_add=True)
@@ -148,6 +148,27 @@ class Like(models.Model):
         # TODO use this instead when comment object is made:
         # unique_together = ('author', 'post', 'comment')
 
+
+class Comment(models.Model):
+    """
+    Model for handling comments on posts
+    """
+    type = models.CharField(max_length=10, default='comment')
+    id = models.URLField()
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='post_comments', on_delete=models.CASCADE)
+    comment = models.TextField()
+    published = models.DateTimeField(auto_now_add=True)
+    # likes = models.ManyToManyField('Like', blank=True)
+    contentType = models.CharField(max_length=20, choices=[
+        ('text/markdown', 'CommonMark'),
+        ('text/plain', 'plaintext'),
+    ])
+
+# TODO: Need to make a Likes and Comments model
+
+
 class InboxPost(models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
@@ -155,4 +176,5 @@ class InboxPost(models.Model):
 
     def __str__(self):
         return f"Post '{self.post.title}' sent to {self.receiver.display_name}"
+
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from .models import Author, Post, FollowRequest, Like, InboxPost
+from .models import Author, Post, FollowRequest, Like, Comment, InboxPost
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -522,9 +522,13 @@ def view_single_post(request, post_id):
     """
     post = get_object_or_404(Post, id=post_id)
 
+    comments = Comment.objects.filter(post=post)
+#     return render(request, "single_post.html", {"post": post, "comments": comments})
+
+
     # ✅ Allow access if the post is Public or Unlisted (even if not logged in)
     if post.visibility in ["PUBLIC", "UNLISTED"]:
-        return render(request, "single_post.html", {"post": post})
+        return render(request, "single_post.html", {"post": post, "comments": comments})
 
     # ✅ Require authentication for Friends-Only posts
     if post.visibility == "FRIENDS":
@@ -550,6 +554,7 @@ def view_single_post(request, post_id):
     # ❌ If visibility does not match any expected cases, deny access
     messages.error(request, "Unable to view this post.")
     return redirect("SocialDistribution:index")
+
 
 
 ##################################### unlilsted ends ################################
@@ -579,6 +584,19 @@ def like_post(request, post_id):
     
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': post.likes.count()})
+
+
+### Comments ###
+
+@login_required
+def add_comment(request, post_id):
+    '''
+    Add a comment to a post
+    '''
+    post = get_object_or_404(Post, id=post_id)
+    comment_text = request.POST.get('comment')
+    Comment.objects.create(author=request.user, post=post, comment=comment_text)
+    return redirect("SocialDistribution:view-single-post", post_id=post_id)
 
 @login_required
 def send_post_to_followers(request, post_id):
@@ -617,4 +635,5 @@ def view_inbox(request):
     """
     inbox_posts = InboxPost.objects.filter(receiver=request.user).order_by('-received_at')
     return render(request, "inbox.html", {"inbox_posts": inbox_posts})
+
 
