@@ -153,3 +153,7 @@ form button {
     border-radius: 5px;
     margin: 20px;
 }
+
+.comment-item {
+    border: 1px solid black;
+}

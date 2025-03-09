@@ -159,3 +159,10 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='post_comments', on_delete=models.CASCADE)
     comment = models.TextField()
     published = models.DateTimeField(auto_now_add=True)
+    # likes = models.ManyToManyField('Like', blank=True)
+    contentType = models.CharField(max_length=20, choices=[
+        ('text/markdown', 'CommonMark'),
+        ('text/plain', 'plaintext'),
+    ])
+
+# TODO: Need to make a Likes and Comments model
