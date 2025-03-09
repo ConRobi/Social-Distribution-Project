@@ -18,8 +18,8 @@ html, body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
     position: sticky;          /* Navbar stays on top when scrolling */
     top: 0;
-    width: 100%;
     z-index: 1000;
+    justify-content: space-between;
 }
 
 /* Logo Styling */
@@ -57,7 +57,46 @@ html, body {
 }
 
 
+/* Navbar Search Form */
+.navbar-search {
+    gap: 8px;                  /* Spacing between input and icon */
+    margin-left: auto;         /* Pushes search to the right */
+}
+.navbar form {
+    flex-direction: row;
+    background: none;
+}
 
+.navbar form button {
+    width: 40%;
+}
+
+.search-section {
+    display: flex;             /* Ensures items are side by side */
+    align-items: center;
+}
+.navbar-search input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    width: 200px;
+    outline: none;
+}
+
+/* Magnifying Glass Icon */
+.navbar-search button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;       /* Larger icon size */
+    color: #fff;             /* Icon color */
+    padding: 5px 10px;       /* Padding to increase click area */
+    transition: color 0.3s ease;
+}
+
+.navbar-search button:hover {
+    color: #004C97;          /* Darker blue on hover */
+}
 
 
 /* Body CSS for edit_profile.html */

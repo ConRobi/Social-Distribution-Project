@@ -54,20 +54,6 @@
             </div>
             {% endif %}
 
-            <!-- Author Search Section - Centered & Lowered -->
-            <div class="search-section" style="text-align: center; margin-top: 40px;">
-                <h3>Search Authors</h3>
-                <form method="GET" action="{% url 'SocialDistribution:search-authors' %}" 
-                      style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
-                    <input type="text" name="query" placeholder="Search authors..." required 
-                        style="width: 250px; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
-                    <button type="submit" 
-                        style="width: 150px; padding: 8px; border-radius: 5px; border: none; background: black; color: white; font-weight: bold; margin-top: 15px;">
-                        Search
-                    </button>
-                </form>
-            </div>
-
         </section>
 
         <!-- Posts Section -->

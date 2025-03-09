@@ -14,8 +14,12 @@
             <div class="nav-links">
                 <a href="{% url 'SocialDistribution:view-profile' user.uuid %}">My Profile</a>
                 <a href="{% url 'SocialDistribution:stream' %}">Stream</a>
-                <a href="{% url 'admin:logout' %}">Logout</a>
+                <a href="{% url 'admin:logout' %}">Logout</a>          
             </div>
+                <form method="GET" action="{% url 'SocialDistribution:search-authors' %}" class="navbar-search">
+                    <input type="text" name="query" placeholder="Search authors..." required>
+                    <button type="submit" aria-label="Search">🔍</button>
+                </form>
         </nav>
     </header>
 
