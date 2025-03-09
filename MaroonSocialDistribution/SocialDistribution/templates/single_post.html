@@ -47,16 +47,24 @@
                 </form>
             {% endif %}
 
-            <!-- ✅ Display Django messages (for pop-up notifications) -->
-            {% if messages %}
+            <!-- ✅ Copy Link (For All Posts) -->
+            <p>
+                <a href="#" onclick="copyPostLink()" style="text-decoration: underline; color: blue; cursor: pointer;">
+                    Copy Link
+                </a>
+            </p>
+
+            <!-- ✅ JavaScript to Copy Link -->
             <script>
-                window.onload = function() {
-                    {% for message in messages %}
-                        alert("{{ message }}");
-                    {% endfor %}
-                };
+            function copyPostLink() {
+                const postUrl = window.location.href; // Get current URL
+                navigator.clipboard.writeText(postUrl).then(() => {
+                    alert("Post link copied to clipboard!"); // Show notification
+                }).catch(err => {
+                    console.error("Failed to copy: ", err);
+                });
+            }
             </script>
-            {% endif %}
 
             <!-- Liking a post -->
             <form method="post">
@@ -65,7 +73,6 @@
                     <button class="like-post-button" data-post-id="{{ post.id }}">
                         ❤
                     </button>
-            
                     <span id="post-likes-count-{{ post.id }}">
                         {{ post.likes.count }}
                     </span>
@@ -73,7 +80,12 @@
             </form>
 
             <br><br>
-            <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to My Profile</a>
+            
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to My Profile</a>
+            {% else %}
+                <a href="{% url 'SocialDistribution:index' %}">Back to Home</a>
+            {% endif %}
 
         </section>
     </div>

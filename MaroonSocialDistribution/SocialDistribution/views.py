@@ -518,10 +518,39 @@ def view_unlisted_post(request, post_id):
 
 def view_single_post(request, post_id):
     """
-    Display a single post.
+    Display a single post, restricting access based on visibility.
     """
     post = get_object_or_404(Post, id=post_id)
-    return render(request, "single_post.html", {"post": post})
+
+    # ✅ Allow access if the post is Public or Unlisted (even if not logged in)
+    if post.visibility in ["PUBLIC", "UNLISTED"]:
+        return render(request, "single_post.html", {"post": post})
+
+    # ✅ Require authentication for Friends-Only posts
+    if post.visibility == "FRIENDS":
+        if not request.user.is_authenticated:
+            # ❌ Redirect to login if user is not logged in
+            messages.error(request, "Unable to view this post. Please log in.")
+            return redirect("SocialDistribution:author-login")
+
+        # ✅ Check if the user is a mutual friend
+        is_friend = FollowRequest.objects.filter(
+            sender=request.user, receiver=post.author, status="ACCEPTED"
+        ).exists() and FollowRequest.objects.filter(
+            sender=post.author, receiver=request.user, status="ACCEPTED"
+        ).exists()
+
+        if is_friend:
+            return render(request, "single_post.html", {"post": post})
+
+        # ❌ Show error if user is not a friend
+        messages.error(request, "Unable to view this post. You must be friends with the author.")
+        return redirect("SocialDistribution:view-profile", request.user.uuid)
+
+    # ❌ If visibility does not match any expected cases, deny access
+    messages.error(request, "Unable to view this post.")
+    return redirect("SocialDistribution:index")
+
 
 ##################################### unlilsted ends ################################
 
