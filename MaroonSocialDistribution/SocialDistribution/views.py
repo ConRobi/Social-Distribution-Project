@@ -185,8 +185,9 @@ def edit_profile(request, uuid):
 @api_view(['POST'])
 def update_profile(request, uuid):
     '''
-    Edit profile POST request called when edit-profile form is submitted.
+    - Description: Edit profile POST request called when edit-profile form is submitted.
     Updates author fields if new input is provided to them.
+    - Redirects back to author profile page (using author.uuid as argument)
     '''
     author = get_object_or_404(Author, uuid=uuid)
 
@@ -559,11 +560,12 @@ def view_single_post(request, post_id):
 
 ### Likes ###
 
+@api_view(['POST'])
 @login_required
 def like_post(request, post_id):
     '''
-    Like a post
-    Returns a Json Response with the post's like count
+    - Description: Like a post
+    - Returns a Json Response with the post's like count (integer)
     '''
     # TODO Maybe change id to uuid if post object is updated with new primary key?
     post = get_object_or_404(Post, id=post_id)
@@ -585,8 +587,13 @@ def like_post(request, post_id):
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': post.likes.count()})
 
+@api_view(['POST'])
 @login_required
 def like_comment(request, comment_uuid):
+    '''
+    - Description: Like a comment
+    - Returns a Json Response with the comment's like count (integer)
+    '''
     comment = get_object_or_404(Comment, uuid=comment_uuid)
 
     like_author = request.user
@@ -599,8 +606,6 @@ def like_comment(request, comment_uuid):
         # TODO uncomment line when comment model has proper id field
         # new_like.object = comment.id
         new_like.save()
-        print(new_like.id)
-        print(comment.uuid)
     else:
         # Remove like if already liked
         like.delete()
@@ -610,6 +615,7 @@ def like_comment(request, comment_uuid):
 
 ### Comments ###
 
+@api_view(['POST'])
 @login_required
 def add_comment(request, post_id):
     '''
