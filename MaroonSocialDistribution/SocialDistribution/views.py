@@ -544,7 +544,7 @@ def view_single_post(request, post_id):
             sender=post.author, receiver=request.user, status="ACCEPTED"
         ).exists()
 
-        if is_friend:
+        if is_friend or (request.user == post.author):
             return render(request, "single_post.html", {"post": post})
 
         # ❌ Show error if user is not a friend
