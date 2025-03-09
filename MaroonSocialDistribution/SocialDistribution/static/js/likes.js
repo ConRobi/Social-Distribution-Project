@@ -23,9 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-    // Handle like/unlike for comments
+    // Handle like for comments
     document.querySelectorAll('.like-comment-button').forEach(button => {
       button.addEventListener('click', function() {
+        // Get the comment UUID
         const commentUuid = this.getAttribute('data-comment-uuid');
   
         fetch(`/comment/${commentUuid}/like_comment/`, {
