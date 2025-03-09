@@ -534,11 +534,16 @@ def like_post(request, post_id):
     # TODO Maybe change id to uuid if post object is updated with new primary key?
     post = get_object_or_404(Post, id=post_id)
     
-    like = Like.objects.filter(author=request.user, post=post)
+    like_author = request.user
+    like = Like.objects.filter(author=like_author, post=post)
     # Check if the user already liked this post
     if not like.exists():
         # Create new like object associated with the post
-        Like.objects.create(author=request.user, post=post)
+        new_like = Like.objects.create(author=like_author, post=post)
+        new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
+        new_like.save()
+        print(new_like.id)
+        print(new_like.uuid)
     else:
         # Remove like if already liked
         like.delete()
