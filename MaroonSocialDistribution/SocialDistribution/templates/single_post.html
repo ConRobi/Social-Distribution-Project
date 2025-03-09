@@ -119,6 +119,19 @@
                             <p> {{ comment.render_comment | safe }} </p>
                             <p>Published: {{ comment.published }}</p>
                         </div>
+                        <!-- Liking a comment -->
+                        <form method="post">
+                            {% csrf_token %}
+                            <section id="like-details">
+                                <button class="like-comment-button" data-comment-uuid="{{ comment.uuid }}">
+                                    ❤
+                                </button>
+                        
+                                <span id="comment-likes-count-{{ comment.uuid }}">
+                                    {{ comment.likes.count }}
+                                </span>
+                            </section>
+                        </form>
                 {% endfor %}
 
                 {% else %}

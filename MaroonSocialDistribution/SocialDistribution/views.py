@@ -545,7 +545,7 @@ def view_single_post(request, post_id):
         ).exists()
 
         if is_friend or (request.user == post.author):
-            return render(request, "single_post.html", {"post": post})
+            return render(request, "single_post.html", {"post": post, "comments": comments})
 
         # ❌ Show error if user is not a friend
         messages.error(request, "Unable to view this post. You must be friends with the author.")
@@ -557,7 +557,7 @@ def view_single_post(request, post_id):
 
 
 
-##################################### unlilsted ends ################################
+### Likes ###
 
 @login_required
 def like_post(request, post_id):
@@ -575,9 +575,9 @@ def like_post(request, post_id):
         # Create new like object associated with the post
         new_like = Like.objects.create(author=like_author, post=post)
         new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
+        # TODO uncomment line when post model has proper id field
+        # new_like.object = post.id
         new_like.save()
-        print(new_like.id)
-        print(new_like.uuid)
     else:
         # Remove like if already liked
         like.delete()
@@ -585,6 +585,28 @@ def like_post(request, post_id):
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': post.likes.count()})
 
+@login_required
+def like_comment(request, comment_uuid):
+    comment = get_object_or_404(Comment, uuid=comment_uuid)
+
+    like_author = request.user
+    like = Like.objects.filter(author=like_author, comment=comment)
+    # Check if the user already liked this comment
+    if not like.exists():
+        # Create new like object associated with the comment
+        new_like = Like.objects.create(author=like_author, comment=comment)
+        new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
+        # TODO uncomment line when comment model has proper id field
+        # new_like.object = comment.id
+        new_like.save()
+        print(new_like.id)
+        print(comment.uuid)
+    else:
+        # Remove like if already liked
+        like.delete()
+    
+    # Return the new like count as a JSON response for use in Javascript
+    return JsonResponse({'likes_count': comment.likes.count()})
 
 ### Comments ###
 
