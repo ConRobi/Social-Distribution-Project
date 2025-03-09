@@ -108,7 +108,7 @@ form button {
 }
 
 /* Styling like details display */
-#like-post-details {
+#like-details {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;

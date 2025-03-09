@@ -88,11 +88,11 @@ urlpatterns = [
 
 
     # Likes
-    # TODO hange to handle uuid?
+    # TODO change to handle uuid of post?
     path('post/<int:post_id>/like_post/', views.like_post, name="like-post"),
-    # TODO add the same for comments when comment object made/change to handle uuid?
-    # path('comment/<int:comment_id>/like_comment/', views.like_comment, name="like-comment"),
-    
+    path('comment/<uuid:comment_uuid>/like_comment/', views.like_comment, name="like-comment"),
+
+    # Comments
     path('post/<int:post_id>/add_comment/', views.add_comment, name="add-comment"),
 
 ]

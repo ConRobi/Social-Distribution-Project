@@ -119,27 +119,6 @@ class FollowRequest(models.Model):
     def __str__(self):
         return f"{self.sender.display_name} -> {self.receiver.display_name} ({self.status})"
 
-class Like(models.Model):
-    """
-    Model for handling liking posts and comments
-    """
-    type = models.CharField(max_length=10, default='like')
-    id = models.URLField()
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
-    # TODO uncomment when comment model is made
-    # comment = models.ForeignKey(Comment, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
-    object = models.URLField(null=True, blank=True)
-    published = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        """
-        Ensure that an author can only like a comment or post once
-        """
-        unique_together = ('author', 'post')
-        # TODO use this instead when comment object is made:
-        # unique_together = ('author', 'post', 'comment')
 
 class Comment(models.Model):
     """
@@ -163,6 +142,25 @@ class Comment(models.Model):
             return commonmark.commonmark(self.comment)
         elif self.contentType == 'text/plain':
             return f"<pre>{self.comment}</pre>"
+
+class Like(models.Model):
+    """
+    Model for handling liking posts and comments
+    """
+    type = models.CharField(max_length=10, default='like')
+    id = models.URLField()
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
+    comment = models.ForeignKey(Comment, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
+    object = models.URLField(null=True, blank=True)
+    published = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        """
+        Ensure that an author can only like a comment or post once
+        """
+        unique_together = ('author', 'post', 'comment')
 
 # TODO: Need to make a Likes and Comments model
 
