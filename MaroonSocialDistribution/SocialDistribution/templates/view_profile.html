@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>My Profile</title>
-    {% load static %}
-    <script src="{% static 'js/likes.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
     {% if author == request.user %}
         <a href="{% url 'SocialDistribution:create-post' author.uuid %}">
             <button class="new_post_button">+</button>
@@ -122,5 +115,4 @@
             {% endif %}
         </section>
     </div>
-</body>
-</html>
+{% endblock %}

@@ -9,13 +9,13 @@
 </head>
 <body>
     <header>
-        <h1>Welcome to Social Distribution</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'SocialDistribution:stream' %}">Stream</a></li>
-                <li><a href="{% url 'SocialDistribution:view-profile' user.uuid %}">My Profile</a></li>
-                <a href="{% url 'admin:logout' %}">Logout</a> <!-- Remove "SocialDistribution:" -->
-            </ul>
+        <h1>Social Distribution Maroon</h1>
+        <nav class = "navbar">
+            <div class="nav-links">
+                <a href="{% url 'SocialDistribution:view-profile' user.uuid %}">My Profile</a>
+                <a href="{% url 'SocialDistribution:stream' %}">Stream</a>
+                <a href="{% url 'admin:logout' %}">Logout</a>
+            </div>
         </nav>
     </header>
 

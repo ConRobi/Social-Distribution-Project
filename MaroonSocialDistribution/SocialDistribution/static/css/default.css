@@ -8,6 +8,58 @@ html, body {
     
 }
 
+/* Navbar Styling */
+.navbar {
+    background-color: #004C97; /* Deep blue background */
+    color: #fff;
+    display: flex;             /* Horizontal layout */
+    align-items: center;       /* Vertically center items */
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    position: sticky;          /* Navbar stays on top when scrolling */
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Logo Styling */
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+    margin-right: auto;       /* Pushes nav links to the right */
+}
+
+/* Navigation Links */
+.nav-links {
+    display: flex;
+    gap: 20px;                 /* Spacing between links */
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.nav-links a:hover {
+    background-color: #0072CE;  /* Slightly lighter blue on hover */
+}
+
+/* Active Link Styling (Optional for Profile Page) */
+.profile-page .nav-links a[href="/dashboard/"] {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+
+
+
+
 /* Body CSS for edit_profile.html */
 
 .edit_profile_body {
