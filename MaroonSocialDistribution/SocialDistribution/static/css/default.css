@@ -65,6 +65,8 @@ html, body {
 .navbar form {
     flex-direction: row;
     background: none;
+    margin: 0;
+    padding: 0;
 }
 
 .navbar form button {
