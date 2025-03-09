@@ -71,7 +71,7 @@ class Post(models.Model):
     content = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     # Need a comment object first?
-    # comments = models.ManyToManyField('Comment', blank=True)
+    comments = models.ManyToManyField('Comment', blank=True, related_name='post_comments')
     # Need a like object first?
     # likes = models.ManyToManyField('Like', blank=True)
     published = models.DateTimeField(auto_now_add=True)
@@ -79,9 +79,12 @@ class Post(models.Model):
         ('PUBLIC', 'Public'),
         ('FRIENDS', 'Friends Only'),
         ('DELETED', 'Deleted'),
+        ('UNLISTED', 'Unlisted') # New option
     ],
     default='PUBLIC')
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Ensure correct field
+
+   
 
     """
     If CommonMark is selected then format it, else leave the content as it is
@@ -122,3 +125,56 @@ class InboxPost(models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
     received_at = models.DateTimeField(auto_now_add=True)
+
+class Like(models.Model):
+    """
+    Model for handling liking posts and comments
+    """
+    type = models.CharField(max_length=10, default='like')
+    id = models.URLField()
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
+    # TODO uncomment when comment model is made
+    # comment = models.ForeignKey(Comment, related_name='likes', on_delete=models.CASCADE, null=True, blank=True) # Can be blank/null if comment was liked
+    object = models.URLField(null=True, blank=True)
+    published = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        """
+        Ensure that an author can only like a comment or post once
+        """
+        unique_together = ('author', 'post')
+        # TODO use this instead when comment object is made:
+        # unique_together = ('author', 'post', 'comment')
+
+
+class Comment(models.Model):
+    """
+    Model for handling comments on posts
+    """
+    type = models.CharField(max_length=10, default='comment')
+    id = models.URLField()
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='post_comments', on_delete=models.CASCADE)
+    comment = models.TextField()
+    published = models.DateTimeField(auto_now_add=True)
+    # likes = models.ManyToManyField('Like', blank=True)
+    contentType = models.CharField(max_length=20, choices=[
+        ('text/markdown', 'CommonMark'),
+        ('text/plain', 'plaintext'),
+    ])
+
+# TODO: Need to make a Likes and Comments model
+
+
+class InboxPost(models.Model):
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Post '{self.post.title}' sent to {self.receiver.display_name}"
+
+

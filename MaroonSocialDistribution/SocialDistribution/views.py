@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from .models import Author, Post, FollowRequest
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from .models import Author, Post, FollowRequest, Like, Comment, InboxPost
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -83,17 +84,26 @@ def view_profile(request, uuid):
     follow_requests = FollowRequest.objects.filter(receiver=author, status='PENDING')
 
     # Fetch posts based on author and visibility (most recent first)
-    # Check if the logged in user is the author
+   # Fetch posts based on author and visibility (most recent first)
     if request.user == author:  
-        # If the logged in user is the author, show all posts (excluding posts labelled as 'deleted')
+        # Show all posts including unlisted (excluding deleted)
         author_posts = Post.objects.filter(author=author).exclude(visibility__iexact='deleted').order_by('-published')
-    # Check if the logged in user is a follower of the author and is being followed by the author (they're friends)
     elif (request.user in followers) and (request.user in following):
-        # Show friends only posts and public posts 
-        author_posts = Post.objects.filter(author=author).filter(Q(visibility__iexact='friends') | Q(visibility__iexact='friends only') | Q(visibility__iexact='public')).order_by('-published')
+        # Show friends-only, public, and unlisted posts
+        author_posts = Post.objects.filter(author=author).filter(
+            Q(visibility__iexact='friends') | 
+            Q(visibility__iexact='friends only') | 
+            Q(visibility__iexact='public') | 
+            Q(unlisted=True)  # Include unlisted posts
+        ).order_by('-published')
     else:
-        # Show only public posts
-        author_posts = Post.objects.filter(author=author, visibility__iexact='public').order_by('-published')
+        # Show public and unlisted posts
+        # Show only public and unlisted posts
+        author_posts = Post.objects.filter(
+            Q(author=author, visibility__iexact='public') | 
+            Q(author=author, visibility__iexact='unlisted')
+        ).order_by('-published')
+
 
 
     # Handle author search functionality
@@ -221,7 +231,7 @@ def add_post(request, uuid):
     # Copy request data and add the author UUID
     data = request.data.copy()
     data["author"] = str(author.uuid)  # Pass the correct UUID string
-
+    
     image = request.FILES.get('image')  # Extract image from request
 
     # Create serializer with BOTH request data and request.FILES
@@ -490,3 +500,137 @@ def remove_follower(request, uuid):
         FollowRequest.objects.filter(sender=to_remove, receiver=user, status="ACCEPTED").delete()
 
     return redirect("SocialDistribution:view-followers")
+
+
+##################################### unlilsted ################################
+@api_view(['GET'])
+def view_unlisted_post(request, post_id):
+    """
+    Allow anyone with the link to view an unlisted post.
+    """
+    post = get_object_or_404(Post, id=post_id, visibility="UNLISTED")
+
+    serializer = PostSerializer(post)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+def view_single_post(request, post_id):
+    """
+    Display a single post, restricting access based on visibility.
+    """
+    post = get_object_or_404(Post, id=post_id)
+
+    comments = Comment.objects.filter(post=post)
+#     return render(request, "single_post.html", {"post": post, "comments": comments})
+
+
+    # ✅ Allow access if the post is Public or Unlisted (even if not logged in)
+    if post.visibility in ["PUBLIC", "UNLISTED"]:
+        return render(request, "single_post.html", {"post": post, "comments": comments})
+
+    # ✅ Require authentication for Friends-Only posts
+    if post.visibility == "FRIENDS":
+        if not request.user.is_authenticated:
+            # ❌ Redirect to login if user is not logged in
+            messages.error(request, "Unable to view this post. Please log in.")
+            return redirect("SocialDistribution:author-login")
+
+        # ✅ Check if the user is a mutual friend
+        is_friend = FollowRequest.objects.filter(
+            sender=request.user, receiver=post.author, status="ACCEPTED"
+        ).exists() and FollowRequest.objects.filter(
+            sender=post.author, receiver=request.user, status="ACCEPTED"
+        ).exists()
+
+        if is_friend:
+            return render(request, "single_post.html", {"post": post})
+
+        # ❌ Show error if user is not a friend
+        messages.error(request, "Unable to view this post. You must be friends with the author.")
+        return redirect("SocialDistribution:view-profile", request.user.uuid)
+
+    # ❌ If visibility does not match any expected cases, deny access
+    messages.error(request, "Unable to view this post.")
+    return redirect("SocialDistribution:index")
+
+
+
+##################################### unlilsted ends ################################
+
+@login_required
+def like_post(request, post_id):
+    '''
+    Like a post
+    Returns a Json Response with the post's like count
+    '''
+    # TODO Maybe change id to uuid if post object is updated with new primary key?
+    post = get_object_or_404(Post, id=post_id)
+    
+    like_author = request.user
+    like = Like.objects.filter(author=like_author, post=post)
+    # Check if the user already liked this post
+    if not like.exists():
+        # Create new like object associated with the post
+        new_like = Like.objects.create(author=like_author, post=post)
+        new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
+        new_like.save()
+        print(new_like.id)
+        print(new_like.uuid)
+    else:
+        # Remove like if already liked
+        like.delete()
+    
+    # Return the new like count as a JSON response for use in Javascript
+    return JsonResponse({'likes_count': post.likes.count()})
+
+
+### Comments ###
+
+@login_required
+def add_comment(request, post_id):
+    '''
+    Add a comment to a post
+    '''
+    post = get_object_or_404(Post, id=post_id)
+    comment_text = request.POST.get('comment')
+    Comment.objects.create(author=request.user, post=post, comment=comment_text)
+    return redirect("SocialDistribution:view-single-post", post_id=post_id)
+
+@login_required
+def send_post_to_followers(request, post_id):
+    """
+    Allows users to share a public or unlisted post with their followers.
+    """
+    # Get the post or return 404 if not found
+    post = get_object_or_404(Post, id=post_id)
+
+    # Ensure that only public and unlisted posts can be shared
+    if post.visibility not in ["PUBLIC", "UNLISTED"]:
+        messages.error(request, "You can only share public or unlisted posts.")
+        return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+    # Get the logged-in user's followers
+    followers = Author.objects.filter(
+        uuid__in=FollowRequest.objects.filter(receiver=request.user, status='ACCEPTED')
+        .values_list('sender__uuid', flat=True)
+    )
+
+    # Send the post title & link to each follower's inbox
+    for follower in followers:
+        InboxPost.objects.create(receiver=follower, post=post)
+
+    # Show a success message
+    messages.success(request, "Shared to followers!")
+
+    # Redirect back to the post page after sharing
+    return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+
+@login_required
+def view_inbox(request):
+    """
+    Display all posts received in the inbox.
+    """
+    inbox_posts = InboxPost.objects.filter(receiver=request.user).order_by('-received_at')
+    return render(request, "inbox.html", {"inbox_posts": inbox_posts})
+
+
