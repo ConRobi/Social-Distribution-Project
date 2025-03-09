@@ -47,9 +47,6 @@ def add_profile(request):
         # TODO GET request to other nodes to see if UUID is unique across all nodes
         # Option 1: Implement check method in models.py, call method in add_profile --> reusable across app
         # Option 2: Implement check in add_profile --> only lives inside add_profile function'
-
-        # TODO pending admin approval before profile becomes activated
-
         
         # Create URL based fields based on UUID
         node_url = "http://maroonnode.com"  # TODO need to prefix /SocialDistribution with node eg. node1/SocialDistribution
