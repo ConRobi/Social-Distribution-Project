@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from .models import Author, Post, FollowRequest, Like
+from .models import Author, Post, FollowRequest, Like, InboxPost
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -550,3 +550,42 @@ def like_post(request, post_id):
     
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': post.likes.count()})
+
+@login_required
+def send_post_to_followers(request, post_id):
+    """
+    Allows users to share a public or unlisted post with their followers.
+    """
+    # Get the post or return 404 if not found
+    post = get_object_or_404(Post, id=post_id)
+
+    # Ensure that only public and unlisted posts can be shared
+    if post.visibility not in ["PUBLIC", "UNLISTED"]:
+        messages.error(request, "You can only share public or unlisted posts.")
+        return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+    # Get the logged-in user's followers
+    followers = Author.objects.filter(
+        uuid__in=FollowRequest.objects.filter(receiver=request.user, status='ACCEPTED')
+        .values_list('sender__uuid', flat=True)
+    )
+
+    # Send the post title & link to each follower's inbox
+    for follower in followers:
+        InboxPost.objects.create(receiver=follower, post=post)
+
+    # Show a success message
+    messages.success(request, "Shared to followers!")
+
+    # Redirect back to the post page after sharing
+    return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+
+@login_required
+def view_inbox(request):
+    """
+    Display all posts received in the inbox.
+    """
+    inbox_posts = InboxPost.objects.filter(receiver=request.user).order_by('-received_at')
+    return render(request, "inbox.html", {"inbox_posts": inbox_posts})
+

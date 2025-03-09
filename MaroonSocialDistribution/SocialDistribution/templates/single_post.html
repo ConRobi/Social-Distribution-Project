@@ -39,6 +39,25 @@
                 <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
             {% endif %}
 
+            <!-- ✅ Share Button (Only for Other Authors & Public/Unlisted Posts) -->
+            {% if post.author != request.user and post.visibility in "PUBLIC UNLISTED" %}
+                <form action="{% url 'SocialDistribution:send-to-followers' post.id %}" method="post" style="margin-top: 10px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-info">Share</button>
+                </form>
+            {% endif %}
+
+            <!-- ✅ Display Django messages (for pop-up notifications) -->
+            {% if messages %}
+            <script>
+                window.onload = function() {
+                    {% for message in messages %}
+                        alert("{{ message }}");
+                    {% endfor %}
+                };
+            </script>
+            {% endif %}
+
             <!-- Liking a post -->
             <form method="post">
                 {% csrf_token %}
