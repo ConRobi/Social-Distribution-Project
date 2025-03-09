@@ -20,25 +20,25 @@ urlpatterns = [
     # API Endpoint documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-docs"),
+    
+    ##### AUTHORS ####
 
-    #API Endpoints
-    ################
-    # API endpoint for "Authors API"
-    path("api/authors", views.authors_list, name="authors-list"),
-    #TODO API endpoint for "Single Author API"
+    # API Endpoints
+    path("api/authors", views.authors_list, name="authors-list"), # Authors API
+    path("api/authors/<uuid:uuid>", views.author_profile, name = "author-profile"), # Single Author API
+    path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
 
+    # Authors Page rendering
+    path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
+    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"), # Edit profile page
+    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"), # View profile page
+    
 
-    # PROFILE
-    # Create profile interface page
-    path("create-profile", views.create_profile, name="create-profile"),
-    # API endpoint for adding profile
-    path("add-profile", views.add_profile, name = "add-profile"),
-    # View profile page
-    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"),
-    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"),
-    path("<uuid:uuid>/update-profile", views.update_profile, name = "update-profile"),
     path("login", views.author_login, name = "author-login"),
     
+    
+    #### POSTS ####
+
     # Viewing all of an author's posts
     path("authors/<uuid:uuid>/posts", views.author_posts, name = "author-posts"),
     # Create post interface page

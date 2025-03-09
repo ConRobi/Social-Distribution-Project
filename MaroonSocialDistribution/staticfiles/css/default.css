@@ -8,6 +8,99 @@ html, body {
     
 }
 
+/* Navbar Styling */
+.navbar {
+    background-color: #004C97; /* Deep blue background */
+    color: #fff;
+    display: flex;             /* Horizontal layout */
+    align-items: center;       /* Vertically center items */
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    position: sticky;          /* Navbar stays on top when scrolling */
+    top: 0;
+    z-index: 1000;
+    justify-content: space-between;
+}
+
+/* Logo Styling */
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+    margin-right: auto;       /* Pushes nav links to the right */
+}
+
+/* Navigation Links */
+.nav-links {
+    display: flex;
+    gap: 20px;                 /* Spacing between links */
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.nav-links a:hover {
+    background-color: #0072CE;  /* Slightly lighter blue on hover */
+}
+
+/* Active Link Styling (Optional for Profile Page) */
+.profile-page .nav-links a[href="/dashboard/"] {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+
+/* Navbar Search Form */
+.navbar-search {
+    gap: 8px;                  /* Spacing between input and icon */
+    margin-left: auto;         /* Pushes search to the right */
+}
+.navbar form {
+    flex-direction: row;
+    background: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar form button {
+    width: 40%;
+}
+
+.search-section {
+    display: flex;             /* Ensures items are side by side */
+    align-items: center;
+}
+.navbar-search input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    width: 200px;
+    outline: none;
+}
+
+/* Magnifying Glass Icon */
+.navbar-search button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;       /* Larger icon size */
+    color: #fff;             /* Icon color */
+    padding: 5px 10px;       /* Padding to increase click area */
+    transition: color 0.3s ease;
+}
+
+.navbar-search button:hover {
+    color: #004C97;          /* Darker blue on hover */
+}
+
+
 /* Body CSS for edit_profile.html */
 
 .edit_profile_body {
@@ -22,7 +115,8 @@ html, body {
     display:flex;
     width: 80%;
     gap: 20px;
-
+    margin: 20px;
+    flex: 1;
 }
 
 #profile_details {
@@ -104,4 +198,77 @@ form button {
     height: 75px;
     border-radius: 50%;
     font-size: 3em;
+}
+
+/* Styling like details display */
+#like-post-details {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Styling for like post button */
+
+.like-post-button {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2em;
+    color: rgb(255, 255, 255);
+    border-radius: 100px;
+    cursor: pointer;
+}
+
+.like-post-button:hover {
+    color:red;
+}
+
+/* Styling for single post */
+
+#single_post {
+    border: 0.5px solid #292929;
+    background-color: #ffffff;
+    padding: 20px;
+}
+
+/* Styling for add comment and comment section */
+
+.add-comment-body {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px;
+    width: 50%;
+    flex: 1;
+    border: 1px solid black;
+}
+
+.add-comment-form {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    gap: 10px;
+}
+
+.comment-item {
+    background-color: rgb(212, 212, 212);
+    border: 1px solid black;
+    margin: 5px;
+    padding: 10px;
+}
+
+.top-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.comment-section {
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 10px;
+    margin: 20px;
 }
