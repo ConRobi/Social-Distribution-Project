@@ -59,5 +59,36 @@
         </section>
     </div>
 
+    <br><br>
+
+    <div class="add-comment-body">
+        <form method="post" class="add-comment-form" action="{% url 'SocialDistribution:add-comment' post.id %}">
+            {% csrf_token %}
+            <h2>Add a Comment</h2>
+            <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="comment-section">
+        <h2>Comments</h2>
+            <ul>
+                {% if comments %}
+
+                {% for comment in comments %}
+                    <li>
+                        <p>{{ comment.comment }}</p>
+                        <p>By: <a href="{% url 'SocialDistribution:view-profile' comment.author.uuid %}" style="color: black; text-decoration: none;">
+                            {{ comment.author.display_name }}</a>
+                        </p>
+                        <p>Published: {{ comment.published }}</p>
+                    </li>
+                {% endfor %}
+
+                {% else %}
+                    <p>No comments available.</p>
+                {% endif %}
+    </div>
+
 </body>
 </html>
