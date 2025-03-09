@@ -147,3 +147,12 @@ class Like(models.Model):
         unique_together = ('author', 'post')
         # TODO use this instead when comment object is made:
         # unique_together = ('author', 'post', 'comment')
+
+class InboxPost(models.Model):
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Post '{self.post.title}' sent to {self.receiver.display_name}"
+
