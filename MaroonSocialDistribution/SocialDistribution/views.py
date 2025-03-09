@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from .models import Author, Post, FollowRequest, Like, Comment
+from .models import Author, Post, FollowRequest, Like, Comment, InboxPost
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -518,11 +518,44 @@ def view_unlisted_post(request, post_id):
 
 def view_single_post(request, post_id):
     """
-    Display a single post.
+    Display a single post, restricting access based on visibility.
     """
     post = get_object_or_404(Post, id=post_id)
+
     comments = Comment.objects.filter(post=post)
-    return render(request, "single_post.html", {"post": post, "comments": comments})
+#     return render(request, "single_post.html", {"post": post, "comments": comments})
+
+
+    # ✅ Allow access if the post is Public or Unlisted (even if not logged in)
+    if post.visibility in ["PUBLIC", "UNLISTED"]:
+        return render(request, "single_post.html", {"post": post, "comments": comments})
+
+    # ✅ Require authentication for Friends-Only posts
+    if post.visibility == "FRIENDS":
+        if not request.user.is_authenticated:
+            # ❌ Redirect to login if user is not logged in
+            messages.error(request, "Unable to view this post. Please log in.")
+            return redirect("SocialDistribution:author-login")
+
+        # ✅ Check if the user is a mutual friend
+        is_friend = FollowRequest.objects.filter(
+            sender=request.user, receiver=post.author, status="ACCEPTED"
+        ).exists() and FollowRequest.objects.filter(
+            sender=post.author, receiver=request.user, status="ACCEPTED"
+        ).exists()
+
+        if is_friend:
+            return render(request, "single_post.html", {"post": post})
+
+        # ❌ Show error if user is not a friend
+        messages.error(request, "Unable to view this post. You must be friends with the author.")
+        return redirect("SocialDistribution:view-profile", request.user.uuid)
+
+    # ❌ If visibility does not match any expected cases, deny access
+    messages.error(request, "Unable to view this post.")
+    return redirect("SocialDistribution:index")
+
+
 
 ##################################### unlilsted ends ################################
 
@@ -535,17 +568,23 @@ def like_post(request, post_id):
     # TODO Maybe change id to uuid if post object is updated with new primary key?
     post = get_object_or_404(Post, id=post_id)
     
-    like = Like.objects.filter(author=request.user, post=post)
+    like_author = request.user
+    like = Like.objects.filter(author=like_author, post=post)
     # Check if the user already liked this post
     if not like.exists():
         # Create new like object associated with the post
-        Like.objects.create(author=request.user, post=post)
+        new_like = Like.objects.create(author=like_author, post=post)
+        new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
+        new_like.save()
+        print(new_like.id)
+        print(new_like.uuid)
     else:
         # Remove like if already liked
         like.delete()
     
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': post.likes.count()})
+
 
 ### Comments ###
 
@@ -558,3 +597,43 @@ def add_comment(request, post_id):
     comment_text = request.POST.get('comment')
     Comment.objects.create(author=request.user, post=post, comment=comment_text)
     return redirect("SocialDistribution:view-single-post", post_id=post_id)
+
+@login_required
+def send_post_to_followers(request, post_id):
+    """
+    Allows users to share a public or unlisted post with their followers.
+    """
+    # Get the post or return 404 if not found
+    post = get_object_or_404(Post, id=post_id)
+
+    # Ensure that only public and unlisted posts can be shared
+    if post.visibility not in ["PUBLIC", "UNLISTED"]:
+        messages.error(request, "You can only share public or unlisted posts.")
+        return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+    # Get the logged-in user's followers
+    followers = Author.objects.filter(
+        uuid__in=FollowRequest.objects.filter(receiver=request.user, status='ACCEPTED')
+        .values_list('sender__uuid', flat=True)
+    )
+
+    # Send the post title & link to each follower's inbox
+    for follower in followers:
+        InboxPost.objects.create(receiver=follower, post=post)
+
+    # Show a success message
+    messages.success(request, "Shared to followers!")
+
+    # Redirect back to the post page after sharing
+    return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+
+@login_required
+def view_inbox(request):
+    """
+    Display all posts received in the inbox.
+    """
+    inbox_posts = InboxPost.objects.filter(receiver=request.user).order_by('-received_at')
+    return render(request, "inbox.html", {"inbox_posts": inbox_posts})
+
+

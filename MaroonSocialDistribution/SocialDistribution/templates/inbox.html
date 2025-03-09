@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+</head>
+<body>
+    <h2>Inbox</h2>
+
+    {% if inbox_posts %}
+        <ul>
+            {% for inbox_post in inbox_posts %}
+                <li>
+                    <a href="{% url 'SocialDistribution:view-single-post' inbox_post.post.id %}">
+                        {{ inbox_post.post.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts in your inbox.</p>
+    {% endif %}
+
+    <br><br>
+    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to My Profile</a>
+</body>
+</html>

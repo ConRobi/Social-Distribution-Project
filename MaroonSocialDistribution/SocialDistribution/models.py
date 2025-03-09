@@ -148,6 +148,7 @@ class Like(models.Model):
         # TODO use this instead when comment object is made:
         # unique_together = ('author', 'post', 'comment')
 
+
 class Comment(models.Model):
     """
     Model for handling comments on posts
@@ -166,3 +167,14 @@ class Comment(models.Model):
     ])
 
 # TODO: Need to make a Likes and Comments model
+
+
+class InboxPost(models.Model):
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Post '{self.post.title}' sent to {self.receiver.display_name}"
+
+

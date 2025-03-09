@@ -83,6 +83,10 @@ urlpatterns = [
 
     path("admin/", admin.site.urls),    # Django's built in admin panel
 
+    path("posts/<int:post_id>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
+    path("inbox/", views.view_inbox, name="view-inbox"),
+
+
     # Likes
     # TODO hange to handle uuid?
     path('post/<int:post_id>/like_post/', views.like_post, name="like-post"),
