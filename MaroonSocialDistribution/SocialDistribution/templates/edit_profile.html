@@ -12,7 +12,7 @@
     <div class="edit_profile_body">
         <h2>Edit Profile</h2>
         <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
-        <form method="POST" enctype="multipart/form-data" action="{% url 'SocialDistribution:update-profile' author.uuid %}">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'SocialDistribution:author-profile' author.uuid %}">
             {% csrf_token %}
             <label for="display_name">Display Name:</label>
             <input type="text" name="display_name" value="{{ author.display_name }}" required><br><br>

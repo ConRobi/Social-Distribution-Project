@@ -104,8 +104,6 @@ def view_profile(request, uuid):
             Q(author=author, visibility__iexact='unlisted')
         ).order_by('-published')
 
-
-
     # Handle author search functionality
     search_results = None
     query = request.GET.get('query')
@@ -121,6 +119,7 @@ def view_profile(request, uuid):
         "follow_requests": follow_requests,
         "search_results": search_results
     })
+
 @api_view(['GET'])
 def authors_list(request):
     authors = Author.objects.all()
@@ -179,27 +178,41 @@ def edit_profile(request, uuid):
     author = get_object_or_404(Author, uuid=uuid)
     return render(request, "edit_profile.html", {"author": author})
 
-@api_view(['POST'])
-def update_profile(request, uuid):
+@api_view(['GET', 'POST'])
+def author_profile(request, uuid):
     '''
-    Edit profile POST request called when edit-profile form is submitted.
+    Edit profile using POST request, called when edit-profile form is submitted.
     Updates author fields if new input is provided to them.
+
+    GET request, gets a single author's profile details.
     '''
-    author = get_object_or_404(Author, uuid=uuid)
+    
+    if request.method == "GET":
+        # Return the single author's details in serialized JSON format
+        author = get_object_or_404(Author, uuid=uuid)
 
-    # Update display_name if new display name is provided
-    author.display_name = request.POST.get("display_name")
+        serializer = AuthorSerializer(author)
 
-    # Update github if new github url is provided
-    author.github = request.POST.get("github")
+        return Response(serializer.data)
+    
+    if request.method == "POST":
+        
+        author = get_object_or_404(Author, uuid=uuid)
 
-    # Update profile picture if new profile photo given
-    author.profile_image = request.POST.get("profile_image")
+        # Update display_name if new display name is provided
+        author.display_name = request.POST.get("display_name")
 
-    author.save()
+        # Update github if new github url is provided
+        author.github = request.POST.get("github")
 
-    # redirect back to view profile page
-    return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+        # Update profile picture if new profile photo given
+        author.profile_image = request.POST.get("profile_image")
+
+        author.save()
+
+        # redirect back to view profile page
+        return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+
 
 """ POSTING """
 
