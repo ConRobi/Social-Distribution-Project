@@ -8,7 +8,8 @@ from .views import (
     view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list, view_unlisted_post
 )
 
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+
 
 
 app_name = 'SocialDistribution'
@@ -109,5 +110,9 @@ urlpatterns = [
     ### COMMENTS ###
     path('post/<int:post_id>/add_comment/', views.add_comment, name="add-comment"),
 
-
+    # Documentation
+    path("api/docs/custom/", SpectacularSwaggerView.as_view(url_name="schema"), name="api-documentation"),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-docs'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc-docs'),
 ]

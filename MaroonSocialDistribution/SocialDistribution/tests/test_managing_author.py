@@ -3,8 +3,11 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from SocialDistribution.models import Author
+from django.test import Client
+
 
 User = get_user_model()
+
 
 class AuthorManagementTests(APITestCase):
 
