@@ -83,4 +83,3 @@ class PostAPITests(APITestCase):
         # Verify response status is HTTP 400 (Bad Request) for invalid data
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('title', response.data)  # Check if title field is in the errors
-# done
