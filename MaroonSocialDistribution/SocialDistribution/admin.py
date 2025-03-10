@@ -13,6 +13,10 @@ class AdminSettings(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False  # Prevents deleting the setting
 
+    def save_model(self, request, obj, form, change):
+        if 'require_approval' in form.changed_data:
+            obj.save()
+
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
     # Admin panel for approving authors
