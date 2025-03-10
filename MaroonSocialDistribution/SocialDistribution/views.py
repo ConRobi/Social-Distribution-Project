@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from .models import Author, Post, FollowRequest, Like, Comment, InboxPost
+from .models import Author, Post, FollowRequest, Like, Comment, InboxPost, AdminApproval
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -14,10 +14,8 @@ from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
-
-
-
-from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, OpenApiTypes
+from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer, CommentSerializer
 
 
 def index(request):
@@ -142,16 +140,32 @@ def author_login(request):
     '''
     Log in existing users using Django's built-in login authentication
     '''
+    admin_approval = get_object_or_404(AdminApproval, id=1)
+    print(admin_approval.require_approval)
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             # Get the username and password from the form and authenticate the author
             author = form.get_user()
-            login(request, author)  # Log the author in
-
-            # Redirect to view profile page
-            url = f"authors/{author.uuid}"
-            return redirect(url)
+            
+            # Admin approval function ON
+            if admin_approval.require_approval:
+                # Get author object
+                author_object = get_object_or_404(Author, display_name=author)
+                if not author_object.is_approved:
+                    return HttpResponse("Need Admin to approve your account before Logging in")
+                else:
+                    login(request, author)  # Log the author in
+                    # Redirect to view profile page
+                    url = f"authors/{author.uuid}"
+                    return redirect(url)
+                
+            # Admin approval function OFF
+            else: # Login as normal
+                login(request, author)  # Log the author in
+                # Redirect to view profile page
+                url = f"authors/{author.uuid}"
+                return redirect(url)
         else:
             # If the form is invalid, display an error message
             messages.error(request, "Invalid username or password.")
@@ -516,16 +530,108 @@ def remove_follower(request, uuid):
 
 
 ##################################### unlilsted ################################
-@api_view(['GET'])
+@extend_schema(
+    summary="Retrieve an unlisted post",
+    description="""
+    This endpoint allows **anyone with the link** to retrieve an unlisted post.  
+    - ✅ No authentication required.
+    - ✅ Anyone with the link can view it.
+    - ❌ Not recommended for private posts.
+    """,
+    parameters=[
+        {
+            "name": "post_id",
+            "description": "The ID of the unlisted post to retrieve.",
+            "required": True,
+            "type": "integer",
+        }
+    ],
+    responses={
+        200: PostSerializer,
+        404: {"detail": "Not found"},
+    },
+    examples=[
+        OpenApiExample(
+            "Successful Response",
+            value={
+                "id": 2,
+                "title": "Unlisted Post",
+                "content": "This is an unlisted post",
+                "visibility": "UNLISTED",
+                "author_id": "6bde6334-a6be-4c6c-baa1-19f7371cf879",
+                "published": "2025-03-10T05:13:35.137044Z",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            "Not Found",
+            value={"detail": "Not found"},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
+)
+@api_view(["GET"])
 def view_unlisted_post(request, post_id):
     """
     Allow anyone with the link to view an unlisted post.
+    SECURITY WARNING: This API is **not private**. Anyone with the link can see the post.
     """
     post = get_object_or_404(Post, id=post_id, visibility="UNLISTED")
 
     serializer = PostSerializer(post)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@extend_schema(
+    summary="Retrieve a single post",
+    description="""
+    This endpoint retrieves a single post and **restricts access** based on its visibility:  
+    - ✅ **PUBLIC & UNLISTED**: Anyone can view it.  
+    - ✅ **FRIENDS-ONLY**: Requires authentication. Only the author & mutual friends can see it.  
+    - ❌ **Others**: Unauthorized users are redirected.  
+    """,
+    parameters=[
+        {
+            "name": "post_id",
+            "description": "The ID of the post to retrieve.",
+            "required": True,
+            "type": "integer",
+        }
+    ],
+    responses={
+        200: PostSerializer,
+        302: {"detail": "Redirected due to permission restrictions"},
+        404: {"detail": "Not found"},
+    },
+    examples=[
+        OpenApiExample(
+            "Public Post",
+            value={
+                "id": 1,
+                "title": "Public Post",
+                "content": "This is a public post",
+                "visibility": "PUBLIC",
+                "author_id": "a1b2c3d4-5678-9101-1121-314151617181",
+                "published": "2025-03-10T05:13:35.137044Z",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            "Friends-Only Post (Access Denied)",
+            value={"detail": "You must be friends with the author to view this post."},
+            response_only=True,
+            status_codes=["302"],
+        ),
+        OpenApiExample(
+            "Not Found",
+            value={"detail": "Not found"},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
+)
+@api_view(["GET", "POST"])
 def view_single_post(request, post_id):
     """
     Display a single post, restricting access based on visibility.
@@ -574,7 +680,7 @@ def view_single_post(request, post_id):
 def like_post(request, post_id):
     '''
     - Description: Like a post
-    - Returns a Json Response with the post's like count (integer)
+    - Returns: a Json Response with the post's like count (integer)
     '''
     # TODO Maybe change id to uuid if post object is updated with new primary key?
     post = get_object_or_404(Post, id=post_id)
@@ -601,7 +707,7 @@ def like_post(request, post_id):
 def like_comment(request, comment_uuid):
     '''
     - Description: Like a comment
-    - Returns a Json Response with the comment's like count (integer)
+    - Returns: a Json Response with the comment's like count (integer)
     '''
     comment = get_object_or_404(Comment, uuid=comment_uuid)
 
@@ -622,6 +728,203 @@ def like_comment(request, comment_uuid):
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': comment.likes.count()})
 
+
+@extend_schema(
+    description=("Get a list of likes for a specified post by a particular author.\n"
+        "This endpoint is useful to retrieve all likes for a post, with pagination support.\n"
+        "- **When to use**: When you need to retrieve the list of likes for a post, optionally using pagination.\n"
+        "- **How to use**: Make a GET request to `api/authors/{author_uuid}/posts/{post_id}/likes`.\n"
+        "- **Why to use**: Useful for clients that need to fetch the list of likes for posts, especially when dealing with large amounts of data and needing pagination.\n"
+        "- **Why not use**: Do not use this endpoint if you don’t need the list of likes or when pagination is unnecessary."),
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string", "example": "likes"},
+                "page": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"},
+                "id": {"type": "string", "example": "http://maroonnode.com/api/authors/222/posts/249/likes"},
+                "page_number": {"type": "integer", "example": 1},
+                "size": {"type": "integer", "example": 50},
+                "count": {"type": "integer", "example": 9001},
+                "src": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string", "example": "like"},
+                            "author": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {"type": "string", "example": "author"},
+                                    "id": {"type": "string", "example": "http://maroonnode.com/api/authors/111"},
+                                    "page": {"type": "string", "example": "http://maroonnode.com/authors/greg"},
+                                    "host": {"type": "string", "example": "http://maroonnode.com/api/"},
+                                    "displayName": {"type": "string", "example": "Greg Johnson"},
+                                    "github": {"type": "string", "example": "http://github.com/gjohnson"},
+                                    "profileImage": {"type": "string", "example": "https://i.imgur.com/k7XVwpB.jpeg"}
+                                }
+                            },
+                            "published": {"type": "string", "example": "2015-03-09T13:07:04+00:00"},
+                            "id": {"type": "string", "example": "http://maroonnode.com/api/authors/111/liked/166"},
+                            "object": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    parameters=[
+        OpenApiParameter('size', OpenApiTypes.INT, description='Number of likes per page', required=False),
+    ],
+)
+@api_view(['GET'])
+def get_post_likes(request, author_uuid, post_id):
+    post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
+    
+    # Create a paginator object
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size=
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    
+    # Get likes for the post, order by the newest first
+    likes = Like.objects.filter(post=post).order_by('-published')
+    
+    # Paginate the likes
+    paginated_likes = paginator.paginate_queryset(likes, request)
+    
+    # Serialize the paginated likes
+    serialized_likes = LikeSerializer(paginated_likes, many=True).data
+    
+    # Return the paginated response
+    likes_count = likes.count()
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "likes",
+        "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
+        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/likes",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": likes_count,
+        "src": serialized_likes,
+    })
+
+@extend_schema(
+    description=("Get likes by an author.\n"
+        "This endpoint allows you to retrieve a paginated list of like objects (for posts or comments) "
+        "that were made by a specific author.\n"
+        "- **When to use**: Use this endpoint when you want to retrieve a list of likes made by an author.\n"
+        "- **How to use**: Make a GET request to `api/authors/{author_uuid}/liked`.\n"
+        "- **Why to use**: Useful when clients need to fetch all likes made by a specific author, with support for pagination.\n"
+        "- **Why not use**: Avoid using this endpoint if you only need details about a single like."),
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string", "example": "likes"},
+                "page": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"},
+                "id": {"type": "string", "example": "http://maroonnode.com/api/authors/222/posts/249/likes"},
+                "page_number": {"type": "integer", "example": 1},
+                "size": {"type": "integer", "example": 50},
+                "count": {"type": "integer", "example": 9001},
+                "src": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string", "example": "like"},
+                            "author": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {"type": "string", "example": "author"},
+                                    "id": {"type": "string", "example": "http://maroonnode.com/api/authors/48c0840c-40b1-4ff5-a9bc-f410ecdd91b8"},
+                                    "page": {"type": "string", "example": "http://maroonnode.com/authors/48c0840c-40b1-4ff5-a9bc-f410ecdd91b8"},
+                                    "host": {"type": "string", "example": "http://maroonnode.com/api/"},
+                                    "displayName": {"type": "string", "example": "Auro Bee"},
+                                    "github": {"type": "string", "example": "http://github.com/aurb"},
+                                    "profileImage": {"type": "string", "example": "https://i.imgur.com/k7XVwpB.jpeg"}
+                                }
+                            },
+                            "published": {"type": "string", "example": "2015-03-09T13:07:04+00:00"},
+                            "id": {"type": "string", "example": "http://maroonnode.com/api/authors/111/liked/166"},
+                            "object": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    parameters=[
+        OpenApiParameter('size', OpenApiTypes.INT, description='Number of likes per page', required=False),
+    ],
+)
+@api_view(['GET'])
+def get_likes_by_author(request, author_uuid):
+    """
+    - Description: Get likes by an author
+    - Returns: a paginated list of like objects (for post or comments) for
+    a specific author (posts or comments)
+    """
+    # Get the author by UUID
+    author = get_object_or_404(Author, uuid=author_uuid)
+    
+    # Create a paginator object
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size= (e.g. ?size=10)
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    
+    # Get likes for the author, ordered by the newest first
+    likes = Like.objects.filter(author=author).order_by('-published')
+    
+    # Paginate the likes
+    paginated_likes = paginator.paginate_queryset(likes, request)
+    
+    # Serialize the paginated likes
+    serialized_likes = LikeSerializer(paginated_likes, many=True).data
+    
+    
+    # Return the paginated response with the additional fields, including count
+    likes_count = likes.count()
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "likes",
+        "page": f"{node_url}/authors/{author_uuid}/liked",
+        "id": f"{node_url}/api/authors/{author_uuid}/liked",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": likes_count, 
+        "src": serialized_likes,
+    })
+
+
+@extend_schema(
+    description=(
+        "Get a single like object by an author.\n"
+        "This endpoint allows you to retrieve a specific like that an author has made, identified by the `like_uuid`.\n"
+        "- **When to use**: When you need to fetch a particular like made by an author.\n"
+        "- **How to use**: Make a GET request to `/authors/{author_uuid}/liked/{like_uuid}`.\n"
+        "- **Why to use**: Useful for retrieving the details of a specific like, such as the author who liked an object and what was liked.\n"
+        "- **Why not use**: Not for getting all likes by an author"
+    ),
+    responses={
+        200: LikeSerializer,
+    }
+)
+@api_view(['GET'])
+def get_single_like(request, author_uuid, like_uuid):
+    author = get_object_or_404(Author, uuid=author_uuid)
+    
+    # Get the like by UUID and ensure it belongs to the specified author
+    like = get_object_or_404(Like, uuid=like_uuid, author=author)
+    
+    # Serialize the like object
+    serialized_like = LikeSerializer(like).data
+    
+    # Return the serialized like data
+    return Response(serialized_like)
+
+
 ### Comments ###
 
 @api_view(['POST'])
@@ -633,8 +936,76 @@ def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comment_text = request.POST.get('comment')
     content_type = request.POST.get('contentType')
-    Comment.objects.create(author=request.user, post=post, comment=comment_text, contentType=content_type)
+    comment = Comment.objects.create(author=request.user, post=post, comment=comment_text, contentType=content_type)
+    comment.id = f"{request.user.id}/commented/{comment.uuid}"
+    comment.save()
     return redirect("SocialDistribution:view-single-post", post_id=post_id)
+
+@api_view(['GET'])
+def get_post_comments(request, author_uuid, post_id):
+    """
+    - Description: Get a list of comments for a specified post
+    - Returns: a paginated list of comments for a specific post
+    """
+    post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size=
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    comments = Comment.objects.filter(post=post).order_by('-published')
+    comment_count = comments.count()
+    paginated_comments = paginator.paginate_queryset(comments, request)
+    serialized_comments = CommentSerializer(paginated_comments, many=True).data
+
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "comments",
+        "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
+        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/comments",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": comment_count,
+        "src": [comment for comment in serialized_comments],
+    })
+
+@api_view(['GET'])
+def get_comments_by_author(request, author_uuid):
+    """
+    Description: Get the list of comments by an author
+    Returns: a paginated list of comment objects for a specific author
+    """
+    author = get_object_or_404(Author, uuid=author_uuid)
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size=
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    comments = Comment.objects.filter(author=author).order_by('-published')
+    paginated_comments = paginator.paginate_queryset(comments, request)
+    serialized_comments = CommentSerializer(paginated_comments, many=True).data
+    comment_count = comments.count()
+
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "comments",
+        # TODO: page and id might be different because all these comments might not be on the same post
+        # "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
+        # "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/comments",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": comment_count,
+        "src": [comment for comment in serialized_comments],
+    })
+
+@api_view(['GET'])
+def get_single_comment(request, author_uuid, comment_uuid):
+    """
+    Description: Get a single comment by an author
+    Returns: a single comment by a specific author, identified by comment_uuid
+    """
+    author = get_object_or_404(Author, uuid=author_uuid)
+    comment = get_object_or_404(Comment, uuid=comment_uuid, author=author)
+    serialized_comment = CommentSerializer(comment).data
+    return Response(serialized_comment)
 
 @login_required
 def send_post_to_followers(request, post_id):
