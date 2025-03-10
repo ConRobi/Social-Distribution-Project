@@ -17,7 +17,6 @@ class AdminApproval(models.Model):
         verbose_name = "Admin Approval Setting"
         verbose_name_plural = "Admin Approval Setting"  # Changes the admin panel display name
 
-# Create your models here.
 class Author(AbstractUser):
     # Model based on object:
     # https://uofa-cmput404.github.io/general/project.html#single-author-api:~:text=API%20Objects-,Example%20Author%20Objects,-%7B%0A%20%20%20%20//%20Author%20object
@@ -79,7 +78,7 @@ class Post(models.Model):
         ('PUBLIC', 'Public'),
         ('FRIENDS', 'Friends Only'),
         ('DELETED', 'Deleted'),
-        ('UNLISTED', 'Unlisted') # New option
+        ('UNLISTED', 'Unlisted') 
     ],
     default='PUBLIC')
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Ensure correct field
