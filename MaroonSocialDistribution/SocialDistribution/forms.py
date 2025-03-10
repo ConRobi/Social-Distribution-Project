@@ -5,7 +5,7 @@ from .models import Author
 class AuthorRegistrationForm(UserCreationForm):
     display_name = forms.CharField(max_length=255)
     github = forms.URLField()
-    profile_image = forms.ImageFieldField(required=False)
+    profile_image = forms.URLField(required=False)
 
     class Meta:
         model = Author
