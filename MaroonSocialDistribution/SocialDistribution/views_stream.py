@@ -1,8 +1,61 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Post, FollowRequest, InboxPost
+from drf_spectacular.utils import extend_schema, OpenApiExample
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib import messages
+from SocialDistribution.models import Post, Comment, FollowRequest
+@extend_schema(
+    summary="Retrieve a single post with visibility restrictions",
+    description="""
+    This endpoint displays a **single post** while enforcing visibility rules:
 
-@login_required
+    - ✅ **Public & Unlisted Posts** → Anyone can view.
+    - ✅ **Friends-Only Posts** → Requires login + mutual friendship.
+    - ❌ **Private Posts** → Redirected with an error.
+    """,
+    parameters=[
+        {
+            "name": "post_id",
+            "description": "The unique ID of the post to retrieve.",
+            "required": True,
+            "type": "integer",
+        }
+    ],
+    responses={
+        200: "HTML page with post details",
+        302: {"detail": "Redirected due to visibility restrictions"},
+        404: {"detail": "Post not found"},
+    },
+    examples=[
+        OpenApiExample(
+            "Public Post Example",
+            value={
+                "id": 3,
+                "title": "My Public Post",
+                "content": "This is a public post!",
+                "visibility": "PUBLIC",
+                "author_id": "123e4567-e89b-12d3-a456-426614174000",
+                "published": "2025-03-10T06:00:00Z",
+            },
+            response_only=True,
+            status_codes=["200"],
+        ),
+        OpenApiExample(
+            "Restricted Access Example",
+            value={"detail": "Unable to view this post. You must be friends with the author."},
+            response_only=True,
+            status_codes=["302"],
+        ),
+        OpenApiExample(
+            "Not Found Example",
+            value={"detail": "Not found"},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
+)
+@api_view(["GET"])
 def stream_view(request):
     """Fetch posts for the stream page, ordered by latest first."""
 
