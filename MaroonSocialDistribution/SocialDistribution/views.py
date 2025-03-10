@@ -615,7 +615,7 @@ def view_unlisted_post(request, post_id):
         ),
     ],
 )
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 def view_single_post(request, post_id):
     """
     Display a single post, restricting access based on visibility.
