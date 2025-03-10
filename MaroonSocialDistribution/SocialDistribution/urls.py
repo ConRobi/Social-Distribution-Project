@@ -92,15 +92,19 @@ urlpatterns = [
     path("inbox/", views.view_inbox, name="view-inbox"),
 
 
-    # Likes
+    ### LIKES ###
 
     # API Endpoints
+    # TODO change to post_uuid if/when uuid is available for posts?
+    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/likes', views.get_post_likes, name='post-likes'), # Get single post likes
+
+    # Like creation
     
     # TODO change to handle uuid of post?
     path('post/<int:post_id>/like_post/', views.like_post, name="like-post"),
     path('comment/<uuid:comment_uuid>/like_comment/', views.like_comment, name="like-comment"),
 
-    # Comments
+    ### COMMENTS ###
     path('post/<int:post_id>/add_comment/', views.add_comment, name="add-comment"),
 
 
