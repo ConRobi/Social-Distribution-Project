@@ -7,7 +7,7 @@
     <title>My Profile</title>
     {% load static %}
     <script src="{% static 'js/likes.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/view_profile.css' %}">
 </head>
 <body>
     {% if author == request.user %}
@@ -22,7 +22,7 @@
             <img src="{{ author.profile_image | default:'/static/images/default.jpg' }}" onerror="this.onerror=null; this.src='/static/images/default.jpg';" class="profile-picture">
             <p>Username: {{ author.username }}</p>
             <p>Display name: {{ author.display_name }}</p>
-            <p>Github Account: <a href="{{ author.github }}" target="_blank">{{ author.github }}</a></p>
+            <p>Github Account: <a href="{{ author.github }}" target="_blank" style="color: #FF7F50;">{{ author.github }}</a></p>
             {% if author == request.user %}
                 <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
                     <button>Edit Profile</button>
@@ -37,15 +37,15 @@
 
             <!-- Clickable Links with Count (No Brackets & Black Text) -->
             <div class="social-section">
-                <h3><a href="{% url 'SocialDistribution:view-followers' %}" style="color: black; text-decoration: none;">Followers {{ followers|length }}</a></h3>
-                <h3><a href="{% url 'SocialDistribution:view-following' %}" style="color: black; text-decoration: none;">Following {{ following|length }}</a></h3>
-                <h3><a href="{% url 'SocialDistribution:view-friends' %}" style="color: black; text-decoration: none;">Friends {{ friends|length }}</a></h3>
+                <h3><a href="{% url 'SocialDistribution:view-followers' %}" style="color: rgb(255, 255, 255); text-decoration: none;">Followers {{ followers|length }}</a></h3>
+                <h3><a href="{% url 'SocialDistribution:view-following' %}" style="color: rgb(255, 255, 255); text-decoration: none;">Following {{ following|length }}</a></h3>
+                <h3><a href="{% url 'SocialDistribution:view-friends' %}" style="color: rgb(255, 255, 255); text-decoration: none;">Friends {{ friends|length }}</a></h3>
             </div>
 
             <!-- Follow Requests Link - Moved Under Friends -->
             {% if author == request.user %}
             <div class="requests-section" style="margin-top: 15px;">
-                <h3><a href="{% url 'SocialDistribution:follow-requests' %}" style="color: black; text-decoration: none;">
+                <h3><a href="{% url 'SocialDistribution:follow-requests' %}" style="color: rgb(255, 255, 255); text-decoration: none;">
                     View Follow Requests {{ follow_requests|length }}
                 </a></h3>
             </div>
@@ -59,7 +59,7 @@
                     <input type="text" name="query" placeholder="Search authors..." required 
                         style="width: 250px; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
                     <button type="submit" 
-                        style="width: 150px; padding: 8px; border-radius: 5px; border: none; background: black; color: white; font-weight: bold; margin-top: 15px;">
+                        style="width: 150px; padding: 8px; border-radius: 5px; border: none; background: black; color: rgb(192, 192, 192); font-weight: bold; margin-top: 15px;">
                         Search
                     </button>
                 </form>
@@ -85,10 +85,16 @@
                                     <p>No image uploaded</p>
                                 {% endif %}
                                 <!-- ✅ Add "View Post" Button -->
-                                <a href="{% url 'SocialDistribution:view-single-post' post.id %}">View Post</a>
+                                <a href="{% url 'SocialDistribution:view-single-post' post.id %}">
+                                    <button class="view-post-btn">View Post</button>
+                                </a>
                                 {% if post.author == request.user %}
-                                    <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
-                                    <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
+                                    <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}">
+                                        <button class="delete-post-btn">Delete</button>
+                                    </a>
+                                    <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}">
+                                        <button class="edit-post-btn">Edit</button>
+                                    </a>
                                 {% endif %}
                                 <!-- Liking a post -->
                                 <form method="post">
