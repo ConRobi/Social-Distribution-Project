@@ -13,7 +13,9 @@ from django.contrib import messages
 from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
+
+
 
 from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer
 
@@ -117,19 +119,6 @@ def view_profile(request, uuid):
         "follow_requests": follow_requests,
         "search_results": search_results
     })
-
-def add_author(request):
-    '''
-    Renders add author page
-    '''
-    if request.method == "POST":
-        form = AuthorRegistrationForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_author = form.save()
-            return redirect("SocialDistribution:view-profile", uuid=new_author.uuid)
-    else:
-        form = AuthorRegistrationForm()
-    return render(request, "add_author.html", {"form": form})
 
 @api_view(['GET'])
 def authors_list(request):
