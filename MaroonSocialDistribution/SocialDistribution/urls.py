@@ -88,6 +88,9 @@ urlpatterns = [
 
 
     # Likes
+
+    # API Endpoints
+    
     # TODO change to handle uuid of post?
     path('post/<int:post_id>/like_post/', views.like_post, name="like-post"),
     path('comment/<uuid:comment_uuid>/like_comment/', views.like_comment, name="like-comment"),

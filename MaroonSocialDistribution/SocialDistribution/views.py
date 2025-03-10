@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 
 
 
-from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer
+from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer
 
 
 def index(request):
