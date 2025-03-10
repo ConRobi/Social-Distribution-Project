@@ -574,7 +574,7 @@ def view_single_post(request, post_id):
 def like_post(request, post_id):
     '''
     - Description: Like a post
-    - Returns a Json Response with the post's like count (integer)
+    - Returns: a Json Response with the post's like count (integer)
     '''
     # TODO Maybe change id to uuid if post object is updated with new primary key?
     post = get_object_or_404(Post, id=post_id)
@@ -596,45 +596,12 @@ def like_post(request, post_id):
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': post.likes.count()})
 
-@api_view(['GET'])
-def get_post_likes(request, author_uuid, post_id):
-    """
-    Returns a paginated list of likes for a specific post.
-    """
-    post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
-    
-    # Create a paginator object
-    paginator = PageNumberPagination()
-    paginator.page_size_query_param = 'size'  # Allows user to set ?size=
-    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
-    paginator.max_page_size = 100  # Optional: Limit max size
-    
-    # Get likes for the post, order by the newest first
-    likes = Like.objects.filter(post=post).order_by('-published')
-    
-    # Paginate the likes
-    paginated_likes = paginator.paginate_queryset(likes, request)
-    
-    # Serialize the paginated likes
-    serialized_likes = LikeSerializer(paginated_likes, many=True).data
-    
-    # Return the paginated response
-    node_url = "http://maroonnode.com"
-    return paginator.get_paginated_response({
-        "type": "likes",
-        "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
-        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/likes",
-        "page_number": page_number,
-        "size": page_size,
-        "src": serialized_likes,
-    })
-
 @api_view(['POST'])
 @login_required
 def like_comment(request, comment_uuid):
     '''
     - Description: Like a comment
-    - Returns a Json Response with the comment's like count (integer)
+    - Returns: a Json Response with the comment's like count (integer)
     '''
     comment = get_object_or_404(Comment, uuid=comment_uuid)
 
@@ -654,6 +621,99 @@ def like_comment(request, comment_uuid):
     
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': comment.likes.count()})
+
+@api_view(['GET'])
+def get_post_likes(request, author_uuid, post_id):
+    """
+    - Description: Get a list of likes for a specicified post
+    - Returns: a paginated list of likes for a specific post
+    """
+    post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
+    
+    # Create a paginator object
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size=
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    
+    # Get likes for the post, order by the newest first
+    likes = Like.objects.filter(post=post).order_by('-published')
+    
+    # Paginate the likes
+    paginated_likes = paginator.paginate_queryset(likes, request)
+    
+    # Serialize the paginated likes
+    serialized_likes = LikeSerializer(paginated_likes, many=True).data
+    
+    # Return the paginated response
+    likes_count = likes.count()
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "likes",
+        "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
+        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/likes",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": likes_count,
+        "src": serialized_likes,
+    })
+
+@api_view(['GET'])
+def get_likes_by_author(request, author_uuid):
+    """
+    - Description: Get likes by an author
+    - Returns: a paginated list of like objects (for post or comments) for
+    a specific author (posts or comments)
+    """
+    # Get the author by UUID
+    author = get_object_or_404(Author, uuid=author_uuid)
+    
+    # Create a paginator object
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size= (e.g. ?size=10)
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    
+    # Get likes for the author, ordered by the newest first
+    likes = Like.objects.filter(author=author).order_by('-published')
+    
+    # Paginate the likes
+    paginated_likes = paginator.paginate_queryset(likes, request)
+    
+    # Serialize the paginated likes
+    serialized_likes = LikeSerializer(paginated_likes, many=True).data
+    
+    
+    # Return the paginated response with the additional fields, including count
+    likes_count = likes.count()
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "likes",
+        "page": f"{node_url}/authors/{author_uuid}/liked",
+        "id": f"{node_url}/api/authors/{author_uuid}/liked",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": likes_count, 
+        "src": serialized_likes,
+    })
+
+@api_view(['GET'])
+def get_single_like(request, author_uuid, like_uuid):
+    """
+    - Description: Get a single like object by an author
+    - Returns: a single like by a specific author, identified by like_uuid
+    """
+    author = get_object_or_404(Author, uuid=author_uuid)
+    
+    # Get the like by UUID and ensure it belongs to the specified author
+    like = get_object_or_404(Like, uuid=like_uuid, author=author)
+    
+    # Serialize the like object
+    serialized_like = LikeSerializer(like).data
+    
+    # Return the serialized like data
+    return Response(serialized_like)
+
 
 ### Comments ###
 
