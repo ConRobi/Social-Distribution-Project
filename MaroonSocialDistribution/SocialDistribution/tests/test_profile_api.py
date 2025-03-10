@@ -50,7 +50,7 @@ class ProfileAPITestCase(APITestCase):
     
     def test_update_profile(self):
         """ Test updating a profile. """
-        url = reverse("SocialDistribution:update-profile", args=[self.user.uuid])
+        url = reverse("SocialDistribution:author-profile", args=[self.user.uuid])
         data = {
             "display_name": "Updated Name",
             "github": "https://github.com/updateduser"

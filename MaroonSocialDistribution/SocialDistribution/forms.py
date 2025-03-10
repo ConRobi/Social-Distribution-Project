@@ -4,8 +4,8 @@ from .models import Author
 
 class AuthorRegistrationForm(UserCreationForm):
     display_name = forms.CharField(max_length=255)
-    github = forms.URLField()
-    profile_image = forms.URLField(required=False)
+    github = forms.URLField(assume_scheme="https")  # ✅ Fix for Django 6.
+    profile_image = forms.URLField(required=False, assume_scheme="https")  # ✅ Fix for Django 6.0
 
     class Meta:
         model = Author

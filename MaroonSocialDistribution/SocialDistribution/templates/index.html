@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
     <title>Distributed Social Networking Project</title>
 </head>
 <body>
-    <h1>Welcome to our app!</h1>
+    
+    <div class="home-page">
+        <h1>Team Maroon</h1>
+        <h2>Welcome to our app!</h2>
+        <a href="{% url 'SocialDistribution:author-login' %}">Login</a>
+        <br>
+        <a href="{% url 'SocialDistribution:create-profile' %}">Register</a>
+    </div>
 </body>
 </html>

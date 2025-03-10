@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Author, Post, FollowRequest
+from .models import Author, Post, FollowRequest, Like
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 class AuthorSerializer(serializers.ModelSerializer):
     type = serializers.CharField(default="author")
@@ -42,3 +43,29 @@ class FollowRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FollowRequest
         fields = ["id", "sender", "receiver", "accepted"]
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(default="like")
+    author = AuthorSerializer()
+    published = serializers.DateTimeField(default=timezone.now)
+    object = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Like
+        fields = ['type', 'author', 'published', 'id', 'object']
+
+    def get_object(self, instance):
+        # If the object field is already populated, use it directly
+        if instance.object:
+            return instance.object
+        
+        # If the object field is not populated decide if it's a post or comment and use its ID for the URL
+        # TODO change post.id to post.uuid if we update post model to have uuid field
+        node_url = "http://maroonnode.com"
+        if instance.post:
+            return f"{node_url}/api/authors/{instance.author.uuid}/posts/{instance.post.id}"
+        elif instance.comment:
+            return f"{node_url}/api/authors/{instance.author.uuid}/comments/{instance.comment.uuid}"
+        return None
+

@@ -13,12 +13,9 @@ from django.contrib import messages
 from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from drf_spectacular.utils import extend_schema, OpenApiExample
-
-
-
-from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer
+from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer
 
 
 def index(request):
@@ -517,16 +514,108 @@ def remove_follower(request, uuid):
 
 
 ##################################### unlilsted ################################
-@api_view(['GET'])
+@extend_schema(
+    summary="Retrieve an unlisted post",
+    description="""
+    This endpoint allows **anyone with the link** to retrieve an unlisted post.  
+    - ✅ No authentication required.
+    - ✅ Anyone with the link can view it.
+    - ❌ Not recommended for private posts.
+    """,
+    parameters=[
+        {
+            "name": "post_id",
+            "description": "The ID of the unlisted post to retrieve.",
+            "required": True,
+            "type": "integer",
+        }
+    ],
+    responses={
+        200: PostSerializer,
+        404: {"detail": "Not found"},
+    },
+    examples=[
+        OpenApiExample(
+            "Successful Response",
+            value={
+                "id": 2,
+                "title": "Unlisted Post",
+                "content": "This is an unlisted post",
+                "visibility": "UNLISTED",
+                "author_id": "6bde6334-a6be-4c6c-baa1-19f7371cf879",
+                "published": "2025-03-10T05:13:35.137044Z",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            "Not Found",
+            value={"detail": "Not found"},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
+)
+@api_view(["GET"])
 def view_unlisted_post(request, post_id):
     """
     Allow anyone with the link to view an unlisted post.
+    SECURITY WARNING: This API is **not private**. Anyone with the link can see the post.
     """
     post = get_object_or_404(Post, id=post_id, visibility="UNLISTED")
 
     serializer = PostSerializer(post)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@extend_schema(
+    summary="Retrieve a single post",
+    description="""
+    This endpoint retrieves a single post and **restricts access** based on its visibility:  
+    - ✅ **PUBLIC & UNLISTED**: Anyone can view it.  
+    - ✅ **FRIENDS-ONLY**: Requires authentication. Only the author & mutual friends can see it.  
+    - ❌ **Others**: Unauthorized users are redirected.  
+    """,
+    parameters=[
+        {
+            "name": "post_id",
+            "description": "The ID of the post to retrieve.",
+            "required": True,
+            "type": "integer",
+        }
+    ],
+    responses={
+        200: PostSerializer,
+        302: {"detail": "Redirected due to permission restrictions"},
+        404: {"detail": "Not found"},
+    },
+    examples=[
+        OpenApiExample(
+            "Public Post",
+            value={
+                "id": 1,
+                "title": "Public Post",
+                "content": "This is a public post",
+                "visibility": "PUBLIC",
+                "author_id": "a1b2c3d4-5678-9101-1121-314151617181",
+                "published": "2025-03-10T05:13:35.137044Z",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            "Friends-Only Post (Access Denied)",
+            value={"detail": "You must be friends with the author to view this post."},
+            response_only=True,
+            status_codes=["302"],
+        ),
+        OpenApiExample(
+            "Not Found",
+            value={"detail": "Not found"},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
+)
+@api_view(["GET"])
 def view_single_post(request, post_id):
     """
     Display a single post, restricting access based on visibility.
@@ -575,7 +664,7 @@ def view_single_post(request, post_id):
 def like_post(request, post_id):
     '''
     - Description: Like a post
-    - Returns a Json Response with the post's like count (integer)
+    - Returns: a Json Response with the post's like count (integer)
     '''
     # TODO Maybe change id to uuid if post object is updated with new primary key?
     post = get_object_or_404(Post, id=post_id)
@@ -602,7 +691,7 @@ def like_post(request, post_id):
 def like_comment(request, comment_uuid):
     '''
     - Description: Like a comment
-    - Returns a Json Response with the comment's like count (integer)
+    - Returns: a Json Response with the comment's like count (integer)
     '''
     comment = get_object_or_404(Comment, uuid=comment_uuid)
 
@@ -622,6 +711,99 @@ def like_comment(request, comment_uuid):
     
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': comment.likes.count()})
+
+@api_view(['GET'])
+def get_post_likes(request, author_uuid, post_id):
+    """
+    - Description: Get a list of likes for a specicified post
+    - Returns: a paginated list of likes for a specific post
+    """
+    post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
+    
+    # Create a paginator object
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size=
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    
+    # Get likes for the post, order by the newest first
+    likes = Like.objects.filter(post=post).order_by('-published')
+    
+    # Paginate the likes
+    paginated_likes = paginator.paginate_queryset(likes, request)
+    
+    # Serialize the paginated likes
+    serialized_likes = LikeSerializer(paginated_likes, many=True).data
+    
+    # Return the paginated response
+    likes_count = likes.count()
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "likes",
+        "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
+        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/likes",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": likes_count,
+        "src": serialized_likes,
+    })
+
+@api_view(['GET'])
+def get_likes_by_author(request, author_uuid):
+    """
+    - Description: Get likes by an author
+    - Returns: a paginated list of like objects (for post or comments) for
+    a specific author (posts or comments)
+    """
+    # Get the author by UUID
+    author = get_object_or_404(Author, uuid=author_uuid)
+    
+    # Create a paginator object
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'  # Allows user to set ?size= (e.g. ?size=10)
+    paginator.page_size = request.GET.get('size', 5)  # Default size: 5
+    paginator.max_page_size = 100  # Optional: Limit max size
+    
+    # Get likes for the author, ordered by the newest first
+    likes = Like.objects.filter(author=author).order_by('-published')
+    
+    # Paginate the likes
+    paginated_likes = paginator.paginate_queryset(likes, request)
+    
+    # Serialize the paginated likes
+    serialized_likes = LikeSerializer(paginated_likes, many=True).data
+    
+    
+    # Return the paginated response with the additional fields, including count
+    likes_count = likes.count()
+    node_url = "http://maroonnode.com"
+    return paginator.get_paginated_response({
+        "type": "likes",
+        "page": f"{node_url}/authors/{author_uuid}/liked",
+        "id": f"{node_url}/api/authors/{author_uuid}/liked",
+        "page_number": paginator.page.number,
+        "size": paginator.page.paginator.per_page,
+        "count": likes_count, 
+        "src": serialized_likes,
+    })
+
+@api_view(['GET'])
+def get_single_like(request, author_uuid, like_uuid):
+    """
+    - Description: Get a single like object by an author
+    - Returns: a single like by a specific author, identified by like_uuid
+    """
+    author = get_object_or_404(Author, uuid=author_uuid)
+    
+    # Get the like by UUID and ensure it belongs to the specified author
+    like = get_object_or_404(Like, uuid=like_uuid, author=author)
+    
+    # Serialize the like object
+    serialized_like = LikeSerializer(like).data
+    
+    # Return the serialized like data
+    return Response(serialized_like)
+
 
 ### Comments ###
 
@@ -675,4 +857,43 @@ def view_inbox(request):
     inbox_posts = InboxPost.objects.filter(receiver=request.user).order_by('-received_at')
     return render(request, "inbox.html", {"inbox_posts": inbox_posts})
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def add_author(request):
+    if request.method == "POST":
+        form = AuthorRegistrationForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_author = form.save()
+            return redirect("SocialDistribution:view-profile", uuid=new_author.uuid)
+    else:
+        form = AuthorRegistrationForm()
+    return render(request, "add_author.html", {"form": form})
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def edit_author_profile(request, uuid):
+    '''
+    Renders edit author profile page
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    if request.method == "POST":
+        form = AuthorRegistrationForm(request.POST, request.FILES, instance=author)
+        if form.is_valid():
+            form.save()
+            return redirect("SocialDistribution:view-profile", uuid=author.uuid)
+    else:
+        form = AuthorRegistrationForm(instance=author)
+    return render(request, "edit_author_profile.html", {"form": form, "author": author})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@api_view(['POST'])
+def delete_author(request, uuid):
+    '''
+    Deletes an author
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    if request.method == 'POST':
+        author.delete()
+        return redirect("SocialDistribution:authors_list")
+    return render(request, "delete_author.html", {"author": author})
