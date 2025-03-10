@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
+    <title>Edit Author Profile</title>
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/edit_profile.css' %}">
-
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
 </head>
 <body>
-    <div class="edit_profile_body">
-        <h2>Edit Profile</h2>
-        <img src="{% static 'images/default.jpg' %}" alt="author profile pic" class="profile-picture"/>
-        <form method="POST" enctype="multipart/form-data" action="{% url 'SocialDistribution:author-profile' author.uuid %}">
+    <div class="edit_author_profile_body">
+        <h2>Edit Author Profile</h2>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'SocialDistribution:edit-author-profile' author.uuid %}">
             {% csrf_token %}
+            <label for="username">Username:</label>
+            <input type="text" name="username" value="{{ author.username }}" required><br><br>
+
             <label for="display_name">Display Name:</label>
             <input type="text" name="display_name" value="{{ author.display_name }}" required><br><br>
 
@@ -21,9 +22,9 @@
             <input type="url" name="github" value="{{ author.github }}" required><br><br>
 
             <label for="profile_image">Upload Profile Image:</label>
-            <input type="url" name="profile_image" value="{{ author.profile_image }}"><br><br>
+            <input type="file" name="profile_image"><br><br>
 
-            <button type="submit">Save</button>
+            <button type="submit">Save Changes</button>
         </form>
     </div>
 </body>

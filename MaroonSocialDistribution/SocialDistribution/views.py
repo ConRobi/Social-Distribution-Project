@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from .models import Author, Post, FollowRequest, Like
+from .models import Author, Post, FollowRequest, Like, Comment, InboxPost
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -13,11 +13,11 @@ from django.contrib import messages
 from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 
 
-from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer
+from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer
 
 
 def index(request):
@@ -48,9 +48,6 @@ def add_profile(request):
         # TODO GET request to other nodes to see if UUID is unique across all nodes
         # Option 1: Implement check method in models.py, call method in add_profile --> reusable across app
         # Option 2: Implement check in add_profile --> only lives inside add_profile function'
-
-        # TODO pending admin approval before profile becomes activated
-
         
         # Create URL based fields based on UUID
         node_url = "http://maroonnode.com"  # TODO need to prefix /SocialDistribution with node eg. node1/SocialDistribution
@@ -107,8 +104,6 @@ def view_profile(request, uuid):
             Q(author=author, visibility__iexact='unlisted')
         ).order_by('-published')
 
-
-
     # Handle author search functionality
     search_results = None
     query = request.GET.get('query')
@@ -124,6 +119,7 @@ def view_profile(request, uuid):
         "follow_requests": follow_requests,
         "search_results": search_results
     })
+
 @api_view(['GET'])
 def authors_list(request):
     authors = Author.objects.all()
@@ -182,27 +178,41 @@ def edit_profile(request, uuid):
     author = get_object_or_404(Author, uuid=uuid)
     return render(request, "edit_profile.html", {"author": author})
 
-@api_view(['POST'])
-def update_profile(request, uuid):
+@api_view(['GET', 'POST'])
+def author_profile(request, uuid):
     '''
-    Edit profile POST request called when edit-profile form is submitted.
+    Edit profile using POST request, called when edit-profile form is submitted.
     Updates author fields if new input is provided to them.
+
+    GET request, gets a single author's profile details.
     '''
-    author = get_object_or_404(Author, uuid=uuid)
+    
+    if request.method == "GET":
+        # Return the single author's details in serialized JSON format
+        author = get_object_or_404(Author, uuid=uuid)
 
-    # Update display_name if new display name is provided
-    author.display_name = request.POST.get("display_name")
+        serializer = AuthorSerializer(author)
 
-    # Update github if new github url is provided
-    author.github = request.POST.get("github")
+        return Response(serializer.data)
+    
+    if request.method == "POST":
+        
+        author = get_object_or_404(Author, uuid=uuid)
 
-    # Update profile picture if new profile photo given
-    author.profile_image = request.POST.get("profile_image")
+        # Update display_name if new display name is provided
+        author.display_name = request.POST.get("display_name")
 
-    author.save()
+        # Update github if new github url is provided
+        author.github = request.POST.get("github")
 
-    # redirect back to view profile page
-    return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+        # Update profile picture if new profile photo given
+        author.profile_image = request.POST.get("profile_image")
+
+        author.save()
+
+        # redirect back to view profile page
+        return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+
 
 """ POSTING """
 
@@ -518,18 +528,53 @@ def view_unlisted_post(request, post_id):
 
 def view_single_post(request, post_id):
     """
-    Display a single post.
+    Display a single post, restricting access based on visibility.
     """
     post = get_object_or_404(Post, id=post_id)
-    return render(request, "single_post.html", {"post": post})
 
-##################################### unlilsted ends ################################
+    comments = Comment.objects.filter(post=post)
+#     return render(request, "single_post.html", {"post": post, "comments": comments})
 
+
+    # ✅ Allow access if the post is Public or Unlisted (even if not logged in)
+    if post.visibility in ["PUBLIC", "UNLISTED"]:
+        return render(request, "single_post.html", {"post": post, "comments": comments})
+
+    # ✅ Require authentication for Friends-Only posts
+    if post.visibility == "FRIENDS":
+        if not request.user.is_authenticated:
+            # ❌ Redirect to login if user is not logged in
+            messages.error(request, "Unable to view this post. Please log in.")
+            return redirect("SocialDistribution:author-login")
+
+        # ✅ Check if the user is a mutual friend
+        is_friend = FollowRequest.objects.filter(
+            sender=request.user, receiver=post.author, status="ACCEPTED"
+        ).exists() and FollowRequest.objects.filter(
+            sender=post.author, receiver=request.user, status="ACCEPTED"
+        ).exists()
+
+        if is_friend or (request.user == post.author):
+            return render(request, "single_post.html", {"post": post, "comments": comments})
+
+        # ❌ Show error if user is not a friend
+        messages.error(request, "Unable to view this post. You must be friends with the author.")
+        return redirect("SocialDistribution:view-profile", request.user.uuid)
+
+    # ❌ If visibility does not match any expected cases, deny access
+    messages.error(request, "Unable to view this post.")
+    return redirect("SocialDistribution:index")
+
+
+
+### Likes ###
+
+@api_view(['POST'])
 @login_required
 def like_post(request, post_id):
     '''
-    Like a post
-    Returns a Json Response with the post's like count
+    - Description: Like a post
+    - Returns a Json Response with the post's like count (integer)
     '''
     # TODO Maybe change id to uuid if post object is updated with new primary key?
     post = get_object_or_404(Post, id=post_id)
@@ -541,12 +586,131 @@ def like_post(request, post_id):
         # Create new like object associated with the post
         new_like = Like.objects.create(author=like_author, post=post)
         new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
+        # TODO uncomment line when post model has proper id field
+        # new_like.object = post.id
         new_like.save()
-        print(new_like.id)
-        print(new_like.uuid)
     else:
         # Remove like if already liked
         like.delete()
     
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': post.likes.count()})
+
+@api_view(['POST'])
+@login_required
+def like_comment(request, comment_uuid):
+    '''
+    - Description: Like a comment
+    - Returns a Json Response with the comment's like count (integer)
+    '''
+    comment = get_object_or_404(Comment, uuid=comment_uuid)
+
+    like_author = request.user
+    like = Like.objects.filter(author=like_author, comment=comment)
+    # Check if the user already liked this comment
+    if not like.exists():
+        # Create new like object associated with the comment
+        new_like = Like.objects.create(author=like_author, comment=comment)
+        new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
+        # TODO uncomment line when comment model has proper id field
+        # new_like.object = comment.id
+        new_like.save()
+    else:
+        # Remove like if already liked
+        like.delete()
+    
+    # Return the new like count as a JSON response for use in Javascript
+    return JsonResponse({'likes_count': comment.likes.count()})
+
+### Comments ###
+
+@api_view(['POST'])
+@login_required
+def add_comment(request, post_id):
+    '''
+    Add a comment to a post
+    '''
+    post = get_object_or_404(Post, id=post_id)
+    comment_text = request.POST.get('comment')
+    content_type = request.POST.get('contentType')
+    Comment.objects.create(author=request.user, post=post, comment=comment_text, contentType=content_type)
+    return redirect("SocialDistribution:view-single-post", post_id=post_id)
+
+@login_required
+def send_post_to_followers(request, post_id):
+    """
+    Allows users to share a public or unlisted post with their followers.
+    """
+    # Get the post or return 404 if not found
+    post = get_object_or_404(Post, id=post_id)
+
+    # Ensure that only public and unlisted posts can be shared
+    if post.visibility not in ["PUBLIC", "UNLISTED"]:
+        messages.error(request, "You can only share public or unlisted posts.")
+        return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+    # Get the logged-in user's followers
+    followers = Author.objects.filter(
+        uuid__in=FollowRequest.objects.filter(receiver=request.user, status='ACCEPTED')
+        .values_list('sender__uuid', flat=True)
+    )
+
+    # Send the post title & link to each follower's inbox
+    for follower in followers:
+        InboxPost.objects.create(receiver=follower, post=post)
+
+    # Show a success message
+    messages.success(request, "Shared to followers!")
+
+    # Redirect back to the post page after sharing
+    return redirect("SocialDistribution:view-single-post", post_id=post.id)
+
+
+@login_required
+def view_inbox(request):
+    """
+    Display all posts received in the inbox.
+    """
+    inbox_posts = InboxPost.objects.filter(receiver=request.user).order_by('-received_at')
+    return render(request, "inbox.html", {"inbox_posts": inbox_posts})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def add_author(request):
+    if request.method == "POST":
+        form = AuthorRegistrationForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_author = form.save()
+            return redirect("SocialDistribution:view-profile", uuid=new_author.uuid)
+    else:
+        form = AuthorRegistrationForm()
+    return render(request, "add_author.html", {"form": form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def edit_author_profile(request, uuid):
+    '''
+    Renders edit author profile page
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    if request.method == "POST":
+        form = AuthorRegistrationForm(request.POST, request.FILES, instance=author)
+        if form.is_valid():
+            form.save()
+            return redirect("SocialDistribution:view-profile", uuid=author.uuid)
+    else:
+        form = AuthorRegistrationForm(instance=author)
+    return render(request, "edit_author_profile.html", {"form": form, "author": author})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@api_view(['POST'])
+def delete_author(request, uuid):
+    '''
+    Deletes an author
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    if request.method == 'POST':
+        author.delete()
+        return redirect("SocialDistribution:authors_list")
+    return render(request, "delete_author.html", {"author": author})

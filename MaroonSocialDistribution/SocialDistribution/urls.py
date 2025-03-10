@@ -20,25 +20,30 @@ urlpatterns = [
     # API Endpoint documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-docs"),
+    
+    ##### AUTHORS ####
 
-    #API Endpoints
-    ################
-    # API endpoint for "Authors API"
-    path("api/authors", views.authors_list, name="authors-list"),
-    #TODO API endpoint for "Single Author API"
+    # API Endpoints
+    path("api/authors", views.authors_list, name="authors-list"), # Authors API
+    path("api/authors/<uuid:uuid>", views.author_profile, name = "author-profile"), # Single Author API
+    path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
 
+    # Authors Page rendering
+    path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
+    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"), # Edit profile page
+    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"), # View profile page
 
-    # PROFILE
-    # Create profile interface page
-    path("create-profile", views.create_profile, name="create-profile"),
-    # API endpoint for adding profile
-    path("add-profile", views.add_profile, name = "add-profile"),
-    # View profile page
-    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"),
-    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"),
-    path("<uuid:uuid>/update-profile", views.update_profile, name = "update-profile"),
+    path('admin/add-author/', views.add_author, name='add-author'), #add author
+    path('admin/edit-author/<uuid:uuid>/', views.edit_author_profile, name='edit-author-profile'), #edit author
+    path('admin/delete-author/<uuid:uuid>/', views.delete_author, name='delete-author'), #delete author
+    
+    
+
     path("login", views.author_login, name = "author-login"),
     
+    
+    #### POSTS ####
+
     # Viewing all of an author's posts
     path("authors/<uuid:uuid>/posts", views.author_posts, name = "author-posts"),
     # Create post interface page
@@ -83,10 +88,20 @@ urlpatterns = [
 
     path("admin/", admin.site.urls),    # Django's built in admin panel
 
+    path("posts/<int:post_id>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
+    path("inbox/", views.view_inbox, name="view-inbox"),
+
+
     # Likes
-    # TODO hange to handle uuid?
+
+    # API Endpoints
+    
+    # TODO change to handle uuid of post?
     path('post/<int:post_id>/like_post/', views.like_post, name="like-post"),
-    # TODO add the same for comments when comment object made/change to handle uuid?
-    # path('comment/<int:comment_id>/like_comment/', views.like_comment, name="like-comment"),
+    path('comment/<uuid:comment_uuid>/like_comment/', views.like_comment, name="like-comment"),
+
+    # Comments
+    path('post/<int:post_id>/add_comment/', views.add_comment, name="add-comment"),
+
 
 ]
