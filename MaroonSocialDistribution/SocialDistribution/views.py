@@ -710,5 +710,7 @@ def delete_author(request, uuid):
     Deletes an author
     '''
     author = get_object_or_404(Author, uuid=uuid)
-    author.delete()
-    return redirect("SocialDistribution:authors_list")
+    if request.method == 'POST':
+        author.delete()
+        return redirect("SocialDistribution:authors_list")
+    return render(request, "delete_author.html", {"author": author})

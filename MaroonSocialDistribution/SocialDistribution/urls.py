@@ -32,6 +32,11 @@ urlpatterns = [
     path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
     path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"), # Edit profile page
     path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"), # View profile page
+
+    path('admin/add-author/', views.add_author, name='add-author'), #add author
+    path('admin/edit-author/<uuid:uuid>/', views.edit_author_profile, name='edit-author-profile'), #edit author
+    path('admin/delete-author/<uuid:uuid>/', views.delete_author, name='delete-author'), #delete author
+    
     
 
     path("login", views.author_login, name = "author-login"),
@@ -97,5 +102,6 @@ urlpatterns = [
 
     # Comments
     path('post/<int:post_id>/add_comment/', views.add_comment, name="add-comment"),
+
 
 ]
