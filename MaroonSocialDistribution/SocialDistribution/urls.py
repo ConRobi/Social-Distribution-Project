@@ -108,7 +108,13 @@ urlpatterns = [
     path('comment/<uuid:comment_uuid>/like_comment/', views.like_comment, name="like-comment"),
 
     ### COMMENTS ###
+    # Comment creation
     path('post/<int:post_id>/add_comment/', views.add_comment, name="add-comment"),
+
+    # API Endpoints
+    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/comments', views.get_post_comments, name='post_comments'), # Get comments of a single post
+    path('api/authors/<uuid:author_uuid>/commented', views.get_comments_by_author, name='get_comments_by_author'), # Get comments by author
+    path('api/authors/<uuid:author_uuid>/commented/<uuid:comment_uuid>', views.get_single_comment, name='get_single_comment'), # Get a single comment
 
     # Documentation
     path("api/docs/custom/", SpectacularSwaggerView.as_view(url_name="schema"), name="api-documentation"),
