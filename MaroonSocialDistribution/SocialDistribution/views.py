@@ -13,9 +13,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
-from django.contrib.auth.decorators import login_required
-
-
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer
 
