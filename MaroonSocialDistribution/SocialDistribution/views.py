@@ -14,9 +14,7 @@ from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
-
-
-
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer
 
 
@@ -516,16 +514,108 @@ def remove_follower(request, uuid):
 
 
 ##################################### unlilsted ################################
-@api_view(['GET'])
+@extend_schema(
+    summary="Retrieve an unlisted post",
+    description="""
+    This endpoint allows **anyone with the link** to retrieve an unlisted post.  
+    - ✅ No authentication required.
+    - ✅ Anyone with the link can view it.
+    - ❌ Not recommended for private posts.
+    """,
+    parameters=[
+        {
+            "name": "post_id",
+            "description": "The ID of the unlisted post to retrieve.",
+            "required": True,
+            "type": "integer",
+        }
+    ],
+    responses={
+        200: PostSerializer,
+        404: {"detail": "Not found"},
+    },
+    examples=[
+        OpenApiExample(
+            "Successful Response",
+            value={
+                "id": 2,
+                "title": "Unlisted Post",
+                "content": "This is an unlisted post",
+                "visibility": "UNLISTED",
+                "author_id": "6bde6334-a6be-4c6c-baa1-19f7371cf879",
+                "published": "2025-03-10T05:13:35.137044Z",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            "Not Found",
+            value={"detail": "Not found"},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
+)
+@api_view(["GET"])
 def view_unlisted_post(request, post_id):
     """
     Allow anyone with the link to view an unlisted post.
+    SECURITY WARNING: This API is **not private**. Anyone with the link can see the post.
     """
     post = get_object_or_404(Post, id=post_id, visibility="UNLISTED")
 
     serializer = PostSerializer(post)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@extend_schema(
+    summary="Retrieve a single post",
+    description="""
+    This endpoint retrieves a single post and **restricts access** based on its visibility:  
+    - ✅ **PUBLIC & UNLISTED**: Anyone can view it.  
+    - ✅ **FRIENDS-ONLY**: Requires authentication. Only the author & mutual friends can see it.  
+    - ❌ **Others**: Unauthorized users are redirected.  
+    """,
+    parameters=[
+        {
+            "name": "post_id",
+            "description": "The ID of the post to retrieve.",
+            "required": True,
+            "type": "integer",
+        }
+    ],
+    responses={
+        200: PostSerializer,
+        302: {"detail": "Redirected due to permission restrictions"},
+        404: {"detail": "Not found"},
+    },
+    examples=[
+        OpenApiExample(
+            "Public Post",
+            value={
+                "id": 1,
+                "title": "Public Post",
+                "content": "This is a public post",
+                "visibility": "PUBLIC",
+                "author_id": "a1b2c3d4-5678-9101-1121-314151617181",
+                "published": "2025-03-10T05:13:35.137044Z",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            "Friends-Only Post (Access Denied)",
+            value={"detail": "You must be friends with the author to view this post."},
+            response_only=True,
+            status_codes=["302"],
+        ),
+        OpenApiExample(
+            "Not Found",
+            value={"detail": "Not found"},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
+)
+@api_view(["GET"])
 def view_single_post(request, post_id):
     """
     Display a single post, restricting access based on visibility.
