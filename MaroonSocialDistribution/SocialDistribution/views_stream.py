@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from SocialDistribution.models import Post, Comment, FollowRequest
+from SocialDistribution.models import Post, Comment, FollowRequest, InboxPost
 @extend_schema(
     summary="Retrieve a single post with visibility restrictions",
     description="""
