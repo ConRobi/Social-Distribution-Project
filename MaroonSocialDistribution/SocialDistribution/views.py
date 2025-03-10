@@ -14,7 +14,7 @@ from django.db.models import Q
 from .services.github_service import fetch_github_activity
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
-from drf_spectacular.utils import extend_schema, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, OpenApiTypes
 from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer, CommentSerializer
 
 
@@ -728,12 +728,57 @@ def like_comment(request, comment_uuid):
     # Return the new like count as a JSON response for use in Javascript
     return JsonResponse({'likes_count': comment.likes.count()})
 
+
+@extend_schema(
+    description=("Get a list of likes for a specified post by a particular author.\n"
+        "This endpoint is useful to retrieve all likes for a post, with pagination support.\n"
+        "- **When to use**: When you need to retrieve the list of likes for a post, optionally using pagination.\n"
+        "- **How to use**: Make a GET request to `api/authors/{author_uuid}/posts/{post_id}/likes`.\n"
+        "- **Why to use**: Useful for clients that need to fetch the list of likes for posts, especially when dealing with large amounts of data and needing pagination.\n"
+        "- **Why not use**: Do not use this endpoint if you don’t need the list of likes or when pagination is unnecessary."),
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string", "example": "likes"},
+                "page": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"},
+                "id": {"type": "string", "example": "http://maroonnode.com/api/authors/222/posts/249/likes"},
+                "page_number": {"type": "integer", "example": 1},
+                "size": {"type": "integer", "example": 50},
+                "count": {"type": "integer", "example": 9001},
+                "src": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string", "example": "like"},
+                            "author": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {"type": "string", "example": "author"},
+                                    "id": {"type": "string", "example": "http://maroonnode.com/api/authors/111"},
+                                    "page": {"type": "string", "example": "http://maroonnode.com/authors/greg"},
+                                    "host": {"type": "string", "example": "http://maroonnode.com/api/"},
+                                    "displayName": {"type": "string", "example": "Greg Johnson"},
+                                    "github": {"type": "string", "example": "http://github.com/gjohnson"},
+                                    "profileImage": {"type": "string", "example": "https://i.imgur.com/k7XVwpB.jpeg"}
+                                }
+                            },
+                            "published": {"type": "string", "example": "2015-03-09T13:07:04+00:00"},
+                            "id": {"type": "string", "example": "http://maroonnode.com/api/authors/111/liked/166"},
+                            "object": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    parameters=[
+        OpenApiParameter('size', OpenApiTypes.INT, description='Number of likes per page', required=False),
+    ],
+)
 @api_view(['GET'])
 def get_post_likes(request, author_uuid, post_id):
-    """
-    - Description: Get a list of likes for a specicified post
-    - Returns: a paginated list of likes for a specific post
-    """
     post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
     
     # Create a paginator object
@@ -764,6 +809,55 @@ def get_post_likes(request, author_uuid, post_id):
         "src": serialized_likes,
     })
 
+@extend_schema(
+    description=("Get likes by an author.\n"
+        "This endpoint allows you to retrieve a paginated list of like objects (for posts or comments) "
+        "that were made by a specific author.\n"
+        "- **When to use**: Use this endpoint when you want to retrieve a list of likes made by an author.\n"
+        "- **How to use**: Make a GET request to `api/authors/{author_uuid}/liked`.\n"
+        "- **Why to use**: Useful when clients need to fetch all likes made by a specific author, with support for pagination.\n"
+        "- **Why not use**: Avoid using this endpoint if you only need details about a single like."),
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string", "example": "likes"},
+                "page": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"},
+                "id": {"type": "string", "example": "http://maroonnode.com/api/authors/222/posts/249/likes"},
+                "page_number": {"type": "integer", "example": 1},
+                "size": {"type": "integer", "example": 50},
+                "count": {"type": "integer", "example": 9001},
+                "src": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string", "example": "like"},
+                            "author": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {"type": "string", "example": "author"},
+                                    "id": {"type": "string", "example": "http://maroonnode.com/api/authors/48c0840c-40b1-4ff5-a9bc-f410ecdd91b8"},
+                                    "page": {"type": "string", "example": "http://maroonnode.com/authors/48c0840c-40b1-4ff5-a9bc-f410ecdd91b8"},
+                                    "host": {"type": "string", "example": "http://maroonnode.com/api/"},
+                                    "displayName": {"type": "string", "example": "Auro Bee"},
+                                    "github": {"type": "string", "example": "http://github.com/aurb"},
+                                    "profileImage": {"type": "string", "example": "https://i.imgur.com/k7XVwpB.jpeg"}
+                                }
+                            },
+                            "published": {"type": "string", "example": "2015-03-09T13:07:04+00:00"},
+                            "id": {"type": "string", "example": "http://maroonnode.com/api/authors/111/liked/166"},
+                            "object": {"type": "string", "example": "http://maroonnode.com/authors/222/posts/249"}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    parameters=[
+        OpenApiParameter('size', OpenApiTypes.INT, description='Number of likes per page', required=False),
+    ],
+)
 @api_view(['GET'])
 def get_likes_by_author(request, author_uuid):
     """
@@ -803,12 +897,22 @@ def get_likes_by_author(request, author_uuid):
         "src": serialized_likes,
     })
 
+
+@extend_schema(
+    description=(
+        "Get a single like object by an author.\n"
+        "This endpoint allows you to retrieve a specific like that an author has made, identified by the `like_uuid`.\n"
+        "- **When to use**: When you need to fetch a particular like made by an author.\n"
+        "- **How to use**: Make a GET request to `/authors/{author_uuid}/liked/{like_uuid}`.\n"
+        "- **Why to use**: Useful for retrieving the details of a specific like, such as the author who liked an object and what was liked.\n"
+        "- **Why not use**: Not for getting all likes by an author"
+    ),
+    responses={
+        200: LikeSerializer,
+    }
+)
 @api_view(['GET'])
 def get_single_like(request, author_uuid, like_uuid):
-    """
-    - Description: Get a single like object by an author
-    - Returns: a single like by a specific author, identified by like_uuid
-    """
     author = get_object_or_404(Author, uuid=author_uuid)
     
     # Get the like by UUID and ensure it belongs to the specified author
