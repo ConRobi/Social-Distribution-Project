@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Author</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+</head>
+<body>
+    <div class="delete_author_body">
+        <h2>Delete Author</h2>
+        <p>Are you sure you want to delete the author <strong>{{ author.username }}</strong>?</p>
+        <form method="POST" action="{% url 'SocialDistribution:delete-author' author.uuid %}">
+            {% csrf_token %}
+            <button type="submit">Yes, Delete Author</button>
+            <a href="{% url 'SocialDistribution:view-profile' author.uuid %}">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
