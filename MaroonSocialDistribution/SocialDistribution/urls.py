@@ -59,7 +59,7 @@ urlpatterns = [
 
 
     ### FOLLOWING ###
-    # TODO Sort this in to theses two categories
+    # TODO Sort this into two categories
     # 1. Following - API Endpoints
     # 2. Following - Page Rendering
     path("authors/<uuid:uuid>/follow/", send_follow_request, name="send-follow-request"),
