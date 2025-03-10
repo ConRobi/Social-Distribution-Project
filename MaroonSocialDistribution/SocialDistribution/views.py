@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from .models import Author, Post, FollowRequest, Like, Comment, InboxPost
+from .models import Author, Post, FollowRequest, Like, Comment, InboxPost, AdminApproval
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -140,16 +140,32 @@ def author_login(request):
     '''
     Log in existing users using Django's built-in login authentication
     '''
+    admin_approval = get_object_or_404(AdminApproval, id=1)
+    print(admin_approval.require_approval)
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             # Get the username and password from the form and authenticate the author
             author = form.get_user()
-            login(request, author)  # Log the author in
-
-            # Redirect to view profile page
-            url = f"authors/{author.uuid}"
-            return redirect(url)
+            
+            # Admin approval function ON
+            if admin_approval.require_approval:
+                # Get author object
+                author_object = get_object_or_404(Author, display_name=author)
+                if not author_object.is_approved:
+                    return HttpResponse("Need Admin to approve your account before Logging in")
+                else:
+                    login(request, author)  # Log the author in
+                    # Redirect to view profile page
+                    url = f"authors/{author.uuid}"
+                    return redirect(url)
+                
+            # Admin approval function OFF
+            else: # Login as normal
+                login(request, author)  # Log the author in
+                # Redirect to view profile page
+                url = f"authors/{author.uuid}"
+                return redirect(url)
         else:
             # If the form is invalid, display an error message
             messages.error(request, "Invalid username or password.")
