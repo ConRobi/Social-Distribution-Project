@@ -9,7 +9,6 @@ User = get_user_model()
 class AuthorManagementTests(APITestCase):
 
     def setUp(self):
-        self.client = Client()
         self.admin_user = User.objects.create_superuser(username='admin', password='admin123', email='admin@example.com')
         self.client.login(username='admin', password='admin123')
         self.add_author_url = reverse('SocialDistribution:add-author')
