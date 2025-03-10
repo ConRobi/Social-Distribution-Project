@@ -118,6 +118,19 @@ def view_profile(request, uuid):
         "search_results": search_results
     })
 
+def add_author(request):
+    '''
+    Renders add author page
+    '''
+    if request.method == "POST":
+        form = AuthorRegistrationForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_author = form.save()
+            return redirect("SocialDistribution:view-profile", uuid=new_author.uuid)
+    else:
+        form = AuthorRegistrationForm()
+    return render(request, "add_author.html", {"form": form})
+
 @api_view(['GET'])
 def authors_list(request):
     authors = Author.objects.all()
