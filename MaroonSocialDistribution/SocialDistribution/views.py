@@ -227,6 +227,17 @@ def author_profile(request, uuid):
         # redirect back to view profile page
         return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
 
+@api_view['GET']
+def author_profile_fqid(request, fqid):
+    '''
+    Function for getting author's profile based of FQID 
+    '''
+
+    if request == "GET":
+        
+
+    pass
+
 
 """ POSTING """
 
