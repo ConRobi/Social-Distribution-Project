@@ -100,10 +100,12 @@ urlpatterns = [
 
     # Likes - API Endpoints
     # TODO change to post_uuid if/when uuid is available for posts?
-    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/likes', views.get_post_likes, name='post_likes'), # Get likes of a single post
     path('api/authors/<uuid:author_uuid>/liked', views.get_likes_by_author, name='get_likes_by_author'), # Get liked objects by author
     path('api/authors/<uuid:author_uuid>/liked/<uuid:like_uuid>', views.get_single_like, name='get_single_like'), # Get a single like
-    # TODO add fqid related apis
+    #path('api/author/<path:author_fqid>/liked', views.get_posts_liked_by_author, name='get_posts_liked_by_author'), # Things liked by Author
+    path('api/liked/<path:like_fqid>', views.get_single_like_fqid, name='get_single_like_fqid'), # Get a single like using FQID
+    # TODO: unsure what this is for?
+    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/likes', views.get_post_likes, name='post_likes'), # Get likes of a single post
 
     # Like creation
     # TODO change to handle uuid of post?
