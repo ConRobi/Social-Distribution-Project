@@ -111,17 +111,6 @@ def handle_follow_request(request, uuid, sender_uuid):
         return Response({"message": "Follow request denied."}, status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
-def search_authors(request):
-    """
-    Search authors by username or display name and render a results page.
-    """
-    query = request.GET.get("query", "").strip()
-    search_results = Author.objects.filter(Q(display_name__icontains=query) | Q(username__icontains=query)) if query else []
-
-    return render(request, "search_results.html", {"search_results": search_results})
-
-
-@api_view(['GET'])
 def follow_requests_inbox(request, uuid):
     """
     Retrieve pending follow requests for an author

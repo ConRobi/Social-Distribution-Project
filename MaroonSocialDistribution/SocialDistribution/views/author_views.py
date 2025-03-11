@@ -113,6 +113,17 @@ def view_profile(request, uuid):
     })
 
 @api_view(['GET'])
+def search_authors(request):
+    """
+    Search authors by username or display name and render a results page.
+    """
+    query = request.GET.get("query", "").strip()
+    search_results = Author.objects.filter(Q(display_name__icontains=query) | Q(username__icontains=query)) if query else []
+
+    return render(request, "search_results.html", {"search_results": search_results})
+
+
+@api_view(['GET'])
 def authors_list(request):
     authors = Author.objects.all()
     
