@@ -1,3 +1,17 @@
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import (OpenApiParameter,
+                                   OpenApiTypes, extend_schema)
+from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
+from .models import (Author, Comment,
+                     Like, Post)
+from .serializers import LikeSerializer
+
+
 @api_view(['POST'])
 @login_required
 def like_post(request, post_id):

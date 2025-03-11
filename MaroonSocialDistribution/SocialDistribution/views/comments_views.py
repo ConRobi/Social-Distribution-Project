@@ -1,3 +1,12 @@
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
+from models import (Author, Comment, Post)
+from serializers import CommentSerializer
+
 @api_view(['POST'])
 @login_required
 def add_comment(request, post_id):
