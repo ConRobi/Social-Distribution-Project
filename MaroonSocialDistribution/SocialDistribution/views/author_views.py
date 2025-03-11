@@ -14,7 +14,6 @@ from services.github_service import fetch_github_activity
 from serializers import AuthorSerializer
 import requests
 
-
 def create_profile(request):
     '''
     Renders create profile page
