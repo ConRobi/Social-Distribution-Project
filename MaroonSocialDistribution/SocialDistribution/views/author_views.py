@@ -251,3 +251,45 @@ def author_profile_fqid(request, fqid):
             return JsonResponse({"error": "Failed to fetch author data"}, status=response.status_code)
     
     return JsonResponse({"error": "Only GET requests allowed"}, status=404)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def add_author(request):
+    if request.method == "POST":
+        form = AuthorRegistrationForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_author = form.save()
+            return redirect("SocialDistribution:view-profile", uuid=new_author.uuid)
+    else:
+        form = AuthorRegistrationForm()
+    return render(request, "add_author.html", {"form": form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def edit_author_profile(request, uuid):
+    '''
+    Renders edit author profile page
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    if request.method == "POST":
+        form = AuthorRegistrationForm(request.POST, request.FILES, instance=author)
+        if form.is_valid():
+            form.save()
+            return redirect("SocialDistribution:view-profile", uuid=author.uuid)
+    else:
+        form = AuthorRegistrationForm(instance=author)
+    return render(request, "edit_author_profile.html", {"form": form, "author": author})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@api_view(['POST'])
+def delete_author(request, uuid):
+    '''
+    Deletes an author
+    '''
+    author = get_object_or_404(Author, uuid=uuid)
+    if request.method == 'POST':
+        author.delete()
+        return redirect("SocialDistribution:authors_list")
+    return render(request, "delete_author.html", {"author": author})
