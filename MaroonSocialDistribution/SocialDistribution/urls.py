@@ -41,7 +41,7 @@ urlpatterns = [
     # Authors - API Endpoints 
     path("api/authors", views.authors_list, name="authors-list"), # Authors API
     path("api/authors/<uuid:uuid>", views.author_profile, name = "author-profile"), # Single Author API {AUTHOR_SERIAL}
-    path("api/authors/<str:fqid>", views.author_profile_fqid, name = "author-profile-fqid"), # Single Author API {AUTHOR_FQID}
+    path("api/authors/<path:fqid>", views.author_profile_fqid, name = "author-profile-fqid"), # Single Author API {AUTHOR_FQID}
     path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
     # Authors - Page rendering
     path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page

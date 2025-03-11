@@ -16,7 +16,8 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, OpenApiTypes
 from .serializers import AuthorSerializer, PostSerializer, FollowRequestSerializer, LikeSerializer, CommentSerializer
-
+import urllib
+import requests
 
 def index(request):
     return render(request, "index.html")
@@ -227,16 +228,26 @@ def author_profile(request, uuid):
         # redirect back to view profile page
         return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
 
-@api_view['GET']
+@api_view(['GET'])
 def author_profile_fqid(request, fqid):
     '''
-    Function for getting author's profile based of FQID 
+    GET request - gets author's profile based on FQID.
+    FQID is a percent encoded author's profile id url.
+    Example GET request: http://localhost:8000/api/authors/http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauthors%2Fa7f15b29-98d9-4230-ac75-8594c7f61623
+    FQID: http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauthors%2Fa7f15b29-98d9-4230-ac75-8594c7f61623
     '''
+    
+    if request.method == "GET":
+        response = requests.get(fqid)
 
-    if request == "GET":
+        if response.status_code == 200:
+            author_data = response.json()
+            return JsonResponse(author_data)
         
-
-    pass
+        else:
+            return JsonResponse({"error": "Failed to fetch author data"}, status=response.status_code)
+    
+    return JsonResponse({"error": "Only GET requests allowed"}, status=404)
 
 
 """ POSTING """
