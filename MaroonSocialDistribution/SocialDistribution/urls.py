@@ -2,11 +2,12 @@ from django.urls import path
 from django.contrib import admin
 from . import views
 from django.contrib.auth.views import LogoutView
-from .views_stream import stream_view  # import stream_view (reading)
 from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
     view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list, view_unlisted_post
 )
+
+from .views import *
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
@@ -40,7 +41,8 @@ urlpatterns = [
     #### AUTHORS ###
     # Authors - API Endpoints 
     path("api/authors", views.authors_list, name="authors-list"), # Authors API
-    path("api/authors/<uuid:uuid>", views.author_profile, name = "author-profile"), # Single Author API
+    path("api/authors/<uuid:uuid>", views.author_profile, name = "author-profile"), # Single Author API {AUTHOR_SERIAL}
+    path("api/authors/<path:fqid>", views.author_profile_fqid, name = "author-profile-fqid"), # Single Author API {AUTHOR_FQID}
     path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
     # Authors - Page rendering
     path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
