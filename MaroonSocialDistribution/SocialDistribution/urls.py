@@ -2,11 +2,12 @@ from django.urls import path
 from django.contrib import admin
 from . import views
 from django.contrib.auth.views import LogoutView
-from .views_stream import stream_view  # import stream_view (reading)
 from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
     view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list, view_unlisted_post
 )
+
+from .views import *
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 

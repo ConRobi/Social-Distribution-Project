@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-from models import Author, Post
+from SocialDistribution.models import Author, Post
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import HttpResponseForbidden
-from serializers import PostSerializer
+from SocialDistribution.serializers import PostSerializer
+from drf_spectacular.utils import extend_schema, OpenApiExample
+from django.contrib.auth.decorators import login_required
+
 
 def author_posts(request, uuid):
     '''

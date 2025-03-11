@@ -1,18 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from models import Author, Post, FollowRequest, AdminApproval
+from SocialDistribution.models import Author, Post, FollowRequest, AdminApproval
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import login, logout
-from forms import AuthorRegistrationForm
+from SocialDistribution.forms import AuthorRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Q
-from services.github_service import fetch_github_activity
-from serializers import AuthorSerializer
+from SocialDistribution.services.github_service import fetch_github_activity
+from SocialDistribution.serializers import AuthorSerializer
 import requests
+
+def index(request):
+    return render(request, "index.html")
 
 def create_profile(request):
     '''

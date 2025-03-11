@@ -1,10 +1,10 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from models import (Author, FollowRequest)
+from SocialDistribution.models import (Author, FollowRequest)
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from serializers import AuthorSerializer, FollowRequestSerializer
+from SocialDistribution.serializers import AuthorSerializer, FollowRequestSerializer
 
 @api_view(['GET'])
 def followers_list(request, uuid):

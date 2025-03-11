@@ -4,8 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from models import (Author, Comment, Post)
-from serializers import CommentSerializer
+from SocialDistribution.models import (Author, Comment, Post)
+from SocialDistribution.serializers import CommentSerializer
 
 @api_view(['POST'])
 @login_required

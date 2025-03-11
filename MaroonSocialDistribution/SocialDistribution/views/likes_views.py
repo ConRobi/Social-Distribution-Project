@@ -7,9 +7,9 @@ from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from .models import (Author, Comment,
+from SocialDistribution.models import (Author, Comment,
                      Like, Post)
-from .serializers import LikeSerializer
+from SocialDistribution.serializers import LikeSerializer
 
 
 @api_view(['POST'])
