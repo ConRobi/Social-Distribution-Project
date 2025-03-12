@@ -1,0 +1,153 @@
+/* General Styling */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #0D1117; /* Dark background */
+    color: #ffffff;
+    text-align: center;
+}
+
+/* Centered Form Container */
+.create-post-container {
+    width: 50%;
+    margin: 50px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 2px 2px 15px rgba(255, 127, 80, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px); /* Frosted Glass Effect */
+}
+
+/* Page Title */
+h2 {
+    font-size: 2.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Input Fields */
+input, select, textarea {
+    width: 90%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-size: 1em;
+    transition: all 0.3s ease-in-out;
+    outline: none;
+    backdrop-filter: blur(5px);
+}
+
+/* Placeholder Text */
+input::placeholder, textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Focus Effect */
+input:focus, select:focus, textarea:focus {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0px 0px 8px rgba(255, 127, 80, 0.5);
+    outline: none;
+}
+
+/* Select Dropdown */
+select {
+    cursor: pointer;
+    font-size: 1em;
+    text-align: center;
+}
+
+/* File Upload Styling */
+input[type="file"] {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 1em;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    background: linear-gradient(to right, #FF7F50, #FF4500);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    background: #FF4500;
+}
+
+/* Labels */
+label {
+    font-size: 1.1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-top: 10px;
+    text-align: left;
+    width: 90%;
+}
+
+/* Textarea Resizing */
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Submit Button */
+button {
+    width: 90%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1em;
+    background: linear-gradient(to right, #FF7F50, #FF4500);
+    color: white;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 0px 10px rgba(255, 127, 80, 0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background: #FF4500;
+    box-shadow: 0px 0px 15px rgba(255, 127, 80, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .create-post-container {
+        width: 70%;
+    }
+}
+
+@media (max-width: 768px) {
+    .create-post-container {
+        width: 90%;
+    }
+
+    input, select, textarea, button {
+        width: 100%;
+    }
+}

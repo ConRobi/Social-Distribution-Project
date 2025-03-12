@@ -1,104 +1,271 @@
+/* General Styling */
 html, body {
-    margin: 0;
-    border: 0;
-    font-size: 100%;
+    margin: 5;
+    padding: 0;
     font-family: 'Poppins', sans-serif;
-    background-color: #0D1117;
+    background-color: #0D1117; /* Dark background */
     color: #ffffff;
 }
 
-/* Body CSS for edit_profile.html */
-.edit_profile_body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Navbar Styling */
+header {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Body CSS for view_profile.html */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.nav-links a {
+    color: #FF7F50;
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #FF4500;
+}
+
+.navbar-search input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.navbar-search button {
+    background: #FF7F50;
+    border: none;
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.navbar-search button:hover {
+    background: #FF4500;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+/* Profile Page Layout */
 .profile_body {
     display: flex;
     width: 80%;
     gap: 20px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    margin: 40px auto;
 }
 
+/* Profile Details Section */
 #profile_details {
-    position: sticky;
-    top: 0;
     flex: 1;
     background: rgba(255, 255, 255, 0.1);
     padding: 20px;
-    box-shadow: 2px 10px 5px rgba(255, 255, 255, 0.2);
     border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-#profile_posts {
-    flex: 2;
+/* Profile Title */
+.profile-title {
+    font-size: 1.8em;
+    font-weight: bold;
+    text-align: center;
 }
 
-#profile_posts li {
-    list-style-type: none;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 10px;
-    gap: 10px;
-    margin-top: 10px;
-    box-shadow: none;
-}
-
-/* General profile picture styling */
+/* Profile Picture */
 .profile-picture {
     border-radius: 50%;
     width: 120px;
     height: 120px;
     object-fit: cover;
-    margin-bottom: 10px;
+    margin: 20px auto;
+    display: block;
     box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
-    border: 3px solid #FF7F50;
 }
 
-/* General button styling */
-.new_post_button {
-    background: linear-gradient(135deg, #FF7F50, #FF4500);
+/* Profile Info */
+.profile-info p {
+    font-size: 1.1em;
+    margin: 15px 0;
+}
+
+.github-link {
+    color: #FF7F50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.github-link:hover {
+    color: #FF4500;
+}
+
+/* Profile Buttons */
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px;
+}
+
+.profile-btn {
+    display: block;
+    width: 75%;
+    padding: 12px;
+    margin: 15px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.edit-btn {
+    background: linear-gradient(to right, #FF7F50, #FF4500);
     color: white;
+}
+
+.edit-btn:hover {
+    background: #FF4500;
+}
+
+.stream-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.stream-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Social Links */
+.social-section h3 a, 
+.requests-section h3 a {
+    color: #FF7F50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.social-section h3 a:hover, 
+.requests-section h3 a:hover {
+    color: #FF4500;
+}
+
+/* Posts Section */
+#profile_posts {
+    flex: 2;
+}
+
+#profile_posts ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.post-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+    margin-top: 15px;
+}
+
+.post-title {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.post-meta {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.post-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Action Buttons */
+.post-actions a {
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out;
+}
+
+.view-post {
+    background: #0072CE;
+    color: white;
+}
+
+.delete-post {
+    background: #FF4500;
+    color: white;
+}
+
+.edit-post {
+    background: #FFA500;
+    color: white;
+}
+
+.post-actions a:hover {
+    opacity: 0.8;
+}
+
+/* Like Button */
+.like-post-button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+    color: white;
+    background: #FF7F50;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    margin-top: 15px;
+    transition: background 0.3s ease-in-out;
+}
+
+.like-post-button:hover {
+    background: #FF4500;
+}
+
+/* Floating Add Post Button */
+.new_post_button {
     position: fixed;
     bottom: 50px;
     right: 50px;
     width: 75px;
     height: 75px;
     border-radius: 50%;
-    font-size: 3em;
-}
-
-button {
-    background: linear-gradient(135deg, #FF7F50, #FF4500);
-    padding: 12px;
+    font-size: 2.5em;
     border: none;
-    border-radius: 8px;
+    background: linear-gradient(to right, #FF7F50, #FF4500);
     color: white;
-    font-size: 1rem;
-    font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s;
-    margin: 10px;
-    box-shadow: 0 4px 10px rgba(255, 127, 80, 0.5);
+    box-shadow: 0 0 10px rgba(255, 127, 80, 0.5);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-button:hover {
-    background: linear-gradient(135deg, #FF4500, #FF2400);
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(255, 69, 0, 0.6);
-}
-
-/* Styling for single post */
-#single_post {
-    border: none;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: none;
+.new_post_button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 127, 80, 0.7);
 }
