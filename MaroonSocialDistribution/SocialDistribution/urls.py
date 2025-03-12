@@ -2,11 +2,12 @@ from django.urls import path
 from django.contrib import admin
 from . import views
 from django.contrib.auth.views import LogoutView
-from .views_stream import stream_view  # import stream_view (reading)
 from .views import (
     search_authors, send_follow_request, accept_follow_request, reject_follow_request, follow_requests,
     view_followers, view_following, view_friends, unfollow_user, remove_follower, delete_post, edit_post, check_follow_status, followers_list, following_list, friends_list, view_unlisted_post
 )
+
+from .views import *
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
@@ -35,17 +36,6 @@ urlpatterns = [
     path("login", views.author_login, name = "author-login"),
     path('logout/', views.author_logout, name='author-logout'),
     path("authors/search/", views.search_authors, name="search-authors"),
-
-
-    #### AUTHORS ###
-    # Authors - API Endpoints 
-    path("api/authors", views.authors_list, name="authors-list"), # Authors API
-    path("api/authors/<uuid:uuid>", views.author_profile, name = "author-profile"), # Single Author API
-    path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
-    # Authors - Page rendering
-    path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
-    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"), # Edit profile page
-    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"), # View profile page
 
 
     ### POSTS ###
@@ -98,10 +88,12 @@ urlpatterns = [
 
     # Likes - API Endpoints
     # TODO change to post_uuid if/when uuid is available for posts?
-    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/likes', views.get_post_likes, name='post_likes'), # Get likes of a single post
     path('api/authors/<uuid:author_uuid>/liked', views.get_likes_by_author, name='get_likes_by_author'), # Get liked objects by author
     path('api/authors/<uuid:author_uuid>/liked/<uuid:like_uuid>', views.get_single_like, name='get_single_like'), # Get a single like
-    # TODO add fqid related apis
+    #path('api/author/<path:author_fqid>/liked', views.get_posts_liked_by_author, name='get_posts_liked_by_author'), # Things liked by Author
+    path('api/liked/<path:like_fqid>', views.get_single_like_fqid, name='get_single_like_fqid'), # Get a single like using FQID
+    # TODO: unsure what this is for?
+    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/likes', views.get_post_likes, name='post_likes'), # Get likes of a single post
 
     # Like creation
     # TODO change to handle uuid of post?
@@ -116,5 +108,24 @@ urlpatterns = [
     path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/comments', views.get_post_comments, name='post_comments'), # Get comments of a single post
     path('api/authors/<uuid:author_uuid>/commented', views.get_comments_by_author, name='get_comments_by_author'), # Get comments by author
     path('api/authors/<uuid:author_uuid>/commented/<uuid:comment_uuid>', views.get_single_comment, name='get_single_comment'), # Get a single comment
+
+    
+    ### !!! WARNING !!! ###
+    # DO NOT MOVE AUTHORS SECTION #
+    # The API endpoints that start with "api/author/" + "some path" need to be searched and used first
+    # Otherwise the "api/authors/<path:identifier>" will catch and dispatch the urls incorrectly.
+    # For example 'api/authors/<uuid:author_uuid>/liked' would get dispatched by "api/authors/<path:identifier>" with path:identifier = "<uuid:author_uuid>/liked"
+    # which would be passed incorrectly to views.author_profile views function instead of the views.get_single_like
+    
+
+    #### AUTHORS ###
+    # Authors - API Endpoints 
+    path("api/authors", views.authors_list, name="authors-list"), # Authors API
+    path("api/authors/<path:identifier>", views.author_profile, name = "author-profile"), # Single Author API, identifier = {AUTHOR_SERIAL} (uuid) or {AUTHOR_FQID}
+    path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
+    # Authors - Page rendering
+    path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
+    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"), # Edit profile page
+    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"), # View profile page
 
 ]

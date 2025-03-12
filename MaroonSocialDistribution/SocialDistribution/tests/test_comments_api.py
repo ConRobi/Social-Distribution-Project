@@ -75,11 +75,10 @@ class CommentAPITestCase(APITestCase):
 
         # Check both comments created
         comment_list = response.data['results']['src']
-
         self.assertEqual(comment_list[0]['comment'], "I hate this post!")
         self.assertEqual(comment_list[0]['id'], self.comment2.id)
 
-        self.assertEqual(comment_list[1]['comment'], "I like this post!")
+        self.assertEqual(comment_list[1]['comment'], "I like this post!" )
         self.assertEqual(comment_list[1]['id'], self.comment1.id)
         
     def test_get_post_comments(self):

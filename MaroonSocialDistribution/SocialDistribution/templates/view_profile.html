@@ -105,13 +105,11 @@
                                 </div>
 
                                 <!-- Liking a post -->
-                                <form method="post">
                                     {% csrf_token %}
                                     <section id="like-details">
                                         <button class="like-post-button" data-post-id="{{ post.id }}">❤</button>
                                         <span id="post-likes-count-{{ post.id }}">{{ post.likes.count }}</span>
                                     </section>
-                                </form>
                             </li>
                         {% endif %}
                     {% endfor %}
