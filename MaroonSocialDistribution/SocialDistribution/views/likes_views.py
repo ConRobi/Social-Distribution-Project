@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from SocialDistribution.models import (Author, Comment,
                      Like, Post)
 from SocialDistribution.serializers import LikeSerializer
+import requests
 
 
 @api_view(['POST'])
@@ -260,3 +261,24 @@ def get_single_like(request, author_uuid, like_uuid):
     
     # Return the serialized like data
     return Response(serialized_like)
+
+@api_view(['GET'])
+def get_single_like_fqid(request, like_fqid):
+    '''
+    GET request - gets author's profile based on FQID.
+    FQID is a percent encoded author's profile id url.
+    Example GET request: http://localhost:8000/api/authors/http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauthors%2Fa7f15b29-98d9-4230-ac75-8594c7f61623
+    FQID: http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauthors%2Fa7f15b29-98d9-4230-ac75-8594c7f61623
+    '''
+    
+    if request.method == "GET":
+        response = requests.get(like_fqid)
+
+        if response.status_code == 200:
+            like_data = response.json()
+            return JsonResponse(like_data)
+        
+        else:
+            return JsonResponse({"error": "Failed to fetch like data"}, status=response.status_code)
+    
+    return JsonResponse({"error": "Only GET requests allowed"}, status=404)
