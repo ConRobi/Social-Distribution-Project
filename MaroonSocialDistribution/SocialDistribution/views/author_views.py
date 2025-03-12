@@ -215,12 +215,15 @@ def author_profile(request, identifier):
     Edit profile using POST request, called when edit-profile form is submitted.
     Updates author fields if new input is provided to them.
 
-    GET request, gets a single author's profile details.
+    GET request, gets a single author's profile details. 
+    For local nodes use authors uuid eg /api/authors/Fa7f15b29-98d9-4230-ac75-8594c7f61623
+    For remote use a percent encoded author's id url (FQID) eg /api/authors/http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauthors%2Fa7f15b29-98d9-4230-ac75-8594c7f61623
     '''
     
     if request.method == "GET":
         
         if is_valid_uuid(identifier):
+            print(identifier)
         # Handle UUID logic
             try:
                 # Return the single author's details in serialized JSON format
@@ -235,6 +238,7 @@ def author_profile(request, identifier):
         
         else:
         # Handle FQID logic
+            print(identifier)
             response = requests.get(identifier)
 
             if response.status_code == 200:
