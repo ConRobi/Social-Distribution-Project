@@ -250,8 +250,8 @@ def author_profile(request, identifier):
 
 
     if request.method == "POST":
-        
-        author = get_object_or_404(Author, uuid=uuid)
+
+        author = get_object_or_404(Author, uuid=identifier)
 
         # Update display_name if new display name is provided
         author.display_name = request.POST.get("display_name")
