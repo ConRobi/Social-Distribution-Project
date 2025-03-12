@@ -38,15 +38,6 @@ urlpatterns = [
     path("authors/search/", views.search_authors, name="search-authors"),
 
 
-    #### AUTHORS ###
-    # Authors - API Endpoints 
-    path("api/authors", views.authors_list, name="authors-list"), # Authors API
-    path("api/authors/<path:identifier>", views.author_profile, name = "author-profile"), # Single Author API, identifier = {AUTHOR_SERIAL} (uuid) or {AUTHOR_FQID}
-    path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
-    # Authors - Page rendering
-    path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
-    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"), # Edit profile page
-    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"), # View profile page
 
 
     ### POSTS ###
@@ -119,5 +110,24 @@ urlpatterns = [
     path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/comments', views.get_post_comments, name='post_comments'), # Get comments of a single post
     path('api/authors/<uuid:author_uuid>/commented', views.get_comments_by_author, name='get_comments_by_author'), # Get comments by author
     path('api/authors/<uuid:author_uuid>/commented/<uuid:comment_uuid>', views.get_single_comment, name='get_single_comment'), # Get a single comment
+
+    '''
+    !!! WARNING !!
+    # DO NOT MOVE AUTHORS SECTION #
+    # The API endpoints that start with "api/author/" + "some path" need to be searched and used first
+    # Otherwise the "api/authors/<path:identifier>" will catch and dispatch the urls incorrectly.
+    # For example 'api/authors/<uuid:author_uuid>/liked' would get dispatched by "api/authors/<path:identifier>" with path:identifier = "<uuid:author_uuid>/liked"
+    # which would be passed incorrectly to views.author_profile views function instead of the views.get_single_like
+    '''
+
+    #### AUTHORS ###
+    # Authors - API Endpoints 
+    path("api/authors", views.authors_list, name="authors-list"), # Authors API
+    path("api/authors/<path:identifier>", views.author_profile, name = "author-profile"), # Single Author API, identifier = {AUTHOR_SERIAL} (uuid) or {AUTHOR_FQID}
+    path("add-profile", views.add_profile, name = "add-profile"), # API endpoint for adding profile
+    # Authors - Page rendering
+    path("create-profile", views.create_profile, name="create-profile"), # Create profile interface page
+    path("<uuid:uuid>/edit-profile", views.edit_profile, name = "edit-profile"), # Edit profile page
+    path("authors/<uuid:uuid>", views.view_profile, name = "view-profile"), # View profile page
 
 ]

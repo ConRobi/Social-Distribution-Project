@@ -19,6 +19,8 @@ class LikeAPITestCase(APITestCase):
         self.author.id = f"{self.node_url}/api/authors/{self.author.uuid}"
         self.author.page = f"{self.node_url}/authors/{self.author.uuid}"
         self.author.save()
+        print("!!!!!!!")
+        print(f"Author UUID: {self.author.uuid}")
 
         self.post = Post.objects.create(
             # TODO Maybe change if id becomes url?
@@ -70,6 +72,7 @@ class LikeAPITestCase(APITestCase):
         """
         Ensure we can retrieve a single like
         """
+        print(f"self.single_like_url: {self.single_like_url}")
         response = self.client.get(self.single_like_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["id"], str(self.like.id))  # Ensure ID matches

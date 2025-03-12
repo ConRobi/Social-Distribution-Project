@@ -223,7 +223,7 @@ def author_profile(request, identifier):
     if request.method == "GET":
         
         if is_valid_uuid(identifier):
-            print(identifier)
+            print(f"uuid: {identifier}")
         # Handle UUID logic
             try:
                 # Return the single author's details in serialized JSON format
@@ -238,7 +238,7 @@ def author_profile(request, identifier):
         
         else:
         # Handle FQID logic
-            print(identifier)
+            print(f"fqid: {identifier}")
             response = requests.get(identifier)
 
             if response.status_code == 200:
