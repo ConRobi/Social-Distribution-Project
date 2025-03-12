@@ -90,7 +90,6 @@
                                     <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
                                 {% endif %}
                                 <!-- Liking a post -->
-                                <form method="post">
                                     {% csrf_token %}
                                     <section id="like-details">
                                         <button class="like-post-button" data-post-id="{{ post.id }}">
@@ -101,7 +100,6 @@
                                             {{ post.likes.count }}
                                         </span>
                                     </section>
-                                </form>
                             </li>
                         {% endif %}
                     {% endfor %}
