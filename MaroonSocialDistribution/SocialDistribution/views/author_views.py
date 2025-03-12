@@ -14,6 +14,7 @@ from django.db.models import Q
 from SocialDistribution.services.github_service import fetch_github_activity
 from SocialDistribution.serializers import AuthorSerializer
 import requests
+import uuid
 
 def index(request):
     return render(request, "index.html")
@@ -200,8 +201,16 @@ def edit_profile(request, uuid):
     author = get_object_or_404(Author, uuid=uuid)
     return render(request, "edit_profile.html", {"author": author})
 
+def is_valid_uuid(value):
+    """Helper function to find if the string value is a uuid """
+    try:
+        uuid.UUID(value, version=4)  # Specify version 4 for standard UUID v4
+        return True
+    except ValueError:
+        return False
+    
 @api_view(['GET', 'POST'])
-def author_profile(request, uuid):
+def author_profile(request, identifier):
     '''
     Edit profile using POST request, called when edit-profile form is submitted.
     Updates author fields if new input is provided to them.
@@ -210,13 +219,32 @@ def author_profile(request, uuid):
     '''
     
     if request.method == "GET":
-        # Return the single author's details in serialized JSON format
-        author = get_object_or_404(Author, uuid=uuid)
+        
+        if is_valid_uuid(identifier):
+        # Handle UUID logic
+            try:
+                # Return the single author's details in serialized JSON format
+                author = get_object_or_404(Author, uuid=identifier)
 
-        serializer = AuthorSerializer(author)
+                serializer = AuthorSerializer(author)
 
-        return Response(serializer.data)
-    
+                return Response(serializer.data)
+
+            except Author.DoesNotExist:
+                raise JsonResponse({"error": "Author not found"}, status=404)
+        
+        else:
+        # Handle FQID logic
+            response = requests.get(identifier)
+
+            if response.status_code == 200:
+                author_data = response.json()
+                return JsonResponse(author_data)
+            
+            else:
+                return JsonResponse({"error": "Failed to fetch author data"}, status=response.status_code)
+
+
     if request.method == "POST":
         
         author = get_object_or_404(Author, uuid=uuid)
