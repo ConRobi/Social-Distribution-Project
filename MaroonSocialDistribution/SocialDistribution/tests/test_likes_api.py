@@ -19,8 +19,6 @@ class LikeAPITestCase(APITestCase):
         self.author.id = f"{self.node_url}/api/authors/{self.author.uuid}"
         self.author.page = f"{self.node_url}/authors/{self.author.uuid}"
         self.author.save()
-        print("!!!!!!!")
-        print(f"Author UUID: {self.author.uuid}")
 
         self.post = Post.objects.create(
             # TODO Maybe change if id becomes url?

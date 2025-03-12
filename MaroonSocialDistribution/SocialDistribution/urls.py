@@ -38,8 +38,6 @@ urlpatterns = [
     path("authors/search/", views.search_authors, name="search-authors"),
 
 
-
-
     ### POSTS ###
     # Posts - API endpoints
     path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
@@ -111,14 +109,14 @@ urlpatterns = [
     path('api/authors/<uuid:author_uuid>/commented', views.get_comments_by_author, name='get_comments_by_author'), # Get comments by author
     path('api/authors/<uuid:author_uuid>/commented/<uuid:comment_uuid>', views.get_single_comment, name='get_single_comment'), # Get a single comment
 
-    '''
-    !!! WARNING !!
+    
+    ### !!! WARNING !!! ###
     # DO NOT MOVE AUTHORS SECTION #
     # The API endpoints that start with "api/author/" + "some path" need to be searched and used first
     # Otherwise the "api/authors/<path:identifier>" will catch and dispatch the urls incorrectly.
     # For example 'api/authors/<uuid:author_uuid>/liked' would get dispatched by "api/authors/<path:identifier>" with path:identifier = "<uuid:author_uuid>/liked"
     # which would be passed incorrectly to views.author_profile views function instead of the views.get_single_like
-    '''
+    
 
     #### AUTHORS ###
     # Authors - API Endpoints 
