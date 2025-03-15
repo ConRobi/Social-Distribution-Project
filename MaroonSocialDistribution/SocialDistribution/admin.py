@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AdminApproval, Author, Post
+from .models import AdminApproval, Author, Post, Node
 
 # Register your models here.
 @admin.register(AdminApproval)
@@ -40,4 +40,8 @@ class AuthorAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'visibility', 'published')
     list_filter = ('visibility',)
-    
+
+@admin.register(Node)
+class NodeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'IPAddress', 'connection_enabled')
+    list_filter = ('connection_enabled',)

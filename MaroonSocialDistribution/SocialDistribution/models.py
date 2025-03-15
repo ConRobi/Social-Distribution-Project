@@ -170,3 +170,11 @@ class InboxPost(models.Model):
 
     def __str__(self):
         return f"Post '{self.post.title}' sent to {self.receiver.display_name}"
+
+class Node(models.Model):
+    """
+    Database of nodes that are connected to this node.
+    """
+    IPAddress = models.URLField(primary_key=True)
+    name = models.CharField(null=False, max_length=30)
+    connection_enabled = models.BooleanField(default=True)
