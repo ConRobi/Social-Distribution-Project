@@ -69,5 +69,20 @@ class NodeAdmin(admin.ModelAdmin):
     list_display = ('name', 'IPAddress', 'connection_enabled')
     list_filter = ('connection_enabled',)
     search_fields = ('name', 'IPAddress')
+    actions = ['enable_connection', 'disable_connection']
+
+    def enable_connection(self, request, queryset):
+        '''Allows admin to enable connections to other Nodes'''
+        queryset.update(connection_enabled=True)
+        self.message_user(request, "Selected connections enabled!")
+
+    def disable_connection(self, request, queryset):
+        '''Allows admin to disable connections to other Nodes'''
+        queryset.update(connection_enabled=False)
+        self.message_user(request, "Selected connections disabled!")
+
+    enable_connection.short_description = "Enable connections"
+    disable_connection.short_description = "Disable connections"
+
 
 
