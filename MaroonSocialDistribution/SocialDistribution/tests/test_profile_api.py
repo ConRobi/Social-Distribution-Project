@@ -61,3 +61,5 @@ class ProfileAPITestCase(APITestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.display_name, "Updated Name")
         self.assertEqual(self.user.github, "https://github.com/updateduser")
+    
+    # TODO test edit profile, posts etc as other user
