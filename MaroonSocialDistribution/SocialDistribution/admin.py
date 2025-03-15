@@ -40,3 +40,4 @@ class AuthorAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'visibility', 'published')
     list_filter = ('visibility',)
+    
