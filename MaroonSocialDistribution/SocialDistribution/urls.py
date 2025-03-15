@@ -40,6 +40,7 @@ urlpatterns = [
 
     ### POSTS ###
     # Posts - API endpoints
+    # TODO fix int to uuid
     path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
     path("authors/<uuid:author_uuid>/posts/<int:post_id>/delete/", delete_post, name="delete_post"),
     path("authors/<uuid:author_uuid>/posts/<int:post_id>/edit/", edit_post, name="edit_post"),
@@ -55,6 +56,7 @@ urlpatterns = [
     path("authors/<uuid:uuid>/follow/", send_follow_request, name="send-follow-request"),
     path("authors/<uuid:sender_uuid>/accept-follow/", accept_follow_request, name="accept-follow-request"),
     path("authors/<uuid:sender_uuid>/reject-follow/", reject_follow_request, name="reject-follow-request"),
+    # TODO make sure this follows API spec
     path("authors/follow-requests/", follow_requests, name="follow-requests"),
     path("authors/followers/", view_followers, name="view-followers"),  
     path("authors/following/", view_following, name="view-following"), 
@@ -66,6 +68,11 @@ urlpatterns = [
     path("authors/<uuid:uuid>/followers/", followers_list, name="followers-list"),
     path("authors/<uuid:uuid>/following/", following_list, name="following-list"),
     path("authors/<uuid:uuid>/friends/", friends_list, name="friends-list"),
+    # TODO
+    # URL: ://service/api/authors/{AUTHOR_SERIAL}/followers/{FOREIGN_AUTHOR_FQID}
+    #  api/authors/<uuid:uuid>/followers/<path: fqid>
+
+
 
 
     ### READING ### 
