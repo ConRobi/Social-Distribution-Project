@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import AdminApproval, Author, Post, Node
+from .models import (AdminApproval, Author, Post, FollowRequest,
+    Comment, Like, InboxPost, Node )
 
 # Register your models here.
 @admin.register(AdminApproval)
@@ -41,7 +42,32 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'visibility', 'published')
     list_filter = ('visibility',)
 
+@admin.register(FollowRequest)
+class FollowRequestAdmin(admin.ModelAdmin):
+    list_display = ('sender', 'receiver', 'status', 'timestamp')
+    list_filter = ('status',)
+    search_fields = ('sender__display_name', 'receiver__display_name')
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('author', 'post', 'published', 'contentType')
+    list_filter = ('contentType', 'published')
+    search_fields = ('author__display_name', 'post__title')
+
+@admin.register(Like)
+class LikeAdmin(admin.ModelAdmin):
+    list_display = ('author', 'post', 'comment', 'published')
+    search_fields = ('author__display_name',)
+
+@admin.register(InboxPost)
+class InboxPostAdmin(admin.ModelAdmin):
+    list_display = ('receiver', 'post', 'received_at')
+    search_fields = ('receiver__display_name', 'post__title',)
+
 @admin.register(Node)
 class NodeAdmin(admin.ModelAdmin):
     list_display = ('name', 'IPAddress', 'connection_enabled')
     list_filter = ('connection_enabled',)
+    search_fields = ('name', 'IPAddress')
+
+

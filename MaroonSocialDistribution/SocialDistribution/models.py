@@ -11,11 +11,10 @@ class AdminApproval(models.Model):
     require_approval = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Admin Approval Settings"
+        return "Admin Author Approval"
 
     class Meta:
-        verbose_name = "Admin Approval Setting"
-        verbose_name_plural = "Admin Approval Setting"  # Changes the admin panel display name
+        verbose_name = "Admin Author Approval Setting"
 
 class Author(AbstractUser):
     # Model based on object:
