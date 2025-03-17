@@ -25,15 +25,14 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     
 class PostSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
     image = serializers.ImageField(required=False)  # Ensure image is optional
+    likes = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = '__all__'
-    
-    # Create and return a new post instance with the validated data
-    def create(self, validated_data):
-        return super().create(validated_data)
+        fields = ['type', 'title', 'id', 'page', 'description', 'contentType', 'content', 'author', 'comments', 'likes', 'published', 'visibility', 'image']
 
 class FollowRequestSerializer(serializers.ModelSerializer):
     sender = AuthorSerializer(read_only=True)

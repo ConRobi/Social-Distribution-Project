@@ -42,8 +42,8 @@ urlpatterns = [
     # Posts - API endpoints
     # TODO fix int to uuid
     path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
-    path("authors/<uuid:author_uuid>/posts/<int:post_id>/delete/", delete_post, name="delete_post"),
-    path("authors/<uuid:author_uuid>/posts/<int:post_id>/edit/", edit_post, name="edit_post"),
+    path("authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/delete/", delete_post, name="delete-post"),
+    path("authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/edit/", edit_post, name="edit-post"),
     # Posts - Page Rendering
     path("authors/<uuid:uuid>/posts", views.author_posts, name = "author-posts"), # Viewing all of an author's posts
     path("<uuid:uuid>/create-post", views.create_post, name = "create-post"), # Create post interface page
@@ -84,7 +84,7 @@ urlpatterns = [
 
     # unlisted
     path("posts/<int:post_id>/unlisted", view_unlisted_post, name="view-unlisted-post"),
-    path("posts/<int:post_id>/", views.view_single_post, name="view-single-post"),
+    path("posts/<uuid:post_uuid>/", views.view_single_post, name="view-single-post"),
 
 
     path("posts/<int:post_id>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
@@ -109,7 +109,7 @@ urlpatterns = [
 
     ### COMMENTS ###
     # Comment creation
-    path('post/<int:post_id>/add_comment/', views.add_comment, name="add-comment"),
+    path('post/<uuid:post_uuid>/add_comment/', views.add_comment, name="add-comment"),
 
     # API Endpoints
     path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/comments', views.get_post_comments, name='post_comments'), # Get comments of a single post

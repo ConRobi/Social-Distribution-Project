@@ -9,17 +9,17 @@ from SocialDistribution.serializers import CommentSerializer
 
 @api_view(['POST'])
 @login_required
-def add_comment(request, post_id):
+def add_comment(request, post_uuid):
     '''
     Add a comment to a post
     '''
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, uuid=post_uuid)
     comment_text = request.POST.get('comment')
     content_type = request.POST.get('contentType')
     comment = Comment.objects.create(author=request.user, post=post, comment=comment_text, contentType=content_type)
     comment.id = f"{request.user.id}/commented/{comment.uuid}"
     comment.save()
-    return redirect("SocialDistribution:view-single-post", post_id=post_id)
+    return redirect("SocialDistribution:view-single-post", post_uuid=post_uuid)
 
 @api_view(['GET'])
 def get_post_comments(request, author_uuid, post_id):

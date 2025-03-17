@@ -7,7 +7,7 @@
 </head>
 <body>
     <h2>Edit Post</h2>
-    <form method="POST" action="{% url 'SocialDistribution:edit_post' author.uuid post.id %}" enctype="multipart/form-data">
+    <form method="POST" action="{% url 'SocialDistribution:edit-post' author.uuid post.uuid %}" enctype="multipart/form-data">
         {% csrf_token %}
         
         <label for="title">Title:</label>

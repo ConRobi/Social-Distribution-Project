@@ -36,8 +36,8 @@
 
                 <!-- ✅ Edit & Delete Buttons (Only if Author) -->
                 {% if post.author == request.user %}
-                    <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
-                    <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
+                    <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="btn btn-danger">Delete</a>
                 {% endif %}
 
                 <!-- ✅ Share Button (Only for Other Authors & Public/Unlisted Posts) -->
@@ -94,7 +94,7 @@
         <br><br>
 
         <div class="add-comment-body">
-            <form method="post" class="add-comment-form" action="{% url 'SocialDistribution:add-comment' post.id %}">
+            <form method="post" class="add-comment-form" action="{% url 'SocialDistribution:add-comment' post.uuid %}">
                 {% csrf_token %}
                 <h2>Add a Comment</h2>
                 <label for="contentType">Content Type:</label>
