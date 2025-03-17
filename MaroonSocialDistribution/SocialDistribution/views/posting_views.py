@@ -32,38 +32,39 @@ def create_post(request, uuid):
 @api_view(['POST'])
 def add_post(request, uuid):
     '''
-    Add post POST request called when create-post form is submitted.
-    Adds a new post to database.
+    Description: Add a new post to the database.
     '''
     author = get_object_or_404(Author, uuid=uuid)
 
-    # Copy request data and add the author UUID
+    # Copy request data and ensure all required fields are present
     data = request.data.copy()
-    data["author"] = str(author.uuid)  # Pass the correct UUID string
-    
+
+    post = Post.objects.create(author=author, title=data["title"], content=data["content"], visibility=data["visibility"], contentType=data["contentType"])
+    post.id = f"{author.id}/posts/{post.uuid}"
+    post.page = f"{author.id}/posts/{post.uuid}"
     image = request.FILES.get('image')  # Extract image from request
+    if image:
+        post.image = image
+
+    post.save()
 
     # Create serializer with BOTH request data and request.FILES
-    serializer = PostSerializer(data=data, context={'request': request})
+    # serializer = PostSerializer(data=data, context={'request': request})
 
-    if serializer.is_valid():
-        post = serializer.save()  # Save post first without image
+    # if serializer.is_valid():
+    #     post = serializer.save()  # Save post first without image
 
-        # Adding image if there is one
-        image = request.FILES.get('image')
-        if image:
-            post.image = image
-            post.save()
-        return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+        # return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
+    return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST','GET'])
-def delete_post(request, author_uuid, post_id):
+def delete_post(request, author_uuid, post_uuid):
     """
     Allows an author to delete their post.
     """
     author = get_object_or_404(Author, uuid=author_uuid)
-    post = get_object_or_404(Post, id=post_id, author=author)  # Ensure it's an integer lookup
+    post = get_object_or_404(Post, uuid = post_uuid, author=author)  # Ensure it's an integer lookup
 
     if request.user != author:
         return HttpResponseForbidden("You are not allowed to delete this post.")
@@ -73,12 +74,12 @@ def delete_post(request, author_uuid, post_id):
     return redirect("SocialDistribution:view-profile", uuid=author_uuid) # Redirect to author's profile
 
 @api_view(['POST','GET'])
-def edit_post(request, author_uuid, post_id):
+def edit_post(request, author_uuid, post_uuid):
     """
     Allows an author to edit their post.
     """
     author = get_object_or_404(Author, uuid=author_uuid)
-    post = get_object_or_404(Post, id=post_id, author=author)  # Ensure post belongs to the author
+    post = get_object_or_404(Post, uuid=post_uuid, author=author)  # Ensure post belongs to the author
 
     if request.user != author:
         return HttpResponseForbidden("You are not allowed to edit this post.")
@@ -215,15 +216,12 @@ def view_unlisted_post(request, post_id):
     ],
 )
 @api_view(["GET", "POST"])
-def view_single_post(request, post_id):
+def view_single_post(request, post_uuid):
     """
     Display a single post, restricting access based on visibility.
     """
-    post = get_object_or_404(Post, id=post_id)
-
+    post = get_object_or_404(Post, uuid = post_uuid)
     comments = Comment.objects.filter(post=post)
-#     return render(request, "single_post.html", {"post": post, "comments": comments})
-
 
     # ✅ Allow access if the post is Public or Unlisted (even if not logged in)
     if post.visibility in ["PUBLIC", "UNLISTED"]:

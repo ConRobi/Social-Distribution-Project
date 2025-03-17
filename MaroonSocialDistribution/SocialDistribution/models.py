@@ -56,9 +56,14 @@ likes: {like object}, published, visibility
 class Post(models.Model):
     type = models.CharField(max_length=10, default='post')
     title = models.CharField(max_length=255)
-    # id = models.URLField(primary_key=True)
-    # page = models.URLField(blank=True, null=True)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.URLField()
+    page = models.URLField(blank=True, null=True)
     description = models.TextField()
+    image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Ensure correct field
+    content = models.TextField()
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    published = models.DateTimeField(auto_now_add=True)
     contentType = models.CharField(max_length=20, choices=[
         ('text/markdown', 'CommonMark'),
         ('text/plain', 'plaintext'),
@@ -66,23 +71,12 @@ class Post(models.Model):
         ('image/jpeg;base64', 'jpegImage'),
         ('application/base64', 'otherImage')
     ])
-    content = models.TextField()
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    # Need a comment object first?
-    comments = models.ManyToManyField('Comment', blank=True, related_name='post_comments')
-    # Need a like object first?
-    # likes = models.ManyToManyField('Like', blank=True)
-    published = models.DateTimeField(auto_now_add=True)
     visibility = models.CharField(max_length=10, choices=[
         ('PUBLIC', 'Public'),
         ('FRIENDS', 'Friends Only'),
         ('DELETED', 'Deleted'),
         ('UNLISTED', 'Unlisted') 
-    ],
-    default='PUBLIC')
-    image = models.ImageField(upload_to='post_images/', blank=True, null=True)  # Ensure correct field
-
-   
+    ], default='PUBLIC')
 
     """
     If CommonMark is selected then format it, else leave the content as it is
@@ -117,7 +111,6 @@ class FollowRequest(models.Model):
     def __str__(self):
         return f"{self.sender.display_name} -> {self.receiver.display_name} ({self.status})"
 
-
 class Comment(models.Model):
     """
     Model for handling comments on posts
@@ -129,7 +122,6 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='post_comments', on_delete=models.CASCADE)
     comment = models.TextField()
     published = models.DateTimeField(auto_now_add=True)
-    # likes = models.ManyToManyField('Like', blank=True)
     contentType = models.CharField(max_length=20, choices=[
         ('text/markdown', 'CommonMark'),
         ('text/plain', 'plaintext'),
@@ -159,8 +151,6 @@ class Like(models.Model):
         Ensure that an author can only like a comment or post once
         """
         unique_together = ('author', 'post', 'comment')
-
-# TODO: Need to make a Likes and Comments model
 
 class InboxPost(models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

@@ -84,19 +84,20 @@
                                     <p>No image uploaded</p>
                                 {% endif %}
                                 <!-- ✅ Add "View Post" Button -->
-                                <a href="{% url 'SocialDistribution:view-single-post' post.id %}">View Post</a>
+                                <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}">View Post</a>
+                                <!-- ✅ Edit & Delete Buttons (Only if Author) -->
                                 {% if post.author == request.user %}
-                                    <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
-                                    <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
+                                    <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="btn btn-warning">Edit</a>
+                                    <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="btn btn-danger">Delete</a>
                                 {% endif %}
                                 <!-- Liking a post -->
                                     {% csrf_token %}
                                     <section id="like-details">
-                                        <button class="like-post-button" data-post-id="{{ post.id }}">
+                                        <button class="like-post-button" data-post-id="{{ post.uuid }}">
                                             ❤
                                         </button>
                                 
-                                        <span id="post-likes-count-{{ post.id }}">
+                                        <span id="post-likes-count-{{ post.uuid }}">
                                             {{ post.likes.count }}
                                         </span>
                                     </section>
