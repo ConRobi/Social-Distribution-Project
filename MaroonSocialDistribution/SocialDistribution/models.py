@@ -56,7 +56,7 @@ likes: {like object}, published, visibility
 class Post(models.Model):
     type = models.CharField(max_length=10, default='post')
     title = models.CharField(max_length=255)
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     id = models.URLField()
     page = models.URLField(blank=True, null=True)
     description = models.TextField()

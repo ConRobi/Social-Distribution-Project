@@ -16,18 +16,18 @@
         <ul>
             {% for inbox_post in inbox_posts %}
                 <li>
-                    <a href="{% url 'SocialDistribution:view-single-post' inbox_post.post.id %}">
+                    <a href="{% url 'SocialDistribution:view-single-post' inbox_post.post.uuid %}">
                         {{ inbox_post.post.title }}
                     </a>
                     <!-- Liking a post -->
                     <form method="post">
                         {% csrf_token %}
                         <section id="like-details">
-                            <button class="like-post-button" data-post-id="{{ inbox_post.post.id }}">
+                            <button class="like-post-button" data-post-uuid="{{ inbox_post.post.uuid }}">
                                 ❤
                             </button>
                     
-                            <span id="post-likes-count-{{ inbox_post.post.id }}">
+                            <span id="post-likes-count-{{ inbox_post.post.uuid }}">
                                 {{ inbox_post.post.likes.count }}
                             </span>
                         </section>

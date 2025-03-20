@@ -25,21 +25,21 @@
                     {% endif %}
 
                     <!-- ✅ Always show "View Post" button -->
-                    <a href="{% url 'SocialDistribution:view-single-post' post.id %}" class="btn btn-primary">View Post</a>
+                    <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}" class="btn btn-primary">View Post</a>
 
                     <!-- ✅ Show "Edit" & "Delete" only for the post owner -->
                     {% if post.author == request.user %}
-                        <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
-                        <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
+                        <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="btn btn-danger">Delete</a>
                     {% endif %}
                     <!-- Liking a post -->
                         {% csrf_token %}
                         <section id="like-details">
-                            <button class="like-post-button" data-post-id="{{ post.id }}">
+                            <button class="like-post-button" data-post-uuid="{{ post.uuid }}">
                                 ❤
                             </button>
                     
-                            <span id="post-likes-count-{{ post.id }}">
+                            <span id="post-likes-count-{{ post.uuid }}">
                                 {{ post.likes.count }}
                             </span>
                         </section>

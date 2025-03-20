@@ -15,13 +15,12 @@ import requests
 
 @api_view(['POST'])
 @login_required
-def like_post(request, post_id):
+def like_post(request, post_uuid):
     '''
     - Description: Like a post
     - Returns: a Json Response with the post's like count (integer)
     '''
-    # TODO Maybe change id to uuid if post object is updated with new primary key?
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, uuid=post_uuid)
     
     like_author = request.user
     like = Like.objects.filter(author=like_author, post=post)
@@ -30,8 +29,7 @@ def like_post(request, post_id):
         # Create new like object associated with the post
         new_like = Like.objects.create(author=like_author, post=post)
         new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
-        # TODO uncomment line when post model has proper id field
-        # new_like.object = post.id
+        new_like.object = post.id
         new_like.save()
     else:
         # Remove like if already liked
@@ -56,8 +54,7 @@ def like_comment(request, comment_uuid):
         # Create new like object associated with the comment
         new_like = Like.objects.create(author=like_author, comment=comment)
         new_like.id = f"{like_author.id}/liked/{new_like.uuid}"
-        # TODO uncomment line when comment model has proper id field
-        # new_like.object = comment.id
+        new_like.object = comment.id
         new_like.save()
     else:
         # Remove like if already liked
@@ -116,8 +113,8 @@ def like_comment(request, comment_uuid):
     ],
 )
 @api_view(['GET'])
-def get_post_likes(request, author_uuid, post_id):
-    post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
+def get_post_likes(request, author_uuid, post_uuid):
+    post = get_object_or_404(Post, uuid=post_uuid, author__uuid=author_uuid)
     
     # Create a paginator object
     paginator = PageNumberPagination()
@@ -139,8 +136,8 @@ def get_post_likes(request, author_uuid, post_id):
     node_url = "http://maroonnode.com"
     return paginator.get_paginated_response({
         "type": "likes",
-        "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
-        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/likes",
+        "page": f"{node_url}/authors/{author_uuid}/posts/{post_uuid}",
+        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_uuid}/likes",
         "page_number": paginator.page.number,
         "size": paginator.page.paginator.per_page,
         "count": likes_count,
@@ -241,7 +238,7 @@ def get_likes_by_author(request, author_uuid):
         "Get a single like object by an author.\n"
         "This endpoint allows you to retrieve a specific like that an author has made, identified by the `like_uuid`.\n"
         "- **When to use**: When you need to fetch a particular like made by an author.\n"
-        "- **How to use**: Make a GET request to `/authors/{author_uuid}/liked/{like_uuid}`.\n"
+        "- **How to use**: Make a GET request to `api/authors/{author_uuid}/liked/{like_uuid}`.\n"
         "- **Why to use**: Useful for retrieving the details of a specific like, such as the author who liked an object and what was liked.\n"
         "- **Why not use**: Not for getting all likes by an author"
     ),
@@ -262,6 +259,35 @@ def get_single_like(request, author_uuid, like_uuid):
     # Return the serialized like data
     return Response(serialized_like)
 
+@extend_schema(
+    description=(
+        "Get a single like object by its fully qualified ID (FQID).\n"
+        "- **When to use**: When you need to fetch a specific like made by an author.\n"
+        "- **How to use**: Make a GET request to `api/liked/<like_fqid>` with the fully qualified ID of the like.\n"
+        "- **Why to use**: Useful for retrieving the details of a specific like, such as the author who liked an object and the target of the like.\n"
+        "- **Why not use**: Not for retrieving all likes by an author. Use an endpoint that lists all likes instead."
+    ),
+    parameters=[
+        {
+            "name": "like_fqid",
+            "in": "path",
+            "required": True,
+            "description": "Fully qualified ID of the like object to retrieve.",
+            "schema": {"type": "string"},
+        }
+    ],
+    responses={
+        200: LikeSerializer,
+        "default": {
+            "description": "Error response when the request fails.",
+            "content": {
+                "application/json": {
+                    "example": {"error": "Failed to fetch like data"}
+                }
+            },
+        },
+    },
+)
 @api_view(['GET'])
 def get_single_like_fqid(request, like_fqid):
     '''
