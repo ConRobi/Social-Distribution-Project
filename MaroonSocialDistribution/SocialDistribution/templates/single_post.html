@@ -42,7 +42,7 @@
 
                 <!-- ✅ Share Button (Only for Other Authors & Public/Unlisted Posts) -->
                 {% if post.author != request.user and post.visibility in "PUBLIC UNLISTED" %}
-                    <form action="{% url 'SocialDistribution:send-to-followers' post.id %}" method="post" style="margin-top: 10px;">
+                    <form action="{% url 'SocialDistribution:send-to-followers' post.uuid %}" method="post" style="margin-top: 10px;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-info">Share</button>
                     </form>
@@ -68,17 +68,15 @@
                 </script>
 
                 <!-- Liking a post -->
-                <form method="post">
-                    {% csrf_token %}
-                    <section id="like-post-details">
-                        <button class="like-post-button" data-post-id="{{ post.id }}">
-                            ❤
-                        </button>
-                        <span id="post-likes-count-{{ post.id }}">
-                            {{ post.likes.count }}
-                        </span>
-                    </section>
-                </form>
+                {% csrf_token %}
+                <section id="like-post-details">
+                    <button class="like-post-button" data-post-uuid="{{ post.uuid }}">
+                        ❤
+                    </button>
+                    <span id="post-likes-count-{{ post.uuid }}">
+                        {{ post.likes.count }}
+                    </span>
+                </section>
 
                 <br><br>
                 

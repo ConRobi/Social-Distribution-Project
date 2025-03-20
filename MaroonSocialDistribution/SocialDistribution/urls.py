@@ -83,28 +83,27 @@ urlpatterns = [
     ##################### reading ends ############################
 
     # unlisted
-    path("posts/<int:post_id>/unlisted", view_unlisted_post, name="view-unlisted-post"),
+    path("posts/<uuid:post_uuid>/unlisted", view_unlisted_post, name="view-unlisted-post"),
     path("posts/<uuid:post_uuid>/", views.view_single_post, name="view-single-post"),
 
 
-    path("posts/<int:post_id>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
+    path("posts/<uuid:post_uuid>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
     path("inbox/", views.view_inbox, name="view-inbox"),
 
 
     ### LIKES ###
 
     # Likes - API Endpoints
-    # TODO change to post_uuid if/when uuid is available for posts?
     path('api/authors/<uuid:author_uuid>/liked', views.get_likes_by_author, name='get_likes_by_author'), # Get liked objects by author
     path('api/authors/<uuid:author_uuid>/liked/<uuid:like_uuid>', views.get_single_like, name='get_single_like'), # Get a single like
     #path('api/author/<path:author_fqid>/liked', views.get_posts_liked_by_author, name='get_posts_liked_by_author'), # Things liked by Author
     path('api/liked/<path:like_fqid>', views.get_single_like_fqid, name='get_single_like_fqid'), # Get a single like using FQID
     # TODO: unsure what this is for?
-    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/likes', views.get_post_likes, name='post_likes'), # Get likes of a single post
+    path('api/authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/likes', views.get_post_likes, name='post_likes'), # Get likes of a single post
 
     # Like creation
     # TODO change to handle uuid of post?
-    path('post/<int:post_id>/like_post/', views.like_post, name="like-post"),
+    path('post/<uuid:post_uuid>/like_post/', views.like_post, name="like-post"),
     path('comment/<uuid:comment_uuid>/like_comment/', views.like_comment, name="like-comment"),
 
     ### COMMENTS ###
@@ -112,7 +111,7 @@ urlpatterns = [
     path('post/<uuid:post_uuid>/add_comment/', views.add_comment, name="add-comment"),
 
     # API Endpoints
-    path('api/authors/<uuid:author_uuid>/posts/<int:post_id>/comments', views.get_post_comments, name='post_comments'), # Get comments of a single post
+    path('api/authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/comments', views.get_post_comments, name='post_comments'), # Get comments of a single post
     path('api/authors/<uuid:author_uuid>/commented', views.get_comments_by_author, name='get_comments_by_author'), # Get comments by author
     path('api/authors/<uuid:author_uuid>/commented/<uuid:comment_uuid>', views.get_single_comment, name='get_single_comment'), # Get a single comment
 

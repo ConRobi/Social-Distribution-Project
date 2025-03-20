@@ -125,7 +125,7 @@ def edit_post(request, author_uuid, post_uuid):
     parameters=[
         {
             "name": "post_id",
-            "description": "The ID of the unlisted post to retrieve.",
+            "description": "The UUID of the unlisted post to retrieve.",
             "required": True,
             "type": "integer",
         }
@@ -138,7 +138,7 @@ def edit_post(request, author_uuid, post_uuid):
         OpenApiExample(
             "Successful Response",
             value={
-                "id": 2,
+                "id": "5f319ed8-a1b6-40ed-80cc-78405f8845f3",
                 "title": "Unlisted Post",
                 "content": "This is an unlisted post",
                 "visibility": "UNLISTED",
@@ -156,12 +156,12 @@ def edit_post(request, author_uuid, post_uuid):
     ],
 )
 @api_view(["GET"])
-def view_unlisted_post(request, post_id):
+def view_unlisted_post(request, post_uuid):
     """
     Allow anyone with the link to view an unlisted post.
     SECURITY WARNING: This API is **not private**. Anyone with the link can see the post.
     """
-    post = get_object_or_404(Post, id=post_id, visibility="UNLISTED")
+    post = get_object_or_404(Post, uuid=post_uuid, visibility="UNLISTED")
 
     serializer = PostSerializer(post)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -177,8 +177,8 @@ def view_unlisted_post(request, post_id):
     """,
     parameters=[
         {
-            "name": "post_id",
-            "description": "The ID of the post to retrieve.",
+            "name": "post_uuid",
+            "description": "The UUID of the post to retrieve.",
             "required": True,
             "type": "integer",
         }
@@ -192,7 +192,7 @@ def view_unlisted_post(request, post_id):
         OpenApiExample(
             "Public Post",
             value={
-                "id": 1,
+                "id": "5f319ed8-a1b6-40ed-80cc-78405f8845f3",
                 "title": "Public Post",
                 "content": "This is a public post",
                 "visibility": "PUBLIC",
@@ -253,17 +253,17 @@ def view_single_post(request, post_uuid):
     return redirect("SocialDistribution:index")
 
 @login_required
-def send_post_to_followers(request, post_id):
+def send_post_to_followers(request, post_uuid):
     """
     Allows users to share a public or unlisted post with their followers.
     """
     # Get the post or return 404 if not found
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, uuid=post_uuid)
 
     # Ensure that only public and unlisted posts can be shared
     if post.visibility not in ["PUBLIC", "UNLISTED"]:
         messages.error(request, "You can only share public or unlisted posts.")
-        return redirect("SocialDistribution:view-single-post", post_id=post.id)
+        return redirect("SocialDistribution:view-single-post", post_uuid=post.uuid)
 
     # Get the logged-in user's followers
     followers = Author.objects.filter(
@@ -279,4 +279,4 @@ def send_post_to_followers(request, post_id):
     messages.success(request, "Shared to followers!")
 
     # Redirect back to the post page after sharing
-    return redirect("SocialDistribution:view-single-post", post_id=post.id)
+    return redirect("SocialDistribution:view-single-post", post_uuid=post.uuid)
