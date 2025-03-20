@@ -1,0 +1,33 @@
+---
+services:
+  maroonapp:
+    image: maroonapp:latest
+    build: ./MaroonSocialDistribution
+    command: gunicorn MaroonSocialDistribution.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env.db
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - maroonapp
+    volumes:
+      - ./MaroonSocialDistribution/Caddyfile:/etc/caddy/Caddyfile
+
+volumes:
+  postgres_data:
