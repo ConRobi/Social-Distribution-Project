@@ -232,7 +232,7 @@ def view_single_post(request, post_uuid):
         return render(request, "single_post.html", {"post": post, "comments": comments})
 
     # ✅ Require authentication for Friends-Only posts
-    if post.visibility == "FRIENDS":
+    if (post.visibility == "FRIENDS") or (post.visibility == "Friends Only"):
         if not request.user.is_authenticated:
             # ❌ Redirect to login if user is not logged in
             messages.error(request, "Unable to view this post. Please log in.")
