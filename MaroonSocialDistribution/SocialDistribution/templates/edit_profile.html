@@ -18,10 +18,10 @@
             <input type="text" name="display_name" value="{{ author.display_name }}" required><br><br>
 
             <label for="github">GitHub URL:</label>
-            <input type="url" name="github" value="{{ author.github }}" required><br><br>
+            <input type="url" name="github" value="{% if author.github %}{{ author.github }}{% else %}{{ '' }}{% endif %}"><br><br>
 
             <label for="profile_image">Upload Profile Image:</label>
-            <input type="url" name="profile_image" value="{{ author.profile_image }}"><br><br>
+            <input type="url" name="profile_image" value="{% if author.profile_image %}{{ author.profile_image.url }}{% else %}{{ '' }}{% endif %}"><br><br>
 
             <button type="submit">Save</button>
         </form>

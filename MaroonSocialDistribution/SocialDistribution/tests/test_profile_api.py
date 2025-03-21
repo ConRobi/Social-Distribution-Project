@@ -10,11 +10,18 @@ User = get_user_model()
 class ProfileAPITestCase(APITestCase):
     
     def setUp(self):
-        # Create a test user
+        # Create a test user 1
         self.user = Author.objects.create_user(
             username="testuser",
             password="testpassword",
             display_name="Test User"
+        )
+
+        # Create a test user 2
+        self.user2 = Author.objects.create_user(
+            username="testuser2",
+            password="testpassword12",
+            display_name="Test User 2"
         )
         self.client.login(username="testuser", password="testpassword")
 
@@ -63,3 +70,12 @@ class ProfileAPITestCase(APITestCase):
         self.assertEqual(self.user.github, "https://github.com/updateduser")
     
     # TODO test edit profile, posts etc as other user
+
+    def test_user_cannot_edit_another_user_profile(self):
+        # Try to access the edit profile page of user2
+        url = reverse('SocialDistribution:edit-profile', args=[self.user2.uuid])
+        response = self.client.get(url)
+
+        # The user should be redirected, not allowed to edit another user's profile
+        self.assertEqual(response.status_code, 302)  # Should redirect, unauthorized action
+        
