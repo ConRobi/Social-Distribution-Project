@@ -23,12 +23,18 @@ class AuthorAdmin(admin.ModelAdmin):
     # Admin panel for approving authors
     list_display = ("display_name","uuid", "is_approved")
     list_filter = ("is_approved",)
+    exclude = ('first_name', 'last_name', 'email') # Exclude unneeded default fields
     actions = ["approve_authors"]
 
     def approve_authors(self, request, queryset):
         '''Allows admin to approve authors'''
         queryset.update(is_approved=True)
         self.message_user(request, "Selected authors approved!")
+        
+    def save_model(self, request, obj, form, change):
+        if form.cleaned_data.get('password'):
+            obj.set_password(form.cleaned_data['password'])  # Hash password
+        super().save_model(request, obj, form, change)
     
     class Meta:
         # Change button from default "User(s)" to "Approve User(s)"

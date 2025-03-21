@@ -6,6 +6,7 @@ import commonmark
 from django.contrib import admin  # Import User model if necessary
 from django.conf import settings  # Import settings to get the custom user model
 
+
 class AdminApproval(models.Model):
     # Model for approval, and ability to toggle on/off this functionality 
     require_approval = models.BooleanField(default=False)
@@ -21,15 +22,25 @@ class Author(AbstractUser):
     # https://uofa-cmput404.github.io/general/project.html#single-author-api:~:text=API%20Objects-,Example%20Author%20Objects,-%7B%0A%20%20%20%20//%20Author%20object
     
     type = models.CharField(max_length=10, default='author')
-    id = models.URLField()
+    id = models.URLField(blank=True)
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True) # TODO enforce uniqueness across nodes
-    host = models.URLField()
+    host = models.URLField(blank=True)
     display_name = models.CharField(max_length=255)
     github = models.URLField(blank=True, null=True)
     profile_image = models.URLField(blank=True, null=True)
     page = models.URLField(blank=True, null=True)
     last_checked = models.DateTimeField(default=now)
     is_approved = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        node_url = "http://maroonnode.com"
+        if not self.id:  # Automatically populate 'id' if it's not provided
+            self.id = f"{node_url}/api/authors/{self.uuid}"
+        if not self.host: # Automatically populate 'host' if it's not provided
+            self.host = f"{node_url}/api" 
+        if not self.page: # Automatically populate 'page' if it's not provided
+            self.page = f"{node_url}/authors/{self.uuid}"
+        super().save(*args, **kwargs)  # Call the parent save method to actually save the model
 
 
     def get_followers(self):

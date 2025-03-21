@@ -293,6 +293,7 @@ def author_profile_fqid(request, fqid):
 @user_passes_test(lambda u: u.is_superuser)
 def add_author(request):
     if request.method == "POST":
+        print("Post method reached")
         form = AuthorRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             new_author = form.save()
