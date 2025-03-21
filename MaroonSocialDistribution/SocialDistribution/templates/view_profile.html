@@ -22,11 +22,6 @@
                 </a>
             {% endif %}
 
-            <!-- Stream Button -->
-            <a href="{% url 'SocialDistribution:stream' %}">
-                <button>Go to My Stream</button>
-            </a>
-
             <!-- Inbox Section (Only for the Logged-in User) -->
            {% if author == request.user %}
            <div class="requests-section" style="margin-top: 15px;">

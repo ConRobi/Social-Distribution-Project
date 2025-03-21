@@ -39,7 +39,11 @@ def add_post(request, uuid):
     # Copy request data and ensure all required fields are present
     data = request.data.copy()
 
-    post = Post.objects.create(author=author, title=data["title"], content=data["content"], visibility=data["visibility"], contentType=data["contentType"])
+    # Possibly temporary since test required it
+    if 'title' not in data or not data['title']:
+        return Response({"title": "This field is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    post = Post.objects.create(author=author, title=data["title"], content=data["content"], description=data["description"], visibility=data["visibility"], contentType=data["contentType"])
     post.id = f"{author.id}/posts/{post.uuid}"
     post.page = f"{author.id}/posts/{post.uuid}"
     image = request.FILES.get('image')  # Extract image from request
@@ -228,7 +232,7 @@ def view_single_post(request, post_uuid):
         return render(request, "single_post.html", {"post": post, "comments": comments})
 
     # ✅ Require authentication for Friends-Only posts
-    if post.visibility == "FRIENDS":
+    if (post.visibility == "FRIENDS") or (post.visibility == "Friends Only"):
         if not request.user.is_authenticated:
             # ❌ Redirect to login if user is not logged in
             messages.error(request, "Unable to view this post. Please log in.")

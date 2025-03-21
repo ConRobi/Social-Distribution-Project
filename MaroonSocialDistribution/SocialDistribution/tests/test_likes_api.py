@@ -20,9 +20,9 @@ class LikeAPITestCase(APITestCase):
         self.author.page = f"{self.node_url}/authors/{self.author.uuid}"
         self.author.save()
 
+        # Test post to like
         self.post = Post.objects.create(
-            # TODO Maybe change if id becomes url?
-            id=200, 
+            uuid=uuid.uuid4(),
             title="Test Post",
             description="This is a test post.",
             contentType="text/plain",
@@ -30,10 +30,11 @@ class LikeAPITestCase(APITestCase):
             author=self.author,
             visibility="PUBLIC"
         )
+        self.post.id = f"{self.node_url}/api/authors/{self.author.uuid}/posts/{self.post.uuid}"
+        self.post.save()
 
         # Test comment to like 
         self.comment = Comment.objects.create(
-            id=200,
             uuid=uuid.uuid4(),
             author=self.author,
             post= self.post,
@@ -41,13 +42,15 @@ class LikeAPITestCase(APITestCase):
             contentType="text/plain"
 
         )
+        self.comment.id = f"{self.node_url}/api/authors/{self.author.uuid}/commented/{self.comment.uuid}"
+        self.comment.save()
 
         # Test like for post
         self.like = Like.objects.create(
             uuid=uuid.uuid4(),
             author=self.author,
             post=self.post,
-            object=f"{self.node_url}/api/authors/{self.author.uuid}/posts/{self.post.id}"
+            object=f"{self.node_url}/api/authors/{self.author.uuid}/posts/{self.post.uuid}"
         )
         self.like.id = f"{self.author.id}/liked/{self.like.uuid}"
         self.like.save()
@@ -63,7 +66,7 @@ class LikeAPITestCase(APITestCase):
         self.like2.save()
 
         self.single_like_url = reverse('SocialDistribution:get_single_like', args=[self.author.uuid, self.like.uuid])
-        self.post_likes_url = reverse('SocialDistribution:post_likes', args=[self.author.uuid, self.post.id])
+        self.post_likes_url = reverse('SocialDistribution:post_likes', args=[self.author.uuid, self.post.uuid])
         self.likes_by_author = reverse('SocialDistribution:get_likes_by_author', args=[self.author.uuid])
 
     def test_get_single_like_success(self):
@@ -78,8 +81,8 @@ class LikeAPITestCase(APITestCase):
         """
         Ensure requesting likes for a non-existent post returns 404
         """
-        fake_post_id = 99999  # Must be an integer
-        url = reverse('SocialDistribution:post_likes', args=[self.author.uuid, fake_post_id])
+        fake_post_uuid = uuid.uuid4()
+        url = reverse('SocialDistribution:post_likes', args=[self.author.uuid, fake_post_uuid])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

@@ -90,7 +90,7 @@ def view_profile(request, uuid):
             Q(visibility__iexact='friends') | 
             Q(visibility__iexact='friends only') | 
             Q(visibility__iexact='public') | 
-            Q(unlisted=True)  # Include unlisted posts
+            Q(visibility__iexact='unlisted')  # Include unlisted posts
         ).order_by('-published')
     else:
         # Show public and unlisted posts
@@ -199,6 +199,12 @@ def edit_profile(request, uuid):
     Renders edit profile page
     '''
     author = get_object_or_404(Author, uuid=uuid)
+
+    # Ensure the logged-in user is editing their own profile
+    if author != request.user:
+        # Redirect to profile page
+        return redirect('SocialDistribution:view-profile', uuid=author.uuid)
+
     return render(request, "edit_profile.html", {"author": author})
 
 def is_valid_uuid(value):
@@ -293,6 +299,7 @@ def author_profile_fqid(request, fqid):
 @user_passes_test(lambda u: u.is_superuser)
 def add_author(request):
     if request.method == "POST":
+        print("Post method reached")
         form = AuthorRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             new_author = form.save()
