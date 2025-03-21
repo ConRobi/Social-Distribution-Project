@@ -48,15 +48,30 @@ def add_post(request, uuid):
 
     post.save()
 
-    # Create serializer with BOTH request data and request.FILES
-    # serializer = PostSerializer(data=data, context={'request': request})
-
-    # if serializer.is_valid():
-    #     post = serializer.save()  # Save post first without image
-
-        # return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
     return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'DELETE', 'PUT'])
+def handle_post(request, author_uuid, post_uuid):
+    '''
+    Description: View, edit, or delete a post.
+    '''
+    author = get_object_or_404(Author, uuid=author_uuid)
+    post = get_object_or_404(Post, uuid=post_uuid, author=author)
+
+    if request.method == "GET":
+        pass
+
+    elif request.method == "DELETE":
+        if request.user != author:                                          
+            return HttpResponseForbidden("You are not allowed to delete this post.")
+        post.visibility = "DELETED"                          
+        post.save()
+        return redirect("SocialDistribution:view-profile", uuid=author_uuid) # Redirect to author's profile
+        
+    elif request.method == "PUT":
+        if request.user != author:
+            return HttpResponseForbidden("You are not allowed to edit this post.")
+        pass
 
 @api_view(['POST','GET'])
 def delete_post(request, author_uuid, post_uuid):

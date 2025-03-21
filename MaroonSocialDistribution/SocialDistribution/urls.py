@@ -40,13 +40,14 @@ urlpatterns = [
 
     ### POSTS ###
     # Posts - API endpoints
-    # TODO fix int to uuid
     path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
     path("authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/delete/", delete_post, name="delete-post"),
     path("authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/edit/", edit_post, name="edit-post"),
     # Posts - Page Rendering
     path("authors/<uuid:uuid>/posts", views.author_posts, name = "author-posts"), # Viewing all of an author's posts
     path("<uuid:uuid>/create-post", views.create_post, name = "create-post"), # Create post interface page
+
+    path("api/authors/<uuid:author_uuid>/posts/<uuid:post_uuid>", views.handle_post, name="handle-post"), # Get, edit, delete post
 
 
     ### FOLLOWING ###
