@@ -7,31 +7,36 @@
     <title>{% block title %}Social Distribution{% endblock %}</title>
     {% load static %}
     <script src="{% static 'js/likes.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/default.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <h1>Social Distribution Maroon</h1>
-        <nav class = "navbar">
-            <div class="nav-links">
-                <a href="{% url 'SocialDistribution:view-profile' user.uuid %}">My Profile</a>
-                <a href="{% url 'SocialDistribution:stream' %}">Stream</a>
-                <a href="{% url 'SocialDistribution:author-logout' %}">Logout</a>          
-            </div>
-                <form method="GET" action="{% url 'SocialDistribution:search-authors' %}" class="navbar-search">
-                    <input type="text" name="query" placeholder="Search authors..." required>
-                    <button type="submit" aria-label="Search">🔍</button>
-                </form>
-        </nav>
-    </header>
+    <div class="page-wrapper">
 
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+        <header>
+            <h1>Social Distribution Maroon</h1>
+            <nav class = "navbar">
+                <div class="nav-links">
+                    <a href="{% url 'SocialDistribution:view-profile' user.uuid %}">My Profile</a>
+                    <a href="{% url 'SocialDistribution:stream' %}">Stream</a>
+                    <a href="{% url 'SocialDistribution:author-logout' %}">Logout</a>          
+                </div>
+                    <form method="GET" action="{% url 'SocialDistribution:search-authors' %}" class="navbar-search">
+                        <input type="text" name="query" placeholder="Search authors..." required>
+                        <button type="submit" aria-label="Search">🔍</button>
+                    </form>
+            </nav>
+        </header>
 
-    <footer>
-        <p>&copy; 2025 Social Distribution</p>
-    </footer>
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Social Distribution</p>
+        </footer>
+
+    </div>
 </body>
 </html>

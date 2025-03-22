@@ -1,26 +1,30 @@
+{% load static %}
 <!-- login.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
 </head>
 <body>
-    <h2>Login</h2>
-    
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <div class="container"></div>
+        <h2>Login</h2>
+        
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
 
-    <p>Don't have an account? <a href="{% url 'SocialDistribution:create-profile' %}">Register here</a></p>  <!-- Link to register page -->
+        <p>Don't have an account? <a href="{% url 'SocialDistribution:create-profile' %}">Register here</a></p>  <!-- Link to register page -->
+    </div>
 </body>
 </html>
