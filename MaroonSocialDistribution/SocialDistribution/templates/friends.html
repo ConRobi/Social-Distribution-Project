@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friends</title>
+{% extends 'base.html' %}
+
+{% block title %}Friends{% endblock %}
+
+{% block extra_css %}
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/friends.css' %}">
+{% endblock %}
+
+{% block content %}
     <h2>Friends</h2>
-    
-    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to Profile</a>
 
     {% if friends %}
         <ul>
@@ -21,5 +19,4 @@
     {% else %}
         <p>No friends yet.</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}

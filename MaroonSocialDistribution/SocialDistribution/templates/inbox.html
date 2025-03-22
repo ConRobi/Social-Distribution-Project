@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>Inbox</title>
+{% extends 'base.html' %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block extra_css %}
     {% load static %}
-    <script src="{% static 'js/likes.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/inbox.css' %}">
+{% endblock %}
+
+{% block content %}
     <h2>Inbox</h2>
 
     {% if inbox_posts %}
@@ -19,14 +17,12 @@
                     <a href="{% url 'SocialDistribution:view-single-post' inbox_post.post.id %}">
                         {{ inbox_post.post.title }}
                     </a>
-                    <!-- Liking a post -->
                     <form method="post">
                         {% csrf_token %}
                         <section id="like-details">
                             <button class="like-post-button" data-post-id="{{ inbox_post.post.id }}">
                                 ❤
                             </button>
-                    
                             <span id="post-likes-count-{{ inbox_post.post.id }}">
                                 {{ inbox_post.post.likes.count }}
                             </span>
@@ -39,7 +35,4 @@
         <p>No posts in your inbox.</p>
     {% endif %}
 
-    <br><br>
-    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to My Profile</a>
-</body>
-</html>
+{% endblock %}

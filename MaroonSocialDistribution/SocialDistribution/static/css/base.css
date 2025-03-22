@@ -1,11 +1,28 @@
 html, body {
     margin: 0;
     border: 0;
+    height: 100%; /* crucial for flexbox */
     font-size: 100%;
     font-family: 'Poppins', sans-serif;
     background-color: #0D1117;
     color: #ffffff;
+    display: flex;
+    flex-direction: column;
 }
+
+/* Page Wrapper: Ensures footer behaves flexibly */
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
 
 /* Navbar Styling */
 header {
