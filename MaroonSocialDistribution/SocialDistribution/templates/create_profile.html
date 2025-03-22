@@ -1,27 +1,19 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Profile</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/create_profile.css' %}">
 </head>
 <body>
-    <div class="container">
-        <div class="header-bar">
-            <h2>Create Profile</h2>
-        </div>
-        
-        <!-- Form for creating profile (form found in forms.py) -->
-        <form method="POST" enctype="multipart/form-data" action="{% url 'SocialDistribution:add-profile' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Submit</button>
-        </form>
-        
-        <!-- Link to login page -->
-        <p>Have an account? <a href="{% url 'SocialDistribution:author-login' %}">Login here</a></p>
-    </div>
+    <h2>Create Profile</h2>
+    <!-- Form for creating profile (form found in forms.py) -->
+    <form method="POST" enctype="multipart/form-data", action="{% url 'SocialDistribution:add-profile'%}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+    <!-- Link to login page -->
+    <p>Have an account? <a href="{% url 'SocialDistribution:author-login' %}">Login here</a></p> 
 </body>
 </html>

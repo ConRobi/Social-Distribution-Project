@@ -1,20 +1,22 @@
-{% extends 'base.html' %}
-
-{% block title %}Follow Requests{% endblock %}
-
-{% block extra_css %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Follow Requests</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/follow_requests.css' %}">
-{% endblock %}
-
-{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
+</head>
+<body>
     <h2>Follow Requests</h2>
+    
+    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to Profile</a>
 
     {% if follow_requests %}
         <ul>
             {% for request in follow_requests %}
                 <li>
-                    <span>{{ request.sender.display_name }}</span>
+                    {{ request.sender.display_name }}
                     <form method="POST" action="{% url 'SocialDistribution:accept-follow-request' request.sender.uuid %}">
                         {% csrf_token %}
                         <button type="submit">Accept</button>
@@ -29,4 +31,5 @@
     {% else %}
         <p>No pending follow requests.</p>
     {% endif %}
-{% endblock %}
+</body>
+</html>
