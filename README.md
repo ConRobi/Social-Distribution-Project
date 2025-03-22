@@ -23,7 +23,7 @@ Welcome to the **Distributed Social Networking** project! This repository is ded
 - Real-time notifications
 
 ## Run Instructions with Docker
-From From within the directory: `w25-project-maroon/`
+From within the directory: `w25-project-maroon/`
 1. `docker compose build`
 2. `docker compose up`
 
