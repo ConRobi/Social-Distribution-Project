@@ -79,7 +79,7 @@ def stream_view(request):
     own_posts = Post.objects.filter(author=author).exclude(visibility="DELETED")
 
     # Get posts received in the inbox (from other nodes)
-    inbox_posts = Post.objects.filter(id__in=InboxPost.objects.filter(receiver=author).values_list('post_id', flat=True))
+    inbox_posts = Post.objects.filter(uuid__in=InboxPost.objects.filter(receiver=author).values_list('post__uuid', flat=True))
 
     # Merge all posts into a single QuerySet
     all_posts = public_posts.union(friends_posts, unlisted_posts, own_posts, inbox_posts).order_by('-published')

@@ -22,6 +22,11 @@ Welcome to the **Distributed Social Networking** project! This repository is ded
 - Privacy-focused data handling
 - Real-time notifications
 
+## Run Instructions with Docker
+From within the directory: `w25-project-maroon/`
+1. `docker compose build`
+2. `docker compose up`
+
 ## Run Instructions
 From within the directory: `w25-project-maroon/MaroonSocialDistribution/`
 
