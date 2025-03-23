@@ -331,13 +331,31 @@ def get_and_create(request, author_uuid):
     """
     Description: Get all posts by an author and create a new post
     """
-    author = get_object_or_404(Author, uuid=author_uuid)
 
     if request.method == 'GET':
-        return get_posts_by_author(request, author_uuid)
+        # return get_posts_by_author(request, author_uuid)
+        author = get_object_or_404(Author, uuid=author_uuid)
+        paginator = PageNumberPagination()
+        paginator.page_size_query_param = 'size'
+        paginator.page_size = request.GET.get('size', 5)
+        paginator.max_page_size = 100
+        posts = Post.objects.filter(author=author).order_by('-published')
+        paginated_posts = paginator.paginate_queryset(posts, request)
+        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        post_count = posts.count()
 
-    if request.method == 'POST':
-        return add_post(request, author_uuid)
+        return paginator.get_paginated_response(
+            {
+                "type": "posts",
+                "page_number": paginator.page.number,
+                "size": paginator.page.paginator.per_page,
+                "count": post_count,
+                "src": [post for post in serialized_posts],
+            }
+        )
+
+    # if request.method == 'POST':
+    #     return add_post(request, author_uuid)
 
 @api_view(['GET'])
 def get_single_post(request, post_uuid):
