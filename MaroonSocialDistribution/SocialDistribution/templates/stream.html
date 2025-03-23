@@ -35,10 +35,10 @@
                         {% endif %}
 
                         <div class="stream-post-actions">
-                            <a href="{% url 'SocialDistribution:view-single-post' post.id %}" class="stream-view-post">View Post</a>
+                            <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}" class="stream-view-post">View Post</a>
                             {% if post.author == request.user %}
-                                <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="stream-delete-post">Delete</a>
-                                <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="stream-edit-post">Edit</a>
+                                <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="stream-delete-post">Delete</a>
+                                <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="stream-edit-post">Edit</a>
                             {% endif %}
                         </div>
 
