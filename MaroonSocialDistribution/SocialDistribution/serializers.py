@@ -34,6 +34,17 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['type', 'title', 'id', 'page', 'description', 'contentType', 'content', 'author', 'comments', 'likes', 'published', 'visibility', 'image']
 
+    def get_id(self, obj):
+        return obj.id
+    
+    def get_comments(self, obj):
+        comments = Comment.objects.filter(post=obj)
+        return CommentSerializer(comments, many=True).data
+    
+    def get_likes(self, obj):
+        likes = Like.objects.filter(post=obj)
+        return LikeSerializer(likes, many=True).data
+    
 class FollowRequestSerializer(serializers.ModelSerializer):
     sender = AuthorSerializer(read_only=True)
     receiver = AuthorSerializer(read_only=True)

@@ -48,6 +48,13 @@ urlpatterns = [
     path("<uuid:uuid>/create-post", views.create_post, name = "create-post"), # Create post interface page
 
     path("api/authors/<uuid:author_uuid>/posts/<uuid:post_uuid>", views.handle_post, name="handle-post"), # Get, edit, delete post
+    
+    # Creation URL ://service/api/authors/{AUTHOR_SERIAL}/posts/ for get and post
+    path("api/authors/<uuid:author_uuid>/posts", views.get_and_create, name="get-posts-or-create"), # Get all posts by author or create a new post
+
+    # Get a single post
+    path("api/posts/<uuid:post_uuid>", views.get_single_post, name="get-single-post"),
+    
 
 
     ### FOLLOWING ###
