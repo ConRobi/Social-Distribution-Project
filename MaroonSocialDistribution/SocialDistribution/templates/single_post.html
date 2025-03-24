@@ -42,7 +42,7 @@
 
                 <!-- ✅ Share Button (Only for Other Authors & Public/Unlisted Posts) -->
                 {% if post.author != request.user and post.visibility in "PUBLIC UNLISTED" %}
-                    <form action="{% url 'SocialDistribution:send-to-followers' post.id %}" method="post" style="margin-top: 10px;">
+                    <form action="{% url 'SocialDistribution:send-to-followers' post.uuid %}" method="post" style="margin-top: 10px;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-info">Share</button>
                     </form>

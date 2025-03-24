@@ -16,7 +16,7 @@
         <ul>
             {% for inbox_post in inbox_posts %}
                 <li>
-                    <a href="{% url 'SocialDistribution:view-single-post' inbox_post.post.id %}">
+                    <a href="{% url 'SocialDistribution:view-single-post' inbox_post.post.uuid %}">
                         {{ inbox_post.post.title }}
                     </a>
                     <!-- Liking a post -->

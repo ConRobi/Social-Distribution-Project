@@ -95,8 +95,9 @@ urlpatterns = [
     path("posts/<uuid:post_uuid>/", views.view_single_post, name="view-single-post"),
 
 
-    path("posts/<int:post_id>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
+    path("posts/<uuid:post_uuid>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
     path("inbox/", views.view_inbox, name="view-inbox"),
+    # path("api/authors/<uuid:author_uuid>/inbox", views.get_inbox, name="get-inbox"),
 
 
     ### LIKES ###

@@ -270,17 +270,17 @@ def view_single_post(request, post_uuid):
     return redirect("SocialDistribution:index")
 
 @login_required
-def send_post_to_followers(request, post_id):
+def send_post_to_followers(request, post_uuid):
     """
     Allows users to share a public or unlisted post with their followers.
     """
     # Get the post or return 404 if not found
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, uuid=post_uuid)
 
     # Ensure that only public and unlisted posts can be shared
     if post.visibility not in ["PUBLIC", "UNLISTED"]:
         messages.error(request, "You can only share public or unlisted posts.")
-        return redirect("SocialDistribution:view-single-post", post_id=post.id)
+        return redirect("SocialDistribution:view-single-post", post_uuid=post.uuid)
 
     # Get the logged-in user's followers
     followers = Author.objects.filter(
@@ -296,7 +296,7 @@ def send_post_to_followers(request, post_id):
     messages.success(request, "Shared to followers!")
 
     # Redirect back to the post page after sharing
-    return redirect("SocialDistribution:view-single-post", post_id=post.id)
+    return redirect("SocialDistribution:view-single-post", post_uuid=post.uuid)
 
 # make sure we have authentication
 
