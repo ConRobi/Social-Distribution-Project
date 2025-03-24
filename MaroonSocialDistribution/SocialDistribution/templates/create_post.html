@@ -1,44 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Post</title>
-</head>
-<body>
-    <h2>Create Post</h2>
-    <form method="POST" action="{% url 'SocialDistribution:add-post' author.uuid %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="title">Title:</label>
-        <input type="text" name="title" required><br><br>
+{% extends 'base.html' %}
 
-        <label for="description">Description:</label>
-        <input type="text" name="description" required><br><br>
+{% block title %}Create Post{% endblock %}
 
-        <label for="contentType">Content Type:</label>
-        <select name="contentType">
-            <option value="text/plain">plaintext</option>
-            <option value="text/markdown">CommonMark</option>
-            <option value="image/png;base64">PNG Image</option>
-            <option value="image/jpeg;base64">JPEG Image</option>
-            <option value="application/base64">Other Image</option>
-        </select><br><br>
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/create_post.css' %}">
+{% endblock %}
 
-        <label for="content">Content:</label>
-        <textarea name="content" required></textarea><br><br>
+{% block content %}
+    <div class="create-post-container">
+        <h2>Create Post</h2>
+        <form method="POST" action="{% url 'SocialDistribution:add-post' author.uuid %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <label for="title">Title:</label>
+            <input type="text" name="title" placeholder="Enter post title" required>
 
-        <label for="visibility">Visibility:</label>
-        <select name="visibility">
-            <option value="PUBLIC">Public</option>
-            <option value="FRIENDS">Friends</option>
-            <option value="PRIVATE">Private</option>
-            <option value="UNLISTED">Unlisted</option>
-        </select><br><br>
+            <label for="description">Description:</label>
+            <input type="text" name="description" placeholder="Enter a short description" required>
 
-        <label for="image">Image:</label>
-        <input type="file" name="image"> <!-- Image Upload -->
+            <label for="contentType">Content Type:</label>
+            <select name="contentType">
+                <option value="text/plain">Plaintext</option>
+                <option value="text/markdown">CommonMark</option>
+                <option value="image/png;base64">PNG Image</option>
+                <option value="image/jpeg;base64">JPEG Image</option>
+                <option value="application/base64">Other Image</option>
+            </select>
 
-        <button type="submit">Create Post</button>
-    </form>
-</body>
-</html>
+            <label for="content">Content:</label>
+            <textarea name="content" placeholder="Write your post content here..." required></textarea>
+
+            <label for="visibility">Visibility:</label>
+            <select name="visibility">
+                <option value="PUBLIC">Public</option>
+                <option value="FRIENDS">Friends</option>
+                <option value="PRIVATE">Private</option>
+                <option value="UNLISTED">Unlisted</option>
+            </select>
+
+            <label for="image">Upload Image:</label>
+            <input type="file" name="image">
+
+            <button type="submit">Create Post</button>
+        </form>
+    </div>
+{% endblock %}

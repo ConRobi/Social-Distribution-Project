@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>{{ post.title }}</title>
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block extra_css %}
     {% load static %}
-    <script src="{% static 'js/likes.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/single_post.css' %}">
+{% endblock %}
+
+
+{% block content %}
 
     <div class="top-container">
         <div class="profile_body">
@@ -18,7 +17,7 @@
                 <h2>{{ post.title }}</h2>
 
                 <!-- ✅ Show Author's Name & Link to Profile -->
-                <p>By: <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" style="color: black; text-decoration: none;">
+                <p>By: <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" style="color: #FF7F50; text-decoration: none;">
                     {{ post.author.display_name }}</a>
                 </p>
 
@@ -68,17 +67,15 @@
                 </script>
 
                 <!-- Liking a post -->
-                <form method="post">
-                    {% csrf_token %}
-                    <section id="like-post-details">
-                        <button class="like-post-button" data-post-id="{{ post.id }}">
-                            ❤
-                        </button>
-                        <span id="post-likes-count-{{ post.id }}">
-                            {{ post.likes.count }}
-                        </span>
-                    </section>
-                </form>
+                {% csrf_token %}
+                <section id="like-post-details">
+                    <button class="like-post-button" data-post-uuid="{{ post.uuid }}">
+                        ❤
+                    </button>
+                    <span id="post-likes-count-{{ post.uuid }}">
+                        {{ post.likes.count }}
+                    </span>
+                </section>
 
                 <br><br>
                 
@@ -106,38 +103,39 @@
                 <button type="submit">Submit</button>
             </form>
         </div>
+    
+
+        <div class="comment-section">
+            <h2>Comments</h2>
+                <ul>
+                    {% if comments %}
+
+                    {% for comment in comments %}
+                            <div class="comment-item">
+                                <a href="{% url 'SocialDistribution:view-profile' comment.author.uuid %}"> {{comment.author.display_name}} </a>
+                                <p> {{ comment.render_comment | safe }} </p>
+                                <p>Published: {{ comment.published }}</p>
+                            </div>
+                            <!-- Liking a comment -->
+                            <form method="post">
+                                {% csrf_token %}
+                                <section id="like-details">
+                                    <button class="like-comment-button" data-comment-uuid="{{ comment.uuid }}">
+                                        ❤
+                                    </button>
+                            
+                                    <span id="comment-likes-count-{{ comment.uuid }}">
+                                        {{ comment.likes.count }}
+                                    </span>
+                                </section>
+                            </form>
+                    {% endfor %}
+
+                    {% else %}
+                        <p>No comments available.</p>
+                    {% endif %}
+        </div>
+
     </div>
 
-    <div class="comment-section">
-        <h2>Comments</h2>
-            <ul>
-                {% if comments %}
-
-                {% for comment in comments %}
-                        <div class="comment-item">
-                            <a href="{% url 'SocialDistribution:view-profile' comment.author.uuid %}"> {{comment.author.display_name}} </a>
-                            <p> {{ comment.render_comment | safe }} </p>
-                            <p>Published: {{ comment.published }}</p>
-                        </div>
-                        <!-- Liking a comment -->
-                        <form method="post">
-                            {% csrf_token %}
-                            <section id="like-details">
-                                <button class="like-comment-button" data-comment-uuid="{{ comment.uuid }}">
-                                    ❤
-                                </button>
-                        
-                                <span id="comment-likes-count-{{ comment.uuid }}">
-                                    {{ comment.likes.count }}
-                                </span>
-                            </section>
-                        </form>
-                {% endfor %}
-
-                {% else %}
-                    <p>No comments available.</p>
-                {% endif %}
-    </div>
-
-</body>
-</html>
+{% endblock %}

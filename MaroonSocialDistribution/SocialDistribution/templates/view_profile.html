@@ -2,63 +2,73 @@
 
 {% block title %}My Profile{% endblock %}
 
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/view_profile.css' %}">
+{% endblock %}
+
 {% block content %}
     {% if author == request.user %}
         <a href="{% url 'SocialDistribution:create-post' author.uuid %}">
             <button class="new_post_button">+</button>
         </a>
     {% endif %}
+    
     <div class="profile_body">
         <!-- Profile Section -->
         <section id="profile_details">
-            <h2>My Profile</h2>
-            <img src="{{ author.profile_image | default:'/static/images/default.jpg' }}" onerror="this.onerror=null; this.src='/static/images/default.jpg';" class="profile-picture">
-            <p>Username: {{ author.username }}</p>
-            <p>Display name: {{ author.display_name }}</p>
-            <p>Github Account: <a href="{{ author.github }}" target="_blank">{{ author.github }}</a></p>
+            <h2 class="profile-title">My Profile</h2>
+            <div class="profile-header">
+                <img src="{{ author.profile_image | default:'/static/images/default.jpg' }}" 
+                     onerror="this.onerror=null; this.src='/static/images/default.jpg';" 
+                     class="profile-picture">
+                <div class="profile-info">
+                    <p><strong>Username:</strong> {{ author.username }}</p>
+                    <p><strong>Display name:</strong> {{ author.display_name }}</p>
+                    <p><strong>Github Account:</strong> 
+                        <a href="{{ author.github }}" target="_blank" class="github-link">{{ author.github }}</a>
+                    </p>
+                </div>
+            </div>
+            
             {% if author == request.user %}
                 <a href="{% url 'SocialDistribution:edit-profile' author.uuid %}">
-                    <button>Edit Profile</button>
+                    <button class="profile-btn edit-btn">Edit Profile</button>
                 </a>
             {% endif %}
 
             <!-- Stream Button -->
             <a href="{% url 'SocialDistribution:stream' %}">
-                <button>Go to My Stream</button>
+                <button class="profile-btn stream-btn">Go to My Stream</button>
             </a>
 
-            <!-- Inbox Section (Only for the Logged-in User) -->
-           {% if author == request.user %}
-           <div class="requests-section" style="margin-top: 15px;">
-              <h3>
-                <a href="{% url 'SocialDistribution:view-inbox' %}" style="color: black; text-decoration: none;">
-                    Inbox
-                </a>
-             </h3>
-            </div>
-            {% endif %}
-
-            <!-- Clickable Links with Count (No Brackets & Black Text) -->
-            <div class="social-section">
-                <h3><a href="{% url 'SocialDistribution:view-followers' %}" style="color: black; text-decoration: none;">Followers {{ followers|length }}</a></h3>
-                <h3><a href="{% url 'SocialDistribution:view-following' %}" style="color: black; text-decoration: none;">Following {{ following|length }}</a></h3>
-                <h3><a href="{% url 'SocialDistribution:view-friends' %}" style="color: black; text-decoration: none;">Friends {{ friends|length }}</a></h3>
-            </div>
-
-            <!-- Follow Requests Link - Moved Under Friends -->
+            <!-- Inbox Section -->
             {% if author == request.user %}
-            <div class="requests-section" style="margin-top: 15px;">
-                <h3><a href="{% url 'SocialDistribution:follow-requests' %}" style="color: black; text-decoration: none;">
-                    View Follow Requests {{ follow_requests|length }}
-                </a></h3>
-            </div>
+                <div class="requests-section">
+                    <h3><a href="{% url 'SocialDistribution:view-inbox' %}" class="request-link">Inbox</a></h3>
+                </div>
             {% endif %}
 
+            <!-- Followers, Following, Friends -->
+            <div class="social-section">
+                <h3><a href="{% url 'SocialDistribution:view-followers' %}" class="social-link">Followers {{ followers|length }}</a></h3>
+                <h3><a href="{% url 'SocialDistribution:view-following' %}" class="social-link">Following {{ following|length }}</a></h3>
+                <h3><a href="{% url 'SocialDistribution:view-friends' %}" class="social-link">Friends {{ friends|length }}</a></h3>
+            </div>
+
+            <!-- Follow Requests -->
+            {% if author == request.user %}
+                <div class="requests-section">
+                    <h3><a href="{% url 'SocialDistribution:follow-requests' %}" class="request-link">
+                        View Follow Requests {{ follow_requests|length }}
+                    </a></h3>
+                </div>
+            {% endif %}
         </section>
 
         <!-- Posts Section -->
         <section id="profile_posts">
-            <!-- Display any error messages -->
+            <!-- Display messages -->
             {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
@@ -68,45 +78,47 @@
                     {% endfor %}
                 </div>
             {% endif %}
+
             {% if posts %}
                 <ul>
                     {% for post in posts %}
                         {% if post.visibility != "DELETED" %}
-                            <li>
-                                <h2>{{ post.title }}</h2>
-                                <p>{{ post.description }}</p>
-                                <p>{{ post.render_content | safe }}</p>
-                                <p>Visibility: {{ post.visibility }}</p>
-                                <p>Published: {{ post.published }}</p>
+                            <li class="post-item">
+                                <h2 class="post-title">{{ post.title }}</h2>
+                                <p class="post-description">{{ post.description }}</p>
+                                <p class="post-content">{{ post.render_content | safe }}</p>
+                                <p class="post-meta"><strong>Visibility:</strong> {{ post.visibility }}</p>
+                                <p class="post-meta"><strong>Published:</strong> {{ post.published }}</p>
+                                
                                 {% if post.image %}
-                                    <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100%; height: auto;">
+                                    <img src="{{ post.image.url }}" alt="Post Image" class="post-image">
                                 {% else %}
-                                    <p>No image uploaded</p>
+
+                                    <p class="no-image">No image uploaded</p>
+
                                 {% endif %}
-                                <!-- ✅ Add "View Post" Button -->
-                                <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}">View Post</a>
-                                <!-- ✅ Edit & Delete Buttons (Only if Author) -->
-                                {% if post.author == request.user %}
-                                    <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="btn btn-warning">Edit</a>
-                                    <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="btn btn-danger">Delete</a>
-                                {% endif %}
+                                
+                                <div class="post-actions">
+                                    <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}" class="view-post">View Post</a>
+                                    {% if post.author == request.user %}
+                                        <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="delete-post">Delete</a>
+                                        <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="edit-post">Edit</a>
+                                    {% endif %}
+                                </div>
+
                                 <!-- Liking a post -->
                                     {% csrf_token %}
                                     <section id="like-details">
-                                        <button class="like-post-button" data-post-id="{{ post.uuid }}">
-                                            ❤
-                                        </button>
-                                
-                                        <span id="post-likes-count-{{ post.uuid }}">
-                                            {{ post.likes.count }}
-                                        </span>
+
+                                        <button class="like-post-button" data-post-id="{{ post.uuid  }}">❤</button>
+                                        <span id="post-likes-count-{{ post.uuid }}">{{ post.likes.count }}</span>
                                     </section>
                             </li>
                         {% endif %}
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No posts available.</p>
+                <p class="no-posts">No posts available.</p>
             {% endif %}
         </section>
     </div>

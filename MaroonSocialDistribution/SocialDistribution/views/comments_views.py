@@ -22,12 +22,12 @@ def add_comment(request, post_uuid):
     return redirect("SocialDistribution:view-single-post", post_uuid=post_uuid)
 
 @api_view(['GET'])
-def get_post_comments(request, author_uuid, post_id):
+def get_post_comments(request, author_uuid, post_uuid):
     """
     - Description: Get a list of comments for a specified post
     - Returns: a paginated list of comments for a specific post
     """
-    post = get_object_or_404(Post, id=post_id, author__uuid=author_uuid)
+    post = get_object_or_404(Post, uuid=post_uuid, author__uuid=author_uuid)
     paginator = PageNumberPagination()
     paginator.page_size_query_param = 'size'  # Allows user to set ?size=
     paginator.page_size = request.GET.get('size', 5)  # Default size: 5
@@ -40,8 +40,8 @@ def get_post_comments(request, author_uuid, post_id):
     node_url = "http://maroonnode.com"
     return paginator.get_paginated_response({
         "type": "comments",
-        "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
-        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/comments",
+        "page": f"{node_url}/authors/{author_uuid}/posts/{post_uuid}",
+        "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_uuid}/comments",
         "page_number": paginator.page.number,
         "size": paginator.page.paginator.per_page,
         "count": comment_count,
@@ -68,8 +68,8 @@ def get_comments_by_author(request, author_uuid):
     return paginator.get_paginated_response({
         "type": "comments",
         # TODO: page and id might be different because all these comments might not be on the same post
-        # "page": f"{node_url}/authors/{author_uuid}/posts/{post_id}",
-        # "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_id}/comments",
+        # "page": f"{node_url}/authors/{author_uuid}/posts/{post_uuid}",
+        # "id": f"{node_url}/api/authors/{author_uuid}/posts/{post_uuid}/comments",
         "page_number": paginator.page.number,
         "size": paginator.page.paginator.per_page,
         "count": comment_count,

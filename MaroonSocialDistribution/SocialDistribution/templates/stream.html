@@ -2,44 +2,62 @@
 
 {% block title %}My Stream{% endblock %}
 
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/stream.css' %}">
+{% endblock %}
+
 {% block content %}
-<body>
+<div class="stream_body">
+  
+    <a href="{% url 'SocialDistribution:create-post' user.uuid %}">
+        <button class="new_post_button">+</button>
+    </a>
+  
+    <!-- Posts Section -->
+    <section id="stream_posts">
+        {% if posts %}
+            <ul>
+                {% for post in posts %}
+                    <li class="stream-post-item">
+                        <h2 class="stream-post-title">{{ post.title }}</h2>
+                        <p>By: <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}" class="stream-post-author">
+                            {{ post.author.display_name }}</a></p>
+                        <p class="stream-post-content">{{ post.description }}</p>
+                        <p class="stream-post-content">{{ post.render_content | safe }}</p>
+                        <p class="stream-post-meta"><strong>Visibility:</strong> {{ post.visibility }}</p>
+                        <p class="stream-post-meta"><strong>Published:</strong> {{ post.published }}</p>
 
-    <h1>My Stream</h1>
-        
-    {% if posts %}
-        <ul>
-            {% for post in posts %}
-                <li>
-                    <h2>{{ post.title }}</h2>
-                    <p>By: <a href="{% url 'SocialDistribution:view-profile' post.author.uuid %}">{{ post.author.display_name }}</a></p>
-                    <p>{{ post.description }}</p>
-                    <p>{{ post.render_content | safe }}</p>
-                    <p>Visibility: {{ post.visibility }}</p>
-                    <p>Published: {{ post.published }}</p>
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="Post Image" class="stream-post-image">
+                        {% else %}
+                            <p class="stream-post-meta">No image uploaded</p>
+                        {% endif %}
 
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100%; height: auto;">
-                    {% else %}
-                        <p>No image uploaded</p>
-                    {% endif %}
+                        <div class="stream-post-actions">
+                            <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}" class="stream-view-post">View Post</a>
+                            {% if post.author == request.user %}
+                                <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="stream-delete-post">Delete</a>
+                                <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="stream-edit-post">Edit</a>
+                            {% endif %}
+                        </div>
 
                     <!-- ✅ Always show "View Post" button -->
-                    <a href="{% url 'SocialDistribution:view-single-post' post.id %}" class="btn btn-primary">View Post</a>
+                    <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}" class="btn btn-primary">View Post</a>
 
                     <!-- ✅ Show "Edit" & "Delete" only for the post owner -->
                     {% if post.author == request.user %}
-                        <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.id %}" class="btn btn-warning">Edit</a>
-                        <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.id %}" class="btn btn-danger">Delete</a>
+                        <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="btn btn-danger">Delete</a>
                     {% endif %}
                     <!-- Liking a post -->
                         {% csrf_token %}
                         <section id="like-details">
-                            <button class="like-post-button" data-post-id="{{ post.id }}">
+                            <button class="like-post-button" data-post-uuid="{{ post.uuid }}">
                                 ❤
                             </button>
                     
-                            <span id="post-likes-count-{{ post.id }}">
+                            <span id="post-likes-count-{{ post.uuid }}">
                                 {{ post.likes.count }}
                             </span>
                         </section>
@@ -51,3 +69,4 @@
     {% endif %}
 </body>
 {% endblock %}
+

@@ -40,7 +40,11 @@ def add_post(request, uuid):
     # Copy request data and ensure all required fields are present
     data = request.data.copy()
 
-    post = Post.objects.create(author=author, title=data["title"], content=data["content"], visibility=data["visibility"], contentType=data["contentType"])
+    # Possibly temporary since test required it
+    if 'title' not in data or not data['title']:
+        return Response({"title": "This field is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    post = Post.objects.create(author=author, title=data["title"], content=data["content"], description=data["description"], visibility=data["visibility"], contentType=data["contentType"])
     post.id = f"{author.id}/posts/{post.uuid}"
     post.page = f"{author.id}/posts/{post.uuid}"
     image = request.FILES.get('image')  # Extract image from request
@@ -142,7 +146,7 @@ def edit_post(request, author_uuid, post_uuid):
     parameters=[
         {
             "name": "post_id",
-            "description": "The ID of the unlisted post to retrieve.",
+            "description": "The UUID of the unlisted post to retrieve.",
             "required": True,
             "type": "integer",
         }
@@ -155,7 +159,7 @@ def edit_post(request, author_uuid, post_uuid):
         OpenApiExample(
             "Successful Response",
             value={
-                "id": 2,
+                "id": "5f319ed8-a1b6-40ed-80cc-78405f8845f3",
                 "title": "Unlisted Post",
                 "content": "This is an unlisted post",
                 "visibility": "UNLISTED",
@@ -173,12 +177,12 @@ def edit_post(request, author_uuid, post_uuid):
     ],
 )
 @api_view(["GET"])
-def view_unlisted_post(request, post_id):
+def view_unlisted_post(request, post_uuid):
     """
     Allow anyone with the link to view an unlisted post.
     SECURITY WARNING: This API is **not private**. Anyone with the link can see the post.
     """
-    post = get_object_or_404(Post, id=post_id, visibility="UNLISTED")
+    post = get_object_or_404(Post, uuid=post_uuid, visibility="UNLISTED")
 
     serializer = PostSerializer(post)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -194,8 +198,8 @@ def view_unlisted_post(request, post_id):
     """,
     parameters=[
         {
-            "name": "post_id",
-            "description": "The ID of the post to retrieve.",
+            "name": "post_uuid",
+            "description": "The UUID of the post to retrieve.",
             "required": True,
             "type": "integer",
         }
@@ -209,7 +213,7 @@ def view_unlisted_post(request, post_id):
         OpenApiExample(
             "Public Post",
             value={
-                "id": 1,
+                "id": "5f319ed8-a1b6-40ed-80cc-78405f8845f3",
                 "title": "Public Post",
                 "content": "This is a public post",
                 "visibility": "PUBLIC",
@@ -245,7 +249,7 @@ def view_single_post(request, post_uuid):
         return render(request, "single_post.html", {"post": post, "comments": comments})
 
     # ✅ Require authentication for Friends-Only posts
-    if post.visibility == "FRIENDS":
+    if (post.visibility == "FRIENDS") or (post.visibility == "Friends Only"):
         if not request.user.is_authenticated:
             # ❌ Redirect to login if user is not logged in
             messages.error(request, "Unable to view this post. Please log in.")

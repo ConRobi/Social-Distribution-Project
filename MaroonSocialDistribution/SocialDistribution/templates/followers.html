@@ -1,27 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Followers</title>
+{% extends 'base.html' %}
+
+{% block title %}Followers{% endblock %}
+
+{% block extra_css %}
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/followers.css' %}">
+{% endblock %}
+
+{% block content %}
     <h2>Followers</h2>
-    
-    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}" style="text-decoration: none; color: black;">Back to Profile</a>
 
     {% if followers %}
         <ul>
             {% for follower in followers %}
                 <li>
-                    {{ follower.display_name }} 
-                    <form method="POST" action="{% url 'SocialDistribution:remove-follower' follower.uuid %}" style="display: inline;">
+                    <span>{{ follower.display_name }}</span>
+                    <form method="POST" action="{% url 'SocialDistribution:remove-follower' follower.uuid %}">
                         {% csrf_token %}
-                        <button type="submit" style="background: none; color: black; border: none; cursor: pointer; text-decoration: underline; font-weight: bold;">
-                            Remove
-                        </button>
+                        <button type="submit">Remove</button>
                     </form>
                 </li>
             {% endfor %}
@@ -29,5 +25,4 @@
     {% else %}
         <p>You have no followers.</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}

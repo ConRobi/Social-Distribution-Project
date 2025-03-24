@@ -1,23 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
+{% extends 'base.html' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block extra_css %}
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/search_results.css' %}">
+{% endblock %}
+
+{% block content %}
     <h2>Search Results</h2>
-    
-    <a href="{% url 'SocialDistribution:view-profile' request.user.uuid %}">Back to Profile</a>
 
     {% if search_results %}
         <ul>
             {% for author in search_results %}
                 <li>
-                    <h3>username: {{ author.username }}</h3>
-                    {{ author.display_name }}
+
+                    <strong>{{ author.display_name }}</strong>
+                    <strong> username: {{ author.username }} </strong>
+                  
                     <form method="POST" action="{% url 'SocialDistribution:send-follow-request' author.uuid %}">
                         {% csrf_token %}
                         <button type="submit">Follow</button>
@@ -28,5 +28,4 @@
     {% else %}
         <p>No authors found.</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}

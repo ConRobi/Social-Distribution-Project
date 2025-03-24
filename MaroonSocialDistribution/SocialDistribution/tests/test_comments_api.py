@@ -22,7 +22,7 @@ class CommentAPITestCase(APITestCase):
 
         # Create a post to test
         self.post = Post.objects.create(
-            id=10, 
+            uuid=uuid4(), 
             title="Test Post 10",
             description="This is a test post.",
             contentType="text/plain",
@@ -30,17 +30,19 @@ class CommentAPITestCase(APITestCase):
             author=self.author,
             visibility="PUBLIC"
         )
+        self.post.id = f"{self.node_url}/api/authors/{self.author.uuid}/posts/{self.post.uuid}"
+        self.post.save()
 
         # Authenticate API client
         self.client.login(username="testuser", password="testpassword")
         
         # Create a comment to test
         self.comment1 = Comment.objects.create(uuid=uuid4(), author=self.author, post=self.post, comment="I like this post!", contentType="text/plain")
-        self.comment1.id = f"{self.author.id}/posts/{self.post.id}/commented/{self.comment1.uuid}"
+        self.comment1.id = f"{self.author.id}/posts/{self.post.uuid}/commented/{self.comment1.uuid}"
         self.comment1.save()
 
         self.comment2 = Comment.objects.create(uuid=uuid4(), author=self.author, post=self.post, comment="I hate this post!", contentType="text/plain")
-        self.comment2.id = f"{self.author.id}/posts/{self.post.id}/commented/{self.comment2.uuid}"
+        self.comment2.id = f"{self.author.id}/posts/{self.post.uuid}/commented/{self.comment2.uuid}"
         self.comment2.save()
 
         # Most recent comment will be at the top (comment 2)
@@ -85,7 +87,7 @@ class CommentAPITestCase(APITestCase):
         """
         Testing that the comments for a post can be retrieved
         """
-        url = reverse('SocialDistribution:post_comments', kwargs={'author_uuid': self.author.uuid, 'post_id': self.post.id})
+        url = reverse('SocialDistribution:post_comments', kwargs={'author_uuid': self.author.uuid, 'post_uuid': self.post.uuid})
         response = self.client.get(url)
         self.assertEqual(response.data['count'], 2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
