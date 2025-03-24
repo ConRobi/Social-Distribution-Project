@@ -10,6 +10,7 @@ from django.http import HttpResponseForbidden
 from SocialDistribution.serializers import PostSerializer
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.contrib.auth.decorators import login_required
+from rest_framework.pagination import PageNumberPagination
 
 
 def author_posts(request, uuid):
@@ -52,15 +53,31 @@ def add_post(request, uuid):
 
     post.save()
 
-    # Create serializer with BOTH request data and request.FILES
-    # serializer = PostSerializer(data=data, context={'request': request})
-
-    # if serializer.is_valid():
-    #     post = serializer.save()  # Save post first without image
-
-        # return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
     return HttpResponseRedirect(reverse("SocialDistribution:view-profile", args=(author.uuid,)))
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'DELETE', 'PUT'])
+def handle_post(request, author_uuid, post_uuid):
+    '''
+    Description: View, edit, or delete a post.
+    '''
+    author = get_object_or_404(Author, uuid=author_uuid)
+    post = get_object_or_404(Post, uuid=post_uuid, author=author)
+
+    if request.method == "GET":
+        pass
+
+    elif request.method == "DELETE":
+        if request.user != author:                                          
+            return HttpResponseForbidden("You are not allowed to delete this post.")
+        post.visibility = "DELETED"                          
+        post.save()
+        return redirect("SocialDistribution:view-profile", uuid=author_uuid) # Redirect to author's profile
+        
+    elif request.method == "PUT":
+        if request.user != author:
+            return HttpResponseForbidden("You are not allowed to edit this post.")
+        # Might need to add ajax to update the post and handle put method?
+        pass
 
 @api_view(['POST','GET'])
 def delete_post(request, author_uuid, post_uuid):
@@ -284,3 +301,71 @@ def send_post_to_followers(request, post_uuid):
 
     # Redirect back to the post page after sharing
     return redirect("SocialDistribution:view-single-post", post_uuid=post.uuid)
+
+# make sure we have authentication
+
+@api_view(['GET'])
+def get_posts_by_author(request, author_uuid):
+    """
+    Description: Get a list of posts by a specified author
+    Returns: a paginated list of posts for a specific author
+    """
+    author = get_object_or_404(Author, uuid=author_uuid)
+    paginator = PageNumberPagination()
+    paginator.page_size_query_param = 'size'
+    paginator.page_size = request.GET.get('size', 5)
+    paginator.max_page_size = 100
+    posts = Post.objects.filter(author=author).order_by('-published')
+    paginated_posts = paginator.paginate_queryset(posts, request)
+    serialized_posts = PostSerializer(paginated_posts, many=True).data
+    post_count = posts.count()
+
+    return paginator.get_paginated_response(
+        {
+            "type": "posts",
+            "page_number": paginator.page.number,
+            "size": paginator.page.paginator.per_page,
+            "count": post_count,
+            "src": [post for post in serialized_posts],
+        }
+    )
+
+@api_view(['GET', 'POST'])
+def get_and_create(request, author_uuid):
+    """
+    Description: Get all posts by an author and create a new post
+    """
+
+    if request.method == 'GET':
+        # return get_posts_by_author(request, author_uuid)
+        author = get_object_or_404(Author, uuid=author_uuid)
+        paginator = PageNumberPagination()
+        paginator.page_size_query_param = 'size'
+        paginator.page_size = request.GET.get('size', 5)
+        paginator.max_page_size = 100
+        posts = Post.objects.filter(author=author).order_by('-published')
+        paginated_posts = paginator.paginate_queryset(posts, request)
+        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        post_count = posts.count()
+
+        return paginator.get_paginated_response(
+            {
+                "type": "posts",
+                "page_number": paginator.page.number,
+                "size": paginator.page.paginator.per_page,
+                "count": post_count,
+                "src": [post for post in serialized_posts],
+            }
+        )
+
+    # if request.method == 'POST':
+    #     return add_post(request, author_uuid)
+
+@api_view(['GET'])
+def get_single_post(request, post_uuid):
+    """
+    Description: Get a single post by an author
+    """
+    post = get_object_or_404(Post, uuid=post_uuid)
+    serializer = PostSerializer(post)
+    return Response(serializer.data)
