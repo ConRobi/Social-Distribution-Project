@@ -30,21 +30,6 @@ class PostAPITests(APITestCase):
         # Authenticate API client
         self.client.login(username="testuser", password="testpassword")
 
-        # Sample friends-only post
-        self.post_test = Post.objects.create(
-            uuid=uuid.uuid4(),
-            title="Test Post",
-            description="This is a test post.",
-            contentType="text/plain",
-            content="Hello, world!",
-            author=self.author2,
-            visibility="FRIENDS"
-        )
-        self.node_url = "http://maroonnode.com"
-        self.post_test.id = f"{self.node_url}/api/authors/{self.author.uuid}/posts/{self.post_test.uuid}"
-        self.post_test.save()
-
-        self.friends_post_view_url = reverse('SocialDistribution:view-single-post', args=[self.post_test.uuid])
 
     def test_create_post(self):
         """Test creating a valid post"""
@@ -114,7 +99,67 @@ class PostAPITests(APITestCase):
     
     def test_user_cannot_access_friends_only_post(self):
         """Test accessing a friends-only post when not following the post author"""
-        response = self.client.get(self.friends_post_view_url)
+        # Sample friends-only post
+        post_test = Post.objects.create(
+            uuid=uuid.uuid4(),
+            title="Test Post",
+            description="This is a test post.",
+            contentType="text/plain",
+            content="Hello, world!",
+            author=self.author2,
+            visibility="FRIENDS"
+        )
+        node_url = "http://maroonnode.com"
+        post_test.id = f"{node_url}/api/authors/{self.author.uuid}/posts/{post_test.uuid}"
+        post_test.save()
+
+        friends_post_view_url = reverse('SocialDistribution:view-single-post', args=[post_test.uuid])
+        response = self.client.get(friends_post_view_url)
 
         # The user should not be able to access author2's friends-only post (they are not following each other)
         self.assertEqual(response.status_code, 302)  # Should redirect, unauthorized action
+
+    def test_delete_post(self):
+        """Test deleting a post (only change visibility label)"""
+        # Sample post to delete
+        post_test = Post.objects.create(
+            uuid=uuid.uuid4(),
+            title="Test Post",
+            description="This is a test post.",
+            contentType="text/plain",
+            content="Hello, world!",
+            author=self.author,
+            visibility="PUBLIC"
+        )
+        node_url = "http://maroonnode.com"
+        post_test.id = f"{node_url}/api/authors/{self.author.uuid}/posts/{post_test.uuid}"
+        post_test.save()
+
+        # URL that allows for deleting post
+        delete_post_view_url = reverse('SocialDistribution:delete-post', args=[self.author.uuid, post_test.uuid])
+
+        self.client.post(delete_post_view_url)
+        post_test.refresh_from_db()
+        # Check if label has been changed to deleted
+        self.assertEqual(post_test.visibility, "DELETED")
+
+    def test_cant_access_deleted_post(self):
+        # Sample 'deleted' post
+        post_test = Post.objects.create(
+            uuid=uuid.uuid4(),
+            title="Test Post",
+            description="This is a test post.",
+            contentType="text/plain",
+            content="Hello, world!",
+            author=self.author,
+            visibility="DELETED"
+        )
+        node_url = "http://maroonnode.com"
+        post_test.id = f"{node_url}/api/authors/{self.author.uuid}/posts/{post_test.uuid}"
+        post_test.save()
+
+        # URL to view the 'deleted' post
+        deleted_post_view_url = reverse('SocialDistribution:view-single-post', args=[post_test.uuid])
+        response = self.client.get(deleted_post_view_url)
+        # Should redirect as we cannot view posts labelled as 'DELETED'
+        self.assertEqual(response.status_code, 302) 
