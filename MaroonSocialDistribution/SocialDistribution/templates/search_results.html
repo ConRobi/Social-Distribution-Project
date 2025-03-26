@@ -14,7 +14,10 @@
         <ul>
             {% for author in search_results %}
                 <li>
+
                     <strong>{{ author.display_name }}</strong>
+                    <strong> username: {{ author.username }} </strong>
+                  
                     <form method="POST" action="{% url 'SocialDistribution:send-follow-request' author.uuid %}">
                         {% csrf_token %}
                         <button type="submit">Follow</button>

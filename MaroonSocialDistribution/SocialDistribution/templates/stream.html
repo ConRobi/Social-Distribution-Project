@@ -38,7 +38,6 @@
                             <!-- ✅ Always show "View Post" button -->
                             <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}" class="stream-view-post">View Post</a>
 
-                            <!-- ✅ Show "Edit" & "Delete" only for the post owner -->
                             {% if post.author == request.user %}
                                 <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="stream-delete-post">Delete</a>
                                 <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="stream-edit-post">Edit</a>

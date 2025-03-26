@@ -40,13 +40,21 @@ urlpatterns = [
 
     ### POSTS ###
     # Posts - API endpoints
-    # TODO fix int to uuid
     path("<uuid:uuid>/add-post", views.add_post, name = "add-post"),
     path("authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/delete/", delete_post, name="delete-post"),
     path("authors/<uuid:author_uuid>/posts/<uuid:post_uuid>/edit/", edit_post, name="edit-post"),
     # Posts - Page Rendering
     path("authors/<uuid:uuid>/posts", views.author_posts, name = "author-posts"), # Viewing all of an author's posts
     path("<uuid:uuid>/create-post", views.create_post, name = "create-post"), # Create post interface page
+
+    path("api/authors/<uuid:author_uuid>/posts/<uuid:post_uuid>", views.handle_post, name="handle-post"), # Get, edit, delete post
+    
+    # Creation URL ://service/api/authors/{AUTHOR_SERIAL}/posts/ for get and post
+    path("api/authors/<uuid:author_uuid>/posts", views.get_and_create, name="get-posts-or-create"), # Get all posts by author or create a new post
+
+    # Get a single post
+    path("api/posts/<uuid:post_uuid>", views.get_single_post, name="get-single-post"),
+    
 
 
     ### FOLLOWING ###
@@ -89,6 +97,7 @@ urlpatterns = [
 
     path("posts/<uuid:post_uuid>/send-to-followers/", views.send_post_to_followers, name="send-to-followers"),
     path("inbox/", views.view_inbox, name="view-inbox"),
+    # path("api/authors/<uuid:author_uuid>/inbox", views.get_inbox, name="get-inbox"),
 
 
     ### LIKES ###
