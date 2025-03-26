@@ -8,11 +8,6 @@ html, body {
     text-align: center;
 }
 
-select, select option {
-    color: black; /* Ensures text inside the dropdown and options is black */
-    background-color: white; /* Ensures the background is white */
-}
-
 /* Centered Form Container */
 .create-post-container {
     width: 50%;

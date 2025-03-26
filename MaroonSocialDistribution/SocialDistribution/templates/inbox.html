@@ -17,7 +17,6 @@
                     <a href="{% url 'SocialDistribution:view-single-post' inbox_post.post.uuid %}">
                         {{ inbox_post.post.title }}
                     </a>
-                    <form method="post">
                         {% csrf_token %}
                         <section id="like-details">
                             <button class="like-post-button" data-post-uuid="{{ inbox_post.post.uuid }}">
@@ -29,7 +28,6 @@
                                 {{ inbox_post.post.likes.count }}
                             </span>
                         </section>
-                    </form>
                 </li>
             {% endfor %}
         </ul>

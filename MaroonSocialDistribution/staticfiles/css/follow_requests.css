@@ -1,0 +1,99 @@
+/* Base Styling */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #0D1117;
+    color: #ffffff;
+    text-align: center;
+}
+
+/* Page Title */
+h2 {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 40px auto 20px;
+}
+
+/* Back Link */
+a {
+    color: #FF7F50;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+a:hover {
+    color: #FF4500;
+    text-decoration: underline;
+}
+
+/* Request List Container */
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+/* Each Request Entry */
+li {
+    background: rgba(255, 255, 255, 0.1);
+    margin: 15px 0;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 2px 2px 10px rgba(255, 127, 80, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Sender Name */
+li span, li strong {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: white;
+    flex: 1;
+}
+
+/* Button Styles */
+form {
+    display: inline;
+}
+
+form button {
+    padding: 8px 12px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    color: white;
+}
+
+form button[type="submit"]:first-child {
+    background: linear-gradient(to right, #28a745, #218838); /* Green Accept */
+}
+
+form button[type="submit"]:first-child:hover {
+    background: #1e7e34;
+}
+
+form button[type="submit"]:last-child {
+    background: linear-gradient(to right, #FF7F50, #FF4500); /* Orange Reject */
+}
+
+form button[type="submit"]:last-child:hover {
+    background: #FF4500;
+}
+
+/* Empty Message */
+p {
+    margin-top: 40px;
+    font-size: 1.2em;
+    color: rgba(255, 255, 255, 0.8);
+}

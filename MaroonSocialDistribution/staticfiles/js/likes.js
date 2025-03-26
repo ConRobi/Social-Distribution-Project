@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.like-post-button').forEach(button => {
         button.addEventListener('click', function() {
-            // Get the post ID
-            const postId = this.getAttribute('data-post-id');  
+            // Get the post Uuid
+            const postUuid = this.getAttribute('data-post-uuid');  
 
             // Send the like request (using fetch)
-            fetch(`/post/${postId}/like_post/`, {
+            fetch(`/post/${postUuid}/like_post/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 // Update the likes count
-                document.getElementById('post-likes-count-' + postId).textContent = data.likes_count;
+                document.getElementById('post-likes-count-' + postUuid).textContent = data.likes_count;
             })
             .catch(error => {
                 console.error('Error:', error);
