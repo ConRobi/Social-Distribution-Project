@@ -3,18 +3,13 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
-    background-color: #0D1117; /* Dark background */
+    background-color: #0D1117;
     color: #ffffff;
     text-align: center;
 }
 
-select, select option {
-    color: black; /* Ensures text inside the dropdown and options is black */
-    background-color: white; /* Ensures the background is white */
-}
-
-/* Centered Form Container */
-.create-post-container {
+/* Container Layout */
+.edit-post-container {
     width: 50%;
     margin: 50px auto;
     padding: 30px;
@@ -22,7 +17,7 @@ select, select option {
     border-radius: 10px;
     box-shadow: 2px 2px 15px rgba(255, 127, 80, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px); /* Frosted Glass Effect */
+    backdrop-filter: blur(10px);
 }
 
 /* Page Title */
@@ -30,7 +25,6 @@ h2 {
     font-size: 2.2em;
     font-weight: bold;
     margin-bottom: 20px;
-    text-align: center;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -43,7 +37,19 @@ form {
     gap: 20px;
 }
 
-/* Input Fields */
+/* Labels */
+label {
+    font-size: 1.1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-top: 10px;
+    text-align: left;
+    width: 90%;
+}
+
+/* Inputs, Selects, Textareas */
 input, select, textarea {
     width: 90%;
     padding: 12px;
@@ -62,18 +68,17 @@ input::placeholder, textarea::placeholder {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* Focus Effect */
+/* Focus Effects */
 input:focus, select:focus, textarea:focus {
     background: rgba(255, 255, 255, 0.3);
     box-shadow: 0px 0px 8px rgba(255, 127, 80, 0.5);
     outline: none;
 }
 
-/* Select Dropdown */
-select {
-    cursor: pointer;
-    font-size: 1em;
-    text-align: center;
+/* Textarea Styling */
+textarea {
+    min-height: 120px;
+    resize: vertical;
 }
 
 /* File Upload Styling */
@@ -99,26 +104,8 @@ input[type="file"]::-webkit-file-upload-button:hover {
     background: #FF4500;
 }
 
-/* Labels */
-label {
-    font-size: 1.1em;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: block;
-    margin-top: 10px;
-    text-align: left;
-    width: 90%;
-}
-
-/* Textarea Resizing */
-textarea {
-    min-height: 120px;
-    resize: vertical;
-}
-
 /* Submit Button */
-button {
+button[type="submit"] {
     width: 90%;
     padding: 14px;
     border-radius: 8px;
@@ -134,21 +121,34 @@ button {
     text-transform: uppercase;
 }
 
-button:hover {
+button[type="submit"]:hover {
     background: #FF4500;
     box-shadow: 0px 0px 15px rgba(255, 127, 80, 0.5);
     transform: translateY(-2px);
 }
 
+/* Cancel Link */
+form a {
+    font-weight: bold;
+    color: #FF7F50;
+    margin-top: 10px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+form a:hover {
+    color: #FF4500;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
-    .create-post-container {
+    .edit-post-container {
         width: 70%;
     }
 }
 
 @media (max-width: 768px) {
-    .create-post-container {
+    .edit-post-container {
         width: 90%;
     }
 

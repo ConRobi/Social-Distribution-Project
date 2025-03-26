@@ -1,0 +1,57 @@
+/* General Styling */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #0D1117;
+    color: #ffffff;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Home Page Container */
+.home-page {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 127, 80, 0.25);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Headings */
+.home-page h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #FF7F50;
+    letter-spacing: 1px;
+}
+
+.home-page h2 {
+    font-size: 1.5em;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+
+/* Links (Login & Register) */
+.home-page a {
+    display: inline-block;
+    margin: 10px;
+    padding: 12px 25px;
+    background: linear-gradient(to right, #FF7F50, #FF4500);
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s ease-in-out, transform 0.2s;
+}
+
+.home-page a:hover {
+    background: #FF4500;
+    transform: translateY(-2px);
+}
