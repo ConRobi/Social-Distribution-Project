@@ -101,18 +101,19 @@
                                 <div class="post-actions">
                                     <a href="{% url 'SocialDistribution:view-single-post' post.uuid %}" class="view-post">View Post</a>
                                     {% if post.author == request.user %}
-                                        <a href="{% url 'SocialDistribution:delete_post' post.author.uuid post.uuid %}" class="delete-post">Delete</a>
-                                        <a href="{% url 'SocialDistribution:edit_post' post.author.uuid post.uuid %}" class="edit-post">Edit</a>
+                                        <a href="{% url 'SocialDistribution:delete-post' post.author.uuid post.uuid %}" class="delete-post">Delete</a>
+                                        <a href="{% url 'SocialDistribution:edit-post' post.author.uuid post.uuid %}" class="edit-post">Edit</a>
                                     {% endif %}
                                 </div>
 
                                 <!-- Liking a post -->
-                                    {% csrf_token %}
-                                    <section id="like-details">
+                                {% csrf_token %}
+                                <section id="like-details">
 
-                                        <button class="like-post-button" data-post-id="{{ post.uuid  }}">❤</button>
-                                        <span id="post-likes-count-{{ post.uuid }}">{{ post.likes.count }}</span>
-                                    </section>
+                                    <button class="like-post-button" data-post-uuid="{{ post.uuid  }}">❤</button>
+                                    <span id="post-likes-count-{{ post.uuid }}">{{ post.likes.count }}</span>
+                                </section>
+                                
                             </li>
                         {% endif %}
                     {% endfor %}

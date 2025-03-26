@@ -117,7 +117,7 @@ html, body {
 }
 
 /* Like Button */
-.stream-like-post-button {
+.like-post-button {
     width: 40px;
     height: 40px;
     font-size: 1.2em;
@@ -130,7 +130,7 @@ html, body {
     transition: background 0.3s ease-in-out;
 }
 
-.stream-like-post-button:hover {
+.like-post-button:hover {
     background: #FF4500;
 }
 

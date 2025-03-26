@@ -1,15 +1,17 @@
----
 services:
   maroonapp:
     image: maroonapp:latest
     build: ./MaroonSocialDistribution
     command: sh -c "python manage.py makemigrations && python manage.py migrate && gunicorn MaroonSocialDistribution.wsgi:application --bind 0.0.0.0:8000"
+
     ports:
       - "8000:8000"
     env_file:
       - .env
     depends_on:
       - postgres
+    networks:
+      - my_ipv6net
 
   postgres:
     image: postgres:15
@@ -17,6 +19,8 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - .env.db
+    networks:
+      - my_ipv6net
 
   caddy:
     image: caddy:latest
@@ -28,6 +32,14 @@ services:
       - maroonapp
     volumes:
       - ./MaroonSocialDistribution/Caddyfile:/etc/caddy/Caddyfile
-
+    networks:
+      - my_ipv6net
 volumes:
   postgres_data:
+
+networks:
+  my_ipv6net:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 2001:db8::/64

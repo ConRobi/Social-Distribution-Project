@@ -1,20 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Post</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Edit Post{% endblock %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/edit_post.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="edit-post-container">
     <h2>Edit Post</h2>
-    <form method="POST" action="{% url 'SocialDistribution:edit-post' author.uuid post.uuid %}" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" action="{% url 'SocialDistribution:edit-post' author.uuid post.uuid %}">
         {% csrf_token %}
-        
         <label for="title">Title:</label>
-        <input type="text" name="title" value="{{ post.title }}" required><br><br>
+        <input type="text" name="title" value="{{ post.title }}" required>
 
         <label for="description">Description:</label>
-        <input type="text" name="description" value="{{ post.description }}" required><br><br>
+        <input type="text" name="description" value="{{ post.description }}" required>
 
         <label for="contentType">Content Type:</label>
         <select name="contentType">
@@ -23,23 +25,23 @@
             <option value="image/png;base64" {% if post.contentType == "image/png;base64" %}selected{% endif %}>PNG Image</option>
             <option value="image/jpeg;base64" {% if post.contentType == "image/jpeg;base64" %}selected{% endif %}>JPEG Image</option>
             <option value="application/base64" {% if post.contentType == "application/base64" %}selected{% endif %}>Other Image</option>
-        </select><br><br>
+        </select>
 
         <label for="content">Content:</label>
-        <textarea name="content" required>{{ post.content }}</textarea><br><br>
+        <textarea name="content" required>{{ post.content }}</textarea>
 
         <label for="visibility">Visibility:</label>
         <select name="visibility">
             <option value="PUBLIC" {% if post.visibility == "PUBLIC" %}selected{% endif %}>Public</option>
             <option value="FRIENDS" {% if post.visibility == "FRIENDS" %}selected{% endif %}>Friends</option>
             <option value="UNLISTED" {% if post.visibility == "UNLISTED" %}selected{% endif %}>Unlisted</option>
-        </select><br><br>
+        </select>
 
         <label for="image">Upload New Image (Optional):</label>
-        <input type="file" name="image"><br><br>
+        <input type="file" name="image">
 
         <button type="submit">Save Changes</button>
         <a href="{% url 'SocialDistribution:view-profile' author.uuid %}">Cancel</a>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}
