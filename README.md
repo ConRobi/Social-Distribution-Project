@@ -34,4 +34,7 @@ From within the directory: `w25-project-maroon/MaroonSocialDistribution/`
 2. `python manage.py migrate`
 3. `python manage.py runserver`
 
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/18vkNgfz)
+## Images
+
+<img width="1283" height="922" alt="image" src="https://github.com/user-attachments/assets/44e81715-dcbe-4bf3-9380-4ff44f5a1893" />
+
